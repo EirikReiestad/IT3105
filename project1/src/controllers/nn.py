@@ -1,13 +1,12 @@
+import jax.numpy as jnp
+import jax
+import numpy as np
+import math
+from src.controllers.controller import Controller
 import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
-from src.controllers.controller import Controller
-import math
-import numpy as np
-import jax
-import jax.numpy as jnp
 
 
 class NNController(Controller):
@@ -34,7 +33,8 @@ class NNController(Controller):
         sender = self.layers[0]
         params = []
         for receiver in self.layers[1:]:
-            weights = np.random.uniform(self.min_val, self.max_val, (sender, receiver))
+            weights = np.random.uniform(
+                self.min_val, self.max_val, (sender, receiver))
             biases = np.random.uniform(self.min_val, self.max_val, (receiver))
             sender = receiver
             params.append([weights, biases])
@@ -49,8 +49,11 @@ class NNController(Controller):
             [error, error_change, sum_error]
         ).ravel()  # Flatten array
         for weights, biases in params:
-            activations = self.activation(jnp.dot(activations, weights) + biases)
-        return activations.item()  # Return scalar
+            activations = self.activation(
+                jnp.dot(activations, weights) + biases)
+
+        result = activations[0]  # Return a scalar
+        return result
 
     def update_params(self, params: dict, gradients):
         return [

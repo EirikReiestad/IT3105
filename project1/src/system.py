@@ -87,12 +87,10 @@ class System:
         ]  # TODO: do we need to use jnp.random instead? amount of timestep
         # (c) For each timestep:
         control_signal = 0
-        timestep = 0
         for j in range(self.params["sim_timesteps"]):
-            print("Timestep:", j)
-            timestep += 1
             # • Update the plant
-            state, output = self.plant.run_one_epoch(state, control_signal, noise[j])
+            state, output = self.plant.run_one_epoch(
+                state, control_signal, noise[j])
             error = self.target - output
             # • Update the controller
             control_signal = 0

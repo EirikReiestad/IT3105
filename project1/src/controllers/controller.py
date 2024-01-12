@@ -1,15 +1,12 @@
 class Controller:
     def __init__(self):
-        self.error_history = []
+        pass
 
     def initialize(self):
         pass
     
-    def add_error(self, error: float):
-        self.error_history.append(error)
-    
-    def run_one_epoch(self, state):
+    def calculate_control_signal(self, params: dict, error_list: list):
         pass
 
-    def calculate_control_signal(self, error: float):
+    def update_params(self, params, gradients):
         pass

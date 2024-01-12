@@ -1,19 +1,23 @@
-class Controller:
+from controller import Controller
+
+class PIDController(Controller):
     def __init__(self):
-        self.error_history = []
+        pass
 
-    def add_error(self, error: float):
-        self.error_history.append(error)
+    def initialize(self, k_p=0.1, k_d=0.1, k_i=0.3):
+        '''
+        Initialize the controller.
 
+        Parameters:
+            
+        '''
+        return {
+            'k_p':k_p,
+            'k_d':k_d,
+            'k_i':k_i
+        }
 
-class PID(Controller):
-    def __init__(self, Kp: float, Ki: float, Kd: float):
-        self.Kp = Kp
-        self.Ki = Ki
-        self.Kd = Kd
-        return self
-
-    def run_one_step(self, error: float) -> float:
+    def run_one_epoch(self, error: float) -> float:
         '''
         Run one step of the PID controller.
         Parameters:
@@ -26,7 +30,7 @@ class PID(Controller):
         '''
         return self._calculate_control_signal(error)
 
-    def _calculate_control_signal(self, error: float) -> float:
+    def calculate_control_signal(self, error: float) -> float:
         '''
         Calculate the control signal for the PID controller.
         Formula: U = Kp * E + Kd(dE/dt) + Ki * Sum(E)

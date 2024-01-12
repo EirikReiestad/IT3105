@@ -13,13 +13,13 @@ import jax.numpy as jnp
 class NNController(Controller):
     def __init__(
         self,
-        layers: list,
+        hidden_layers: list,
         activation_func,
         max_val: float,
         min_val: float,
         learning_rate: float,
     ):
-        self.layers = layers
+        self.layers = hidden_layers
         self.activation_func = activation_func
         self.max_val = max_val
         self.min_val = min_val
@@ -45,12 +45,14 @@ class NNController(Controller):
         error_change = error_list[-1] - error_list[-2] / dx
         sum_error = sum(error_list)
 
-        activations = [error, error_change, sum_error]
+        activations = jnp.array(
+            [error, error_change, sum_error]
+        ).ravel()  # Flatten array
         for weights, biases in params:
-            activations = self.sigmoid(jnp.dot(activations, weights) + biases)
-        return activations
+            activations = self.activation(jnp.dot(activations, weights) + biases)
+        return activations.item()  # Return scalar
 
-    def update_params(self, params, gradients):
+    def update_params(self, params: dict, gradients):
         return [
             (
                 weight - self.learning_rate * weight_gradient,

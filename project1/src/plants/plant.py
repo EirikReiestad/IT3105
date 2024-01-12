@@ -1,19 +1,20 @@
-'''
+"""
 Plant: The plant is any system whose behavior the controller will try to regulate.
-'''
+"""
+
 
 class Plant:
     def __init__(self):
         pass
-    
+
     def reset(self):
-        '''
+        """
         Reset the plant to its initial state.
-        '''
+        """
         pass
 
     def run_one_epoch(self, state: dict, control_signal: float, noise: float) -> dict:
-        '''
+        """
         Run one step of the PID controller.
 
         Parameters:
@@ -23,7 +24,5 @@ class Plant:
 
         Returns:
             state (dict): The state of the system.
-        '''
+        """
         pass
-
-    

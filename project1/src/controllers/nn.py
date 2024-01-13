@@ -25,6 +25,9 @@ class NNController(Controller):
         self.learning_rate = learning_rate
 
     def initialize(self) -> dict:
+        """
+        Initialize the params of the neural network
+        """
         # Initialize input and output layer because for this plant it is fixed
         self.layers.insert(0, 3)
         self.layers.append(1)
@@ -43,6 +46,9 @@ class NNController(Controller):
         return params
 
     def calculate_control_signal(self, params, error_list: list, dx=1.0) -> float:
+        """
+        Calculate the control signal
+        """
         error = error_list[-1]
         error_change = (error_list[-1] - error_list[-2]) / dx
         sum_error = sum(error_list)
@@ -59,6 +65,9 @@ class NNController(Controller):
         return result
 
     def update_params(self, params: dict, gradients):
+        """
+        Update the network's weights and biases
+        """
         return [
             (
                 weight - self.learning_rate * weight_gradient,
@@ -70,6 +79,9 @@ class NNController(Controller):
         ]
 
     def activation(self, layer, val):
+        '''
+        Choose activation function based on layer's configuration
+        '''
         if self.activation_func[layer] == 0:
             return self.sigmoid(val)
         elif self.activation_func[layer] == 1:
@@ -79,10 +91,19 @@ class NNController(Controller):
         return None
 
     def sigmoid(self, val):
+        """
+        Calculate the sigmoid value
+        """
         return 1 / (1 + math.e ** (-val))
 
     def tanh(self, val):
+        """
+        Calculate the tanh value
+        """
         return jnp.tanh(val)
 
     def relu(self, val):
+        """
+        Calculate the max of the value and 0
+        """
         return jnp.maximum(0, val)

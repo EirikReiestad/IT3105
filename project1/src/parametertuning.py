@@ -36,11 +36,14 @@ def tune(system_params, tuning_params):
     best_params = None
     lowest_mse = np.inf
 
-    for params in param_space:
+    total_iterations = len(param_space)
+
+    for i, params in enumerate(param_space):
         parameters = system_params
         (hidden_layers, activation_func, epochs,
             sim_timesteps, learning_rate) = params
-        print("\n===== Running with parameters: =====")
+        print(
+            f"\n===== Running with parameters ({i}/{total_iterations}): =====")
         print("Hidden Layers: ", hidden_layers)
         print("Activation Function: ", activation_func)
         print("Epochs: ", epochs)
@@ -59,7 +62,7 @@ def tune(system_params, tuning_params):
 
         if mse[-1] < lowest_mse:
             lowest_mse = mse[-1]
-            best_params = param_space
+            best_params = params
 
     print("\n===== Best Parameters: =====")
     print("Hidden Layers: ", best_params[0])

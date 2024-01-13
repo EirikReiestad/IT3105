@@ -1,9 +1,9 @@
+from src.system import System
 import os
 import sys
 import configparser
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src.system import System
 
 if __name__ == "__main__":
     config_path = "parameters.conf"
@@ -14,13 +14,15 @@ if __name__ == "__main__":
 
     for k, v in parameters.items():
         try:
-            parameters[k] = int(v)
+            parameters[k] = eval(v)
         except ValueError:
             try:
-                parameters[k] = float(v)
+                parameters[k] = int(v)
             except ValueError:
-                pass
-
+                try:
+                    parameters[k] = float(v)
+                except ValueError:
+                    pass
 
     system = System(parameters)
     system.run()

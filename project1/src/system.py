@@ -23,7 +23,7 @@ class System:
                     self.params["learning_rate"])
         elif self.params["controller"] == 1:
             self.controller = nn.NNController(
-                eval(self.params["hidden_layers"]),
+                self.params["hidden_layers"],
                 self.params["activation_func"],
                 self.params["max_val"],
                 self.params["min_val"],

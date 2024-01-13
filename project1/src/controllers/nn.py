@@ -42,12 +42,13 @@ class NNController(Controller):
 
     def calculate_control_signal(self, params, error_list: list, dx=1.0) -> float:
         error = error_list[-1]
-        error_change = error_list[-1] - error_list[-2] / dx
+        error_change = (error_list[-1] - error_list[-2]) / dx
         sum_error = sum(error_list)
 
         activations = jnp.array(
             [error, error_change, sum_error]
         ).ravel()  # Flatten array
+
         for weights, biases in params:
             activations = self.activation(
                 jnp.dot(activations, weights) + biases)

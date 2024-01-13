@@ -28,6 +28,8 @@ class NNController(Controller):
         # Initialize input and output layer because for this plant it is fixed
         self.layers.insert(0, 3)
         self.layers.append(1)
+        self.activation_func.insert(0, self.activation_func[0])
+        self.activation_func.append(self.activation_func[-1])
 
         # Initialize weights and biases
         sender = self.layers[0]
@@ -50,8 +52,8 @@ class NNController(Controller):
         ).ravel()  # Flatten array
 
         for i, (weights, biases) in enumerate(params):
-            activations = self.activation(i,
-                jnp.dot(activations, weights) + biases)
+            activations = self.activation(
+                i, jnp.dot(activations, weights) + biases)
 
         result = activations[0]  # Return a scalar
         return result
@@ -67,12 +69,12 @@ class NNController(Controller):
             )
         ]
 
-    def activation(self, val):
-        if self.activation_func == 0:
+    def activation(self, layer, val):
+        if self.activation_func[layer] == 0:
             return self.sigmoid(val)
-        elif self.activation_func == 1:
+        elif self.activation_func[layer] == 1:
             return self.tanh(val)
-        elif self.activation_func == 2:
+        elif self.activation_func[layer] == 2:
             return self.relu(val)
         return None
 
@@ -83,4 +85,4 @@ class NNController(Controller):
         return jnp.tanh(val)
 
     def relu(self, val):
-        return max(0, val)
+        return jnp.maximum(0, val)

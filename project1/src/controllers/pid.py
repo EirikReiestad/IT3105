@@ -1,22 +1,25 @@
+from src.controllers.controller import Controller
 import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src.controllers.controller import Controller
 
 
 class PIDController(Controller):
-    def __init__(self, learning_rate):
+    def __init__(self, learning_rate, k_p=0.5, k_d=0.5, k_i=0.3):
         self.learning_rate = learning_rate
+        self.k_p = k_p
+        self.k_d = k_d
+        self.k_i = k_i
 
-    def initialize(self, k_p=0.5, k_d=0.5, k_i=0.3):
+    def initialize(self):
         """
         Initialize the controller.
 
         Parameters:
 
         """
-        return {"k_p": k_p, "k_d": k_d, "k_i": k_i}
+        return {"k_p": self.k_p, "k_d": self.k_d, "k_i": self.k_i}
 
     def calculate_control_signal(self, params, error_list: list, dx=1.0) -> float:
         """

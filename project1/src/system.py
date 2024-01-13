@@ -8,16 +8,19 @@ import matplotlib.pyplot as plt
 
 
 class System:
-    def __init__(self, parameters) -> None:
+    def __init__(self, parameters, visualize: bool) -> None:
         self.params = parameters
+        self.visualize = visualize
 
         self.controller = None
         if self.params["controller"] == 0:
             if len(self.params["pid"]) == 3:
                 p, i, d = self.params["pid"]
-                self.controller = pid.PIDController(self.params["learning_rate"], p, i, d)
+                self.controller = pid.PIDController(
+                    self.params["learning_rate"], p, i, d)
             else:
-                self.controller = pid.PIDController(self.params["learning_rate"])
+                self.controller = pid.PIDController(
+                    self.params["learning_rate"])
         elif self.params["controller"] == 1:
             self.controller = nn.NNController(
                 eval(self.params["hidden_layers"]),
@@ -58,7 +61,6 @@ class System:
 
         # 2. For each epoch:
         for i in range(self.params["epochs"]):
-            print("Epoch:", i)
             # (e) Compute the gradients: ∂(MSE)/∂Ω
             mse, gradients = gradfunc(params)
             self.mse_history.append(mse)
@@ -66,7 +68,10 @@ class System:
             params = self.controller.update_params(params, gradients)
             if self.params["controller"] == 0:
                 self.params_history.append(params)
-        self.visualize()
+        if self.visualize:
+            self.visualize()
+
+        return self.mse_history
 
     def run_one_epoch(self, params):
         # (a) Initialize any other controller variables, such as the error history, and reset the plant to its initial state.

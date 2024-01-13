@@ -9,7 +9,7 @@ class PIDController(Controller):
     def __init__(self, learning_rate):
         self.learning_rate = learning_rate
 
-    def initialize(self, k_p=0.1, k_d=0.1, k_i=0.3):
+    def initialize(self, k_p=0.5, k_d=0.5, k_i=0.3):
         """
         Initialize the controller.
 

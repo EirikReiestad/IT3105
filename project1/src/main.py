@@ -1,9 +1,26 @@
 import os
 import sys
+import configparser
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from src.system import System
 
 if __name__ == "__main__":
-    system = System("parameters.conf")
+    config_path = "parameters.conf"
+
+    config = configparser.RawConfigParser()
+    config.read(config_path)
+    parameters = dict(config.items("DEFAULT"))
+
+    for k, v in parameters.items():
+        try:
+            parameters[k] = int(v)
+        except ValueError:
+            try:
+                parameters[k] = float(v)
+            except ValueError:
+                pass
+
+
+    system = System(parameters)
     system.run()

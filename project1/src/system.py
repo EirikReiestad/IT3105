@@ -8,25 +8,16 @@ import matplotlib.pyplot as plt
 
 
 class System:
-    def __init__(self, config_path: str) -> None:
-        config = configparser.RawConfigParser()
-        config.read(config_path)
-        parameters = dict(config.items("DEFAULT"))
-
-        for k, v in parameters.items():
-            try:
-                parameters[k] = int(v)
-            except ValueError:
-                try:
-                    parameters[k] = float(v)
-                except ValueError:
-                    pass
-
+    def __init__(self, parameters) -> None:
         self.params = parameters
 
         self.controller = None
         if self.params["controller"] == 0:
-            self.controller = pid.PIDController(self.params["learning_rate"])
+            if len(self.params["pid"]) == 3:
+                p, i, d = self.params["pid"]
+                self.controller = pid.PIDController(self.params["learning_rate"], p, i, d)
+            else:
+                self.controller = pid.PIDController(self.params["learning_rate"])
         elif self.params["controller"] == 1:
             self.controller = nn.NNController(
                 eval(self.params["hidden_layers"]),
@@ -50,7 +41,8 @@ class System:
             )
             self.target = self.params["goal_profit"]
         elif self.params["plant"] == 2:
-            self.plant = plant3.Plant3()
+            self.plant = plant3.Plant3(self.params['init_population'])
+            self.target = self.params['target_population']
 
         # PLANT
 

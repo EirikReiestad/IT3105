@@ -49,8 +49,8 @@ class NNController(Controller):
             [error, error_change, sum_error]
         ).ravel()  # Flatten array
 
-        for weights, biases in params:
-            activations = self.activation(
+        for i, (weights, biases) in enumerate(params):
+            activations = self.activation(i,
                 jnp.dot(activations, weights) + biases)
 
         result = activations[0]  # Return a scalar
@@ -80,7 +80,7 @@ class NNController(Controller):
         return 1 / (1 + math.e ** (-val))
 
     def tanh(self, val):
-        return math.tanh(val)
+        return jnp.tanh(val)
 
     def relu(self, val):
         return max(0, val)

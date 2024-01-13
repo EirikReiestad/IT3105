@@ -1,39 +1,49 @@
-import os
 import sys
+import os
 import configparser
 import numpy as np
 from itertools import product
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src.system import System
+
 
 def tune(system_params, tuning_params):
-    print(tuning_params)
+    print("===== Running Parameter Tuning =====")
     hidden_layers = [[i, j] for i in range(
-        tuning_params["hidden_layers"]["min"], 
-        tuning_params["hidden_layers"]["max"] + 1)
+        tuning_params["hidden_layers"][0],
+        tuning_params["hidden_layers"][1] + 1)
         for j in range(
-            tuning_params["hidden_layers"]["min_num_neurons"], 
-            tuning_params["hidden_layers"]["max_num_neurons"] + 1)]
+            tuning_params["hidden_layers"][2],
+            tuning_params["hidden_layers"][3] + 1)]
     activation_func = tuning_params["activation_func"]
-    epochs = list(np.linespace(tuning_params["epochs"]["min"], 
-                        tuning_params["epochs"]["max"] + 1, 
-                        tuning_params["epochs"]["iterations"], 
-                        dtype=int))
-    sim_timesteps= list(np.linespace(tuning_params["sim_timesteps"]["min"], 
-                        tuning_params["sim_timesteps"]["max"] + 1, 
-                        tuning_params["sim_timesteps"]["iterations"], 
-                        dtype=int))
-    learning_rate = list(np.linespace(tuning_params["learning_rate"]["min"], 
-                        tuning_params["learning_rate"]["max"] + 1, 
-                        tuning_params["learning_rate"]["iterations"]))
+    epochs = list(np.linspace(tuning_params["epochs"][0],
+                              tuning_params["epochs"][1],
+                              tuning_params["epochs"][2],
+                              dtype=int))
+    sim_timesteps = list(
+        np.linspace(tuning_params["sim_timesteps"][0],
+                    tuning_params["sim_timesteps"][1],
+                    tuning_params["sim_timesteps"][2],
+                    dtype=int))
+    learning_rate = list(
+        np.linspace(tuning_params["learning_rate"][0],
+                    tuning_params["learning_rate"][1],
+                    tuning_params["learning_rate"][2]))
 
-    param_space = list(product(hidden_layers, activation_func, epochs, sim_timesteps, learning_rate))
+    param_space = list(product(hidden_layers, activation_func,
+                       epochs, sim_timesteps, learning_rate))
 
-    for params in param_space:
-        parameters = system_params.clone()
-        hidden_layers, activation_func, epochs, sim_timesteps, learning_rate = params
-        print("===== Running with parameters: =====")
+    best_params = None
+    lowest_mse = np.inf
+
+    total_iterations = len(param_space)
+
+    for i, params in enumerate(param_space):
+        parameters = system_params
+        (hidden_layers, activation_func, epochs,
+            sim_timesteps, learning_rate) = params
+        print(
+            f"\n===== Running with parameters ({i}/{total_iterations}): =====")
         print("Hidden Layers: ", hidden_layers)
         print("Activation Function: ", activation_func)
         print("Epochs: ", epochs)
@@ -46,8 +56,23 @@ def tune(system_params, tuning_params):
         parameters["sim_timesteps"] = sim_timesteps
         parameters["learning_rate"] = learning_rate
 
-        system = System(parameters)
-        system.run()
+        system = System(parameters, visualize=False)
+        mse = system.run()
+        print("MSE: ", mse[-1])
+
+        if mse[-1] < lowest_mse:
+            lowest_mse = mse[-1]
+            best_params = params
+
+    print("\n===== Best Parameters: =====")
+    print("Hidden Layers: ", best_params[0])
+    print("Activation Function: ", best_params[1])
+    print("Epochs: ", best_params[2])
+    print("Simulation Timesteps: ", best_params[3])
+    print("Learning Rate: ", best_params[4])
+    print("MSE: ", lowest_mse)
+    return best_params
+
 
 def read_configuration(config_path) -> dict:
     config = configparser.RawConfigParser()
@@ -56,15 +81,20 @@ def read_configuration(config_path) -> dict:
 
     for k, v in parameters.items():
         try:
-            parameters[k] = int(v)
+            parameters[k] = eval(v)
         except ValueError:
             try:
-                parameters[k] = float(v)
+                parameters[k] = int(v)
             except ValueError:
-                pass
+                try:
+                    parameters[k] = float(v)
+                except ValueError:
+                    pass
     return parameters
 
+
 if __name__ == "__main__":
+    from src.system import System
     parameters_conf = read_configuration("parameters.conf")
     parametertuning_conf = read_configuration("parametertuning.conf")
 

@@ -56,11 +56,14 @@ class System:
         # 1. Initialize the controller’s parameters (Ω): the three k values
         # for a standard PID controller and the
         # weights and biases for a neural-net-based controller.
+        print(f"Running {self.params['epochs']} epochs")
+        print("##############################")
         params = self.controller.initialize()
         gradfunc = jax.value_and_grad(self.run_one_epoch, argnums=0)
 
         # 2. For each epoch:
         for i in range(self.params["epochs"]):
+            print(f'Epoch: {i}')
             # (e) Compute the gradients: ∂(MSE)/∂Ω
             mse, gradients = gradfunc(params)
             self.mse_history.append(mse)

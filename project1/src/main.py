@@ -1,4 +1,4 @@
-from src.system import System
+from system import System
 import os
 import sys
 import configparser
@@ -24,5 +24,5 @@ if __name__ == "__main__":
                 except ValueError:
                     pass
 
-    system = System(parameters)
+    system = System(parameters, True)
     system.run()

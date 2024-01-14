@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 class System:
-    def __init__(self, parameters, visualize: bool) -> None:
+    def __init__(self, parameters, visualize: bool=False) -> None:
         self.params = parameters
         self.visualize = visualize
 
@@ -17,7 +17,7 @@ class System:
             if len(self.params["pid"]) == 3:
                 p, i, d = self.params["pid"]
                 self.controller = pid.PIDController(
-                    self.params["learning_rate"], p, i, d)
+                    self.params["learning_rate"], p, d, i)
             else:
                 self.controller = pid.PIDController(
                     self.params["learning_rate"])
@@ -69,7 +69,7 @@ class System:
             if self.params["controller"] == 0:
                 self.params_history.append(params)
         if self.visualize:
-            self.visualize()
+            self.visualize_training()
 
         return self.mse_history
 
@@ -106,7 +106,10 @@ class System:
     def mse(self, errors):
         return jnp.mean(jnp.square(jnp.array(errors)))
 
-    def visualize(self):
+    def visualize_training(self):
+        '''
+        Visualize the error (MSEs) and PID parameters
+        '''
         _, axis = plt.subplots(1, 2)
 
         axis[0].plot(self.mse_history)

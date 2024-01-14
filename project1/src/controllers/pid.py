@@ -1,4 +1,4 @@
-from src.controllers.controller import Controller
+from controllers.controller import Controller
 import os
 import sys
 

@@ -15,7 +15,7 @@ class System:
         self.controller = None
         if self.params["controller"] == 0:
             if len(self.params["pid"]) == 3:
-                p, i, d = self.params["pid"]
+                p, d, i = self.params["pid"]
                 self.controller = pid.PIDController(
                     self.params["learning_rate"], p, d, i)
             else:

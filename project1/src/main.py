@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     config = configparser.RawConfigParser()
     config.read(config_path)
-    parameters = dict(config.items("DEFAULT"))
+    parameters = dict(config.items("PLANT3"))
 
     for k, v in parameters.items():
         try:

@@ -66,7 +66,6 @@ class System:
             # print(f'Epoch: {i}')
             # (e) Compute the gradients: ∂(MSE)/∂Ω
             mse, gradients = gradfunc(params)
-            print(gradients)
             self.mse_history.append(mse)
             # (f) Update Ω based on the gradients.
             params = self.controller.update_params(params, gradients)
@@ -89,7 +88,6 @@ class System:
         # (c) For each timestep:
         control_signal = 0
         for j in range(self.params["sim_timesteps"]):
-            print(control_signal)
             # • Update the plant
             state, output = self.plant.run_one_epoch(
                 state, control_signal, noise[j])
@@ -103,7 +101,6 @@ class System:
                     params, error_history
                 )
                 # control_signal = jax_type_to_python_type(control_signal)
-
             # • Save the error (E) for this timestep in an error history.
         # (d) Compute MSE over the error history.
         mse = self.mse(error_history)

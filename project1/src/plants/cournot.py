@@ -18,7 +18,6 @@ class Cournot(Plant):
         """
         Update the plant's state based on the given control signal and noise
         """
-        print(control_signal)
         state = state.copy()
         # 1. q1 updates based on U.
         state["q1"] = control_signal + state["q1"]

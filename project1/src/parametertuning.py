@@ -15,10 +15,11 @@ def tune(system_params, tuning_params):
         for j in range(
             tuning_params["hidden_layers"][2],
             tuning_params["hidden_layers"][3] + 1)]
-    activation_func = list(list(np.linspace(tuning_params["activation_func"][0],
-                                            tuning_params["activation_func"][1],
-                                            tuning_params["activation_func"][2],
-                                            dtype=int)) for i in range(len(hidden_layers)))
+    # activation_func = list(list(np.linspace(tuning_params["activation_func"][0],
+    # tuning_params["activation_func"][1],
+    # tuning_params["activation_func"][2],
+    # dtype=int)) for i in range(len(hidden_layers)))
+    activation_func = tuning_params["activation_func"]
     epochs = list(np.linspace(tuning_params["epochs"][0],
                               tuning_params["epochs"][1],
                               tuning_params["epochs"][2],
@@ -41,10 +42,24 @@ def tune(system_params, tuning_params):
 
     total_iterations = len(param_space)
 
+    one_percent = total_iterations // 100
+
     for i, params in enumerate(param_space):
+        if i % one_percent == 0:
+            print(f"{i}/{total_iterations} iterations done")
         parameters = system_params.copy()
         (hidden_layers, activation_func, epochs,
             sim_timesteps, learning_rate) = params
+
+        system = System(parameters, visualize=False)
+        mse = system.run()
+
+        if mse[-1] > lowest_mse:
+            continue
+
+        lowest_mse = mse[-1]
+        best_params = params
+
         print(
             f"\n===== Running with parameters ({i}/{total_iterations}): =====")
         print("Hidden Layers: ", hidden_layers)
@@ -52,20 +67,13 @@ def tune(system_params, tuning_params):
         print("Epochs: ", epochs)
         print("Simulation Timesteps: ", sim_timesteps)
         print("Learning Rate: ", learning_rate)
+        print("MSE: ", lowest_mse)
 
         parameters["hidden_layers"] = hidden_layers
         parameters["activation_func"] = activation_func
         parameters["epochs"] = epochs
         parameters["sim_timesteps"] = sim_timesteps
         parameters["learning_rate"] = learning_rate
-
-        system = System(parameters, visualize=False)
-        mse = system.run()
-        print("MSE: ", sum(mse))
-
-        if sum(mse) < lowest_mse:
-            lowest_mse = sum(mse)
-            best_params = params
 
     print("\n===== Best Parameters: =====")
     print("Hidden Layers: ", best_params[0])

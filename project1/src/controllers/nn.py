@@ -24,6 +24,12 @@ class NNController(Controller):
         self.min_val = min_val
         self.learning_rate = learning_rate
 
+        if len(self.layers) != len(self.activation_func):
+            raise ValueError(
+                "Number of hidden layers and activation functions must be the same: {} is not {}".format(
+                    len(self.layers), len(self.activation_func))
+            )
+
     def initialize(self) -> dict:
         """
         Initialize the params of the neural network
@@ -88,6 +94,8 @@ class NNController(Controller):
             return self.tanh(val)
         elif self.activation_func[layer] == 2:
             return self.relu(val)
+        elif self.activation_func[layer] == 3:
+            return self.linear(val)
         return None
 
     def sigmoid(self, val):
@@ -107,3 +115,9 @@ class NNController(Controller):
         Calculate the max of the value and 0
         """
         return jnp.maximum(0, val)
+
+    def linear(self, val):
+        """
+        Calculate the linear value
+        """
+        return val

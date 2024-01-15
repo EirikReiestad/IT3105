@@ -2,6 +2,7 @@ import jaxlib.xla_extension as xla_ext
 import jax._src.interpreters.ad as ad
 
 
+# Note: This will break code (gradient) if used in a jax function
 def jax_type_to_python_type(value) -> float:
     if isinstance(value, float):
         pass

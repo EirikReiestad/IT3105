@@ -53,8 +53,6 @@ class NNController(Controller):
                 key, minval=self.min_val, maxval=self.max_val, shape=(receiver,))
             sender = receiver
             params.append((weights, biases))
-        print(params)
-        params = jnp.array(params)
         return params
 
     def calculate_control_signal(self, params, error_list: list, dx=1.0) -> float:

@@ -66,7 +66,6 @@ class System:
             # print(f'Epoch: {i}')
             # (e) Compute the gradients: ∂(MSE)/∂Ω
             mse, gradients = gradfunc(params)
-            print(gradients)
             self.mse_history.append(mse)
             # (f) Update Ω based on the gradients.
             params = self.controller.update_params(params, gradients)

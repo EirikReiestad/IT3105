@@ -37,8 +37,10 @@ class NNController(Controller):
         # Initialize input and output layer because for this plant it is fixed
         self.layers.insert(0, 3)
         self.layers.append(1)
+        self.layers = jnp.array(self.layers)
         self.activation_func.insert(0, self.activation_func[0])
         self.activation_func.append(self.activation_func[-1])
+        self.activation_func = jnp.array(self.activation_func)
 
         # Initialize weights and biases
         sender = self.layers[0]
@@ -50,7 +52,9 @@ class NNController(Controller):
             biases = jax.random.uniform(
                 key, minval=self.min_val, maxval=self.max_val, shape=(receiver,))
             sender = receiver
-            params.append([weights, biases])
+            params.append((weights, biases))
+        print(params)
+        params = jnp.array(params)
         return params
 
     def calculate_control_signal(self, params, error_list: list, dx=1.0) -> float:

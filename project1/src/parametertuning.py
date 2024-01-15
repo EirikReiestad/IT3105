@@ -16,9 +16,9 @@ def tune(system_params, tuning_params):
             tuning_params["hidden_layers"][2],
             tuning_params["hidden_layers"][3] + 1)]
     activation_func = list(list(np.linspace(tuning_params["activation_func"][0],
-                              tuning_params["activation_func"][1],
-                              tuning_params["activation_func"][2],
-                              dtype=int)) for i in range(len(hidden_layers)))
+                                            tuning_params["activation_func"][1],
+                                            tuning_params["activation_func"][2],
+                                            dtype=int)) for i in range(len(hidden_layers)))
     epochs = list(np.linspace(tuning_params["epochs"][0],
                               tuning_params["epochs"][1],
                               tuning_params["epochs"][2],
@@ -42,9 +42,9 @@ def tune(system_params, tuning_params):
     total_iterations = len(param_space)
 
     for i, params in enumerate(param_space):
-        parameters = system_params
+        parameters = system_params.copy()
         (hidden_layers, activation_func, epochs,
-            sim_timesteps, learning_rate) = params
+            sim_timesteps, learning_rate) = params.clone()
         print(
             f"\n===== Running with parameters ({i}/{total_iterations}): =====")
         print("Hidden Layers: ", hidden_layers)

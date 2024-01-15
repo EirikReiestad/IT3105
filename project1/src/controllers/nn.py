@@ -5,7 +5,6 @@ import math
 from controllers.controller import Controller
 import os
 import sys
-from lib import jax_type_to_python_type
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -45,9 +44,11 @@ class NNController(Controller):
         sender = self.layers[0]
         params = []
         for receiver in self.layers[1:]:
+            key = jax.random.PRNGKey(0)
             weights = jax.random.uniform(
-                self.min_val, self.max_val, (sender, receiver))
-            biases = jax.random.uniform(self.min_val, self.max_val, (receiver))
+                key, minval=self.min_val, maxval=self.max_val, shape=(sender, receiver))
+            biases = jax.random.uniform(
+                key, minval=self.min_val, maxval=self.max_val, shape=(receiver,))
             sender = receiver
             params.append([weights, biases])
         return params
@@ -68,9 +69,7 @@ class NNController(Controller):
             activations = self.activation(
                 i, jnp.dot(activations, weights) + biases)
 
-        result = jax_type_to_python_type(activations)
-
-        return result[0]
+        return activations[0]
 
     def update_params(self, params: dict, gradients):
         """
@@ -104,7 +103,7 @@ class NNController(Controller):
         """
         Calculate the sigmoid value
         """
-        return 1 / (1 + math.e ** (-val))
+        return 1 / (1 + jnp.exp ** (-val))
 
     def tanh(self, val):
         """

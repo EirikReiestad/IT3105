@@ -1,10 +1,10 @@
-import configparser
 from controllers import nn, pid
 from plants import bathtub, cournot, plant3
 import jax.numpy as jnp
 import jax
 import random
 import matplotlib.pyplot as plt
+from lib import jax_type_to_python_type
 
 
 class System:
@@ -101,6 +101,7 @@ class System:
                 control_signal = self.controller.calculate_control_signal(
                     params, error_history
                 )
+                control_signal = jax_type_to_python_type(control_signal)
 
             # • Save the error (E) for this timestep in an error history.
         # (d) Compute MSE over the error history.

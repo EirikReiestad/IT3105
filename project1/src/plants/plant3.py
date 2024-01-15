@@ -1,5 +1,6 @@
 from plants.plant import Plant
 
+
 class Plant3(Plant):
     def __init__(self, init_population):
         self.init_population = init_population
@@ -11,8 +12,8 @@ class Plant3(Plant):
         k: Growth rate
         """
         return {
-            'P':self.init_population,
-            'k':0
+            'P': self.init_population,
+            'k': 0
         }
 
     def run_one_epoch(self, state: dict, control_signal: float, noise: float) -> dict:

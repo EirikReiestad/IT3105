@@ -1,5 +1,4 @@
 from plants.plant import Plant
-from lib import jax_type_to_python_type
 
 
 class Cournot(Plant):
@@ -33,7 +32,5 @@ class Cournot(Plant):
         # 4. p(q) = pmax − q
         price = self.max_price - q
         price_1 = state["q1"] * (price - self.marginal_cost)
-
-        price_1 = jax_type_to_python_type(price_1)
 
         return state, price_1

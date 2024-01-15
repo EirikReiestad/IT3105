@@ -1,6 +1,5 @@
 import jax.numpy as jnp
 from plants.plant import Plant
-from lib import jax_type_to_python_type
 import os
 import sys
 
@@ -31,7 +30,5 @@ class Bathtub(Plant):
         flow_rate = volume * self.cross_section_drain
         volume_change = control_signal + noise - flow_rate
         water_height += volume_change / self.cross_section_area
-
-        water_height = jax_type_to_python_type(water_height)
 
         return {"water_height": water_height}, water_height

@@ -44,7 +44,7 @@ def tune(system_params, tuning_params):
     for i, params in enumerate(param_space):
         parameters = system_params.copy()
         (hidden_layers, activation_func, epochs,
-            sim_timesteps, learning_rate) = params.clone()
+            sim_timesteps, learning_rate) = params
         print(
             f"\n===== Running with parameters ({i}/{total_iterations}): =====")
         print("Hidden Layers: ", hidden_layers)

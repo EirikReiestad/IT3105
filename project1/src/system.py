@@ -66,13 +66,14 @@ class System:
             # print(f'Epoch: {i}')
             # (e) Compute the gradients: ∂(MSE)/∂Ω
             mse, gradients = gradfunc(params)
+            print(gradients)
             self.mse_history.append(mse)
             # (f) Update Ω based on the gradients.
             params = self.controller.update_params(params, gradients)
             if self.params["controller"] == 0:
                 self.params_history.append(params)
-        if self.visualize:
-            self.visualize_training()
+            if self.visualize:
+                self.visualize_training()
 
         return self.mse_history
 
@@ -93,9 +94,9 @@ class System:
                 state, control_signal, noise[j])
             error = self.target - output
             # • Update the controller
-            control_signal = 0
             error_history.append(error)
 
+            control_signal = 0
             if len(error_history) > 1:
                 control_signal = self.controller.calculate_control_signal(
                     params, error_history

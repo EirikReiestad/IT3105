@@ -1,4 +1,5 @@
 from plants.plant import Plant
+from lib import jax_type_to_python_type
 
 
 class Cournot(Plant):
@@ -14,9 +15,9 @@ class Cournot(Plant):
         """
         return {"q1": 0, "q2": 0}
 
-    def run_one_epoch(self, state: dict, control_signal: float, noise: float) -> dict:
+    def run_one_epoch(self, state: dict, control_signal: float, noise: float) -> (dict, float):
         """
-        Update the plant's state based on the given control signal and noise 
+        Update the plant's state based on the given control signal and noise
         """
         state = state.copy()
         # 1. q1 updates based on U.
@@ -32,4 +33,7 @@ class Cournot(Plant):
         # 4. p(q) = pmax − q
         price = self.max_price - q
         price_1 = state["q1"] * (price - self.marginal_cost)
+
+        price_1 = jax_type_to_python_type(price_1)
+
         return state, price_1

@@ -5,6 +5,7 @@ import math
 from controllers.controller import Controller
 import os
 import sys
+from lib import jax_type_to_python_type
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -44,9 +45,9 @@ class NNController(Controller):
         sender = self.layers[0]
         params = []
         for receiver in self.layers[1:]:
-            weights = np.random.uniform(
+            weights = jax.random.uniform(
                 self.min_val, self.max_val, (sender, receiver))
-            biases = np.random.uniform(self.min_val, self.max_val, (receiver))
+            biases = jax.random.uniform(self.min_val, self.max_val, (receiver))
             sender = receiver
             params.append([weights, biases])
         return params
@@ -67,8 +68,9 @@ class NNController(Controller):
             activations = self.activation(
                 i, jnp.dot(activations, weights) + biases)
 
-        result = activations[0]  # Return a scalar
-        return result
+        result = jax_type_to_python_type(activations)
+
+        return result[0]
 
     def update_params(self, params: dict, gradients):
         """

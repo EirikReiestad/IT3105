@@ -1,8 +1,6 @@
 import jax.numpy as jnp
-import jaxlib.xla_extension as xla_ext
-import jax._src.interpreters.ad as ad
-import math
 from plants.plant import Plant
+from lib import jax_type_to_python_type
 import os
 import sys
 
@@ -34,14 +32,6 @@ class Bathtub(Plant):
         volume_change = control_signal + noise - flow_rate
         water_height += volume_change / self.cross_section_area
 
-        if isinstance(water_height, xla_ext.ArrayImpl):
-            # print("water_height is xla_ext")
-            water_height = water_height.item()
-        elif isinstance(water_height, ad.JVPTracer):
-            # print("water_height is JVPTracer")
-            water_height = water_height.aval.val
-        else:
-            # print("water_height is type: ", type(water_height))
-            water_height = water_height[0]
+        water_height = jax_type_to_python_type(water_height)
 
         return {"water_height": water_height}, water_height

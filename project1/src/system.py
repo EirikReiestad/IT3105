@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 class System:
-    def __init__(self, parameters, visualize: bool=False) -> None:
+    def __init__(self, parameters, visualize: bool = False) -> None:
         self.params = parameters
         self.visualize = visualize
 
@@ -63,7 +63,7 @@ class System:
 
         # 2. For each epoch:
         for i in range(self.params["epochs"]):
-            print(f'Epoch: {i}')
+            # print(f'Epoch: {i}')
             # (e) Compute the gradients: ∂(MSE)/∂Ω
             mse, gradients = gradfunc(params)
             self.mse_history.append(mse)

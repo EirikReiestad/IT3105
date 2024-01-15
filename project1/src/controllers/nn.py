@@ -18,8 +18,8 @@ class NNController(Controller):
         min_val: float,
         learning_rate: float,
     ):
-        self.layers = hidden_layers
-        self.activation_func = activation_func
+        self.layers = hidden_layers.copy()
+        self.activation_func = activation_func.copy()
         self.max_val = max_val
         self.min_val = min_val
         self.learning_rate = learning_rate

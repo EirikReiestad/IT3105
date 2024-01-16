@@ -11,7 +11,7 @@ if __name__ == "__main__":
     config = configparser.RawConfigParser()
     config.read(config_path)
 
-    parameters = dict(config.items("PLANT2_NN"))
+    parameters = dict(config.items("PLANT1_NN"))
 
     for k, v in parameters.items():
         try:

@@ -81,10 +81,11 @@ class System:
         error_history = []
         state = self.plant.reset()
         # (b) Generate a vector of random noise / disturbance (D), with one value per timestep.
-        noise = [
-            random.uniform(self.params["min_noise"], self.params["max_noise"])
-            for _ in range(self.params["sim_timesteps"])
-        ]  # TODO: do we need to use jnp.random instead? amount of timestep
+
+        key = jax.random.PRNGKey(0)
+        noise = jax.random.uniform(key, minval=self.params["min_noise"], maxval=self.params["max_noise"], shape=(
+            self.params["sim_timesteps"],))
+
         # (c) For each timestep:
         control_signal = 0
         for j in range(self.params["sim_timesteps"]):

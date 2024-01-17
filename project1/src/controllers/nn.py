@@ -105,8 +105,7 @@ class NNController(Controller):
         """
         Calculate the sigmoid value
         """
-        return 1 / (1 + jnp.exp ** (-val))
-
+        return 1 / (1 + jnp.exp(-val))
     def tanh(self, val):
         """
         Calculate the tanh value

@@ -1,4 +1,5 @@
 from plants.plant import Plant
+import jax.numpy as jnp
 
 
 class Plant3(Plant):
@@ -26,5 +27,5 @@ class Plant3(Plant):
         # Calculate the delta population and change the current population based on that
         state['P'] += state['k']*state['P']
         # Limit so that population doesn't become 0
-        state['P'] = max(0, state['P'])
+        state['P'] = jnp.maximum(0, state['P'])
         return state, state['P']

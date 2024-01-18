@@ -1,4 +1,6 @@
 from plants.plant import Plant
+import jax
+import jax.numpy as jnp
 
 
 class Cournot(Plant):
@@ -18,19 +20,18 @@ class Cournot(Plant):
         """
         Update the plant's state based on the given control signal and noise
         """
+        # jax.debug.print("control signal: {cs}", cs=control_signal)
         state = state.copy()
         # 1. q1 updates based on U.
         state["q1"] = control_signal + state["q1"]
-        state["q1"] = max(0, state["q1"])
-        state["q1"] = min(1, state["q1"])
+        state["q1"] = jnp.clip(state["q1"], 0, 1)
         # 2. q2 updates based on D.
         state["q2"] = noise + state["q2"]
-        state["q2"] = max(0, state["q2"])
-        state["q2"] = min(1, state["q2"])
+        state["q2"] = jnp.clip(state["q2"], 0, 1)
         # 3. q = q1 + q2
         q = state["q1"] + state["q2"]
         # 4. p(q) = pmax − q
         price = self.max_price - q
-        price_1 = state["q1"] * (price - self.marginal_cost)
+        profit = state["q1"] * (price - self.marginal_cost)
 
-        return state, price_1
+        return state, profit

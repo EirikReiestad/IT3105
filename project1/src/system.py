@@ -5,6 +5,7 @@ import jax
 import random
 import matplotlib.pyplot as plt
 from lib import jax_type_to_python_type
+from matplotlib.ticker import FormatStrFormatter
 
 
 class System:
@@ -63,10 +64,12 @@ class System:
 
         # 2. For each epoch:
         for i in range(self.params["epochs"]):
-            # print(f'Epoch: {i}')
+            print(f'Epoch: {i}')
             # (e) Compute the gradients: ∂(MSE)/∂Ω
             mse, gradients = gradfunc(params)
             self.mse_history.append(mse)
+            print(mse)
+            print(gradients)
             # (f) Update Ω based on the gradients.
             params = self.controller.update_params(params, gradients)
             if self.params["controller"] == 0:
@@ -96,12 +99,14 @@ class System:
             # • Update the controller
             error_history.append(error)
 
+            # print("error_history: ", error_history)
+
             control_signal = 0
             if len(error_history) > 1:
                 control_signal = self.controller.calculate_control_signal(
                     params, error_history
                 )
-                # control_signal = jax_type_to_python_type(control_signal)
+            # control_signal = jax_type_to_python_type(control_signal)
             # • Save the error (E) for this timestep in an error history.
         # (d) Compute MSE over the error history.
         mse = self.mse(error_history)
@@ -116,10 +121,14 @@ class System:
         '''
         _, axis = plt.subplots(1, 2)
 
+        print("MSE History")
+        print(self.mse_history)
+
         axis[0].plot(self.mse_history)
         axis[0].set_title("Learning Progression")
         axis[0].set_xlabel("Epoch")
         axis[0].set_ylabel("MSE")
+        axis[0].yaxis.set_major_formatter(FormatStrFormatter('%.6f'))
 
         if self.params["controller"] == 0:
             params = {

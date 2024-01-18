@@ -45,7 +45,7 @@ class NNController(Controller):
         # Initialize weights and biases
         sender = self.layers[0]
         params = []
-        for receiver in self.layers[1:]:
+        for receiver in self.layers[1:-1]:
             key = jax.random.PRNGKey(0)
             weights = jax.random.uniform(
                 key, minval=self.min_val, maxval=self.max_val, shape=(sender, receiver))
@@ -53,6 +53,7 @@ class NNController(Controller):
                 key, minval=self.min_val, maxval=self.max_val, shape=(receiver,))
             sender = receiver
             params.append((weights, biases))
+        params[-1] = (params[-1][0], jnp.array([0.0]))
         return params
 
     def calculate_control_signal(self, params, error_list: list, dx=1.0) -> float:
@@ -106,6 +107,7 @@ class NNController(Controller):
         Calculate the sigmoid value
         """
         return 1 / (1 + jnp.exp(-val))
+
     def tanh(self, val):
         """
         Calculate the tanh value

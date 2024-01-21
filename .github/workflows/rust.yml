@@ -17,9 +17,9 @@ jobs:
 
     steps:
       - name: Build 
-        working-directory: project2
+        working-directory: ../project2
         run: |
           cargo build --verbose
       - name: Run tests
-        working-directory: project2
+        working-directory: ../project2
         run: cargo test --verbose

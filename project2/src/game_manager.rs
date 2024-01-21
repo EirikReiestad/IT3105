@@ -15,14 +15,19 @@ impl Player {
         Player { cards, value }
     }
 
-    pub fn bet(&mut self, amount: u32) {
+    pub fn bet(&mut self, amount: u32) -> Result<(), String> {
+        if self.value < amount {
+            return Err("Not enough money".to_string());
+        }
         self.value -= amount;
+        Ok(())
     }
 }
 
 impl std::fmt::Display for Player {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "Cards: {}, {}", self.cards.0, self.cards.1)
+        write!(f, "Cards: {}, {} ", self.cards.0, self.cards.1)?;
+        write!(f, "Value: {}", self.value)
     }
 }
 
@@ -46,22 +51,27 @@ impl std::fmt::Display for GameStage {
     }
 }
 
-struct Action {
-    fold: bool,
-    check: bool,
-    call: bool,
-    raise: bool,
-    all_in: bool,
+#[derive(Debug)]
+enum Action {
+    Fold,
+    CallOrCheck, // This is used because the actions are the same for both (kinda)
+    _Call(u32),
+    _Check,
+    Raise(u32),
+    _AllIn(u32),
 }
 
 pub struct GameManager {
     players: Vec<Player>,
+    minimum_bet: u32,
     flop: (Card, Card, Card),
     turn: Card,
     river: Card,
     game_stage: GameStage,
     dealer: usize,
-    minimum_bet: u32,
+    folded: HashMap<usize, bool>,
+    pot: u32,
+    highest_bet: u32,
 }
 
 impl GameManager {
@@ -96,17 +106,18 @@ impl GameManager {
         // Determine dealer
         let dealer = rng.gen_range(0..num_players as usize);
 
-        // Determine minimum bet
-        let minimum_bet = 10;
-
         GameManager {
             players,
+            minimum_bet: 10,
+            // Hand info (round)
             flop,
             turn,
             river,
             game_stage: GameStage::PreFlop,
             dealer,
-            minimum_bet,
+            folded: HashMap::new(),
+            pot: 0,
+            highest_bet: 0,
         }
     }
 
@@ -129,69 +140,92 @@ impl GameManager {
     }
 
     pub fn run(&mut self) {
-        match self.game_stage {
-            GameStage::PreFlop => self.run_preflop(),
-            GameStage::Flop => self.run_flop(),
-            GameStage::Turn => self.run_turn(),
-            GameStage::River => self.run_river(),
+        loop {
+            match self.game_stage {
+                GameStage::PreFlop => {
+                    self.run_preflop();
+                    self.game_stage = GameStage::Flop
+                }
+                GameStage::Flop => {
+                    self.run_flop();
+                    self.game_stage = GameStage::Turn
+                }
+                GameStage::Turn => {
+                    self.run_turn();
+                    self.game_stage = GameStage::River
+                }
+                GameStage::River => self.run_river(),
+            }
         }
     }
 
     fn run_preflop(&mut self) {
-        let mut pot = 0;
-        let mut folders: HashMap<usize, bool> = HashMap::new();
-        let mut highest_bet = 0;
         let mut bets: HashMap<usize, u32> = HashMap::new();
+        let mut check_count = 0;
 
-        for i in 0..self.players.len() {
-            let turn = (self.dealer + i + 1) % self.players.len();
-            if folders.contains_key(&turn) {
-                continue;
-            }
-            println!(" ");
-            println!("--- Player {}'s turn ---", turn);
+        println!("{}", self);
 
-            let mut user_input = String::new();
-            if i == 0 {
-                println!(
-                    "Player {} is the small blind and must bet {}",
-                    turn, self.minimum_bet
-                );
-                pot += self.minimum_bet;
-                self.players[turn].bet(self.minimum_bet);
-            } else if i == 1 {
-                // Big blind
-                println!(
-                    "Player {} is the big blind and must bet {}",
-                    turn,
-                    self.minimum_bet * 2
-                );
-                pot += self.minimum_bet;
-                self.players[turn].bet(self.minimum_bet);
-            } else {
+        while check_count != self.players.len() - self.folded.len() {
+            for i in 0..self.players.len() {
+                let turn = (self.dealer + i + 1) % self.players.len();
+
+                if self.folded.contains_key(&turn) {
+                    continue;
+                }
+
                 let player_bet = bets.get(&turn).unwrap_or(&0);
-                let options = if player_bet < &highest_bet {
-                    "Fold(0) Call(1) Raise(2) All In(3)"
-                } else {
-                    "Fold(0) Check(1) Raise(2) All In(3)"
-                };
-                println!("Options: {}", options);
-                loop {
-                    match io::stdin().read_line(&mut user_input) {
-                        Ok(_) => {
-                            let trimmed_input = user_input.trim();
 
-                            match trimmed_input {
-                                "0" => {}
-                                    folders.insert(turn, true);
-                                    println!("Player {} folds", turn);
-                                    break;
-                                }
-                        _  => {}
-                            }
+                println!(" ");
+                println!("--- Player {}'s turn ---", turn);
+                println!("{}", self.players[turn]);
+
+                if i == 0 && player_bet == &0 {
+                    // Small blind
+                    println!(
+                        "Player {} is the small blind and must bet {}",
+                        turn, self.minimum_bet
+                    );
+                    self.make_bet(turn, self.minimum_bet);
+                } else if i == 1 && player_bet == &0 {
+                    // Big blind
+                    println!(
+                        "Player {} is the big blind and must bet {}",
+                        turn,
+                        self.minimum_bet * 2
+                    );
+                    self.make_bet(turn, self.minimum_bet * 2);
+                    check_count += 1;
+                } else {
+                    let action = self.get_action();
+                    println!("Action: {:?}", action);
+                    match action {
+                        Action::Fold => {
+                            self.folded.insert(turn, true);
+                            continue;
                         }
-                        Err(error) => println!("error: {}", error),
+                        Action::CallOrCheck => {
+                            let bet = self.highest_bet - player_bet;
+                            self.make_bet(turn, bet);
+                            check_count += 1;
+                        }
+                        Action::Raise(x) => {
+                            let raise = self.highest_bet - player_bet + x;
+                            self.make_bet(turn, raise);
+                            check_count = 1;
+                        }
+                        _ => panic!("Invalid action"),
                     }
+                }
+                bets.insert(turn, self.highest_bet); // Set the bet to the highest bet, either it have
+                                                     // Called, Checked, or Raised which means it is the highest bet. Or it has folded
+                                                     // which means it does not matter.
+                                                     // Or small or big blind, which is the highest bet
+
+                println!("{}", self.highest_bet);
+                println!("{}", self.players.len() - self.folded.len() - check_count);
+                // If everyone has checked, break
+                if check_count == self.players.len() - self.folded.len() {
+                    break;
                 }
             }
         }
@@ -207,6 +241,46 @@ impl GameManager {
 
     fn run_river(&self) {
         println!("River");
+    }
+
+    fn make_bet(&mut self, player: usize, bet: u32) {
+        if self.players[player].bet(bet).is_err() {
+            println!("Not enough money. Folded.");
+            self.folded.insert(player, true);
+        } else {
+            self.pot += bet;
+            self.highest_bet = bet;
+        };
+    }
+
+    fn get_action(&mut self) -> Action {
+        let options = "Fold(0) Call/Check(1) Raise(2)"; // TODO: Implement all-in
+        println!("Options: {}", options);
+
+        fn get_input() -> Action {
+            let mut user_input = String::new();
+            match io::stdin().read_line(&mut user_input) {
+                Ok(_) => {
+                    let trimmed_input = user_input.trim();
+
+                    match trimmed_input {
+                        "0" => Action::Fold,
+                        "1" => Action::CallOrCheck,
+                        "2" => Action::Raise(50), // TODO: Implement raise amount
+                        _ => {
+                            println!("Invalid input");
+                            get_input()
+                        }
+                    }
+                }
+                Err(error) => {
+                    println!("error: {}", error);
+                    get_input()
+                }
+            }
+        }
+
+        get_input()
     }
 }
 

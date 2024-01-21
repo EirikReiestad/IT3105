@@ -21,9 +21,9 @@ jobs:
       - name: Print contents of working directory
         run: ls -a
       - name: Build 
-        working-directory: project2
+        working-directory: ./project2
         run: |
           cargo build --verbose
       - name: Run tests
-        working-directory: project2
+        working-directory: ./project2
         run: cargo test --verbose

@@ -66,7 +66,6 @@ impl GameManager {
 
     fn generate_stack() -> Vec<Card> {
         let mut stack = Vec::with_capacity(52);
-        println!("{}", stack.len());
         for (i, suit) in (0..4).enumerate() {
             let suit = match suit {
                 0 => Suit::CLUBS,
@@ -77,7 +76,7 @@ impl GameManager {
             };
 
             for rank in 0..13 {
-                stack[i * 13 + rank] = Card { suit, rank };
+                stack.push(Card { suit, rank });
             }
         }
         stack
@@ -102,5 +101,27 @@ impl std::fmt::Display for GameManager {
             write!(f, "Player {}: {}", i, player)?;
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_generate_stack() {
+        let stack = GameManager::generate_stack();
+        assert_eq!(stack.len(), 52);
+    }
+
+    #[test]
+    fn test_new() {
+        let num_players = 2;
+        let game_manager = GameManager::new(num_players);
+        assert_eq!(game_manager.players.len(), num_players as usize);
+        assert_eq!(
+            game_manager.stack.len(),
+            52 - 2 * num_players as usize - 3 - 1 - 1 // 52 cards - 2 cards per player - flop - turn - river
+        );
     }
 }

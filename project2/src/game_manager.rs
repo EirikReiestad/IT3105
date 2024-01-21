@@ -1,4 +1,4 @@
-use crate::card::{Card, Suit};
+use crate::card::{Card, Deck};
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use std::collections::HashMap;
@@ -77,7 +77,7 @@ pub struct GameManager {
 impl GameManager {
     pub fn new(num_players: u32) -> GameManager {
         // Generate a stack of cards and shuffle them
-        let mut stack = GameManager::generate_stack();
+        let mut stack = Deck::generate_deck();
         let mut rng = thread_rng();
         stack.shuffle(&mut rng);
 
@@ -119,24 +119,6 @@ impl GameManager {
             pot: 0,
             highest_bet: 0,
         }
-    }
-
-    fn generate_stack() -> Vec<Card> {
-        let mut stack = Vec::with_capacity(52);
-        for i in 0..4 {
-            let suit = match i {
-                0 => Suit::CLUBS,
-                1 => Suit::DIAMONDS,
-                2 => Suit::HEARTS,
-                3 => Suit::SPADES,
-                _ => panic!("Invalid suit"),
-            };
-
-            for rank in 0..13 {
-                stack.push(Card { suit, rank });
-            }
-        }
-        stack
     }
 
     pub fn run(&mut self) {
@@ -332,12 +314,6 @@ impl std::fmt::Display for GameManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_generate_stack() {
-        let stack = GameManager::generate_stack();
-        assert_eq!(stack.len(), 52);
-    }
 
     #[test]
     fn test_new() {

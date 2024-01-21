@@ -24,7 +24,7 @@ impl std::fmt::Display for Card {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Hash)]
 pub enum Suit {
     CLUBS,
     DIAMONDS,

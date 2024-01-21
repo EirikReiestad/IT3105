@@ -1,1 +1,0 @@
-/home/eirik/Documents/university/IT3105/project2/target/debug/project2: /home/eirik/Documents/university/IT3105/project2/src/card.rs /home/eirik/Documents/university/IT3105/project2/src/game_manager.rs /home/eirik/Documents/university/IT3105/project2/src/main.rs

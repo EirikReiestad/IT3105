@@ -117,6 +117,7 @@ class System:
         '''
         Visualize the error (MSEs) and PID parameters
         '''
+
         _, axis = plt.subplots(1, 2, figsize=(18, 8))
         axis[0].plot(self.mse_history)
         axis[0].set_title("Learning Progression")

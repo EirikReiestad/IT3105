@@ -52,23 +52,28 @@ impl Oracle {
         &mut self,
         hole_pair: Vec<Card>,
         public_cards: Vec<Card>,
-        num_opponents: i32,
-        rollout_count: i32,
+        num_opponents: usize,
+        rollout_count: usize,
     ) -> f32 {
         let win_count = 0;
         for i in 0..=rollout_count {
             // CREATE HOLE FOR EACH OPPONENTS
+            let mut win_all = 1;
             for j in 0..=num_opponents {
                 // COMPARE, if win all -> THEN MEANING WE WIN
                 // our card == hole_pair + public cards
                 // opponent get cars that are left in the bunk
-                self.hand_evaluator()
+                // have to remove public cards from bunk too
+                if !self.hand_evaluator() {
+                    win_all = 0
+                }
             }
 
         }
         probability = win_count/rollout_count
     }
-    pub fn cheat_sheet_generator(&mut self) {
+    pub fn cheat_sheet_generator(&mut self, public_cards: Vec<Card>, num_opponents: usize) {
+        // for all the pairs use the method below
         self.hole_pair_evaluator()
     }
     pub fn utility_matrix_generator(&mut self) -> Vec<Vec<i32>> {}

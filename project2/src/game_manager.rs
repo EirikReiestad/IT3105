@@ -14,7 +14,7 @@ impl Player {
 
 impl std::fmt::Display for Player {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "Player")
+        write!(f, "Cards: {}, {}", self.cards.0, self.cards.1)
     }
 }
 
@@ -89,9 +89,13 @@ impl GameManager {
 
 impl std::fmt::Display for GameManager {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        writeln!(f, "GameManager")?;
-        for player in &self.players {
-            write!(f, " {}", player)?;
+        writeln!(
+            f,
+            "=============================== GAME MANAGER ==============================="
+        );
+        writeln!(f, "(1) Players:");
+        for (i, player) in self.players.iter().enumerate() {
+            write!(f, "Player {}: {}", i, player)?;
         }
         Ok(())
     }

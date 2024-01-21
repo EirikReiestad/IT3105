@@ -17,9 +17,16 @@ pub struct HandsCheck {}
 impl HandsCheck {
     pub fn is_royal_flush(&mut self, cards: Vec<Card>) -> (Hands, Vec<Card>) {
         let cards = cards.clone();
-        cards.sort_by(|a, b| b.rank.cmp(a.rank));
+        let mut unique_ranks = HashSet::new();
+        let unique_cards: Vec<_> = cards
+            .into_iter()
+            .filter(|card| unique_ranks.insert(card.rank))
+            .collect();
+        let target_ranks: HashSet<i32> = [10, 11, 12, 13, 14].iter().cloned().collect();
+        if unique_ranks == target_ranks {
+            return 
+        }
 
-        
     }
     pub fn is_straight_flush(&mut self, cards: Vec<Card>) -> (Hands, Vec<Card>) {
         let cards = cards.clone();

@@ -1,5 +1,5 @@
 use crate::card::Card;
-use std::{collections::HashSet, intrinsics::mir::Return};
+use std::collections::HashSet;
 
 #[derive(PartialEq, PartialOrd)]
 enum Hands {
@@ -31,7 +31,6 @@ impl HandsCheck {
 
             let first_suit = match cards.first() {
                 Some(first_card) => first_card.suit,
-                None => return,
             };
 
             let same_suit = cards.iter().all(|card| card.suit == first_suit);
@@ -39,6 +38,6 @@ impl HandsCheck {
                 return true;
             }
         }
-        return false;
+        false
     }
 }

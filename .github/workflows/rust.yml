@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print current directory
+        run: pwd
       - name: Build 
         working-directory: ./project2
         run: |

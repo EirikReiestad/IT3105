@@ -143,7 +143,10 @@ impl GameManager {
         loop {
             match self.game_stage {
                 GameStage::PreFlop => {
-                    self.run_preflop();
+                    if let Some(winner) = self.run_preflop() {
+                        println!("Player {} won {} units!", winner, self.pot);
+                        break;
+                    }
                     self.game_stage = GameStage::Flop
                 }
                 GameStage::Flop => {
@@ -159,7 +162,8 @@ impl GameManager {
         }
     }
 
-    fn run_preflop(&mut self) {
+    fn run_preflop(&mut self) -> Option<usize> {
+        // Returns the winner (the index of the winner)
         let mut bets: HashMap<usize, u32> = HashMap::new();
         let mut check_count = 0;
 
@@ -171,6 +175,10 @@ impl GameManager {
 
                 if self.folded.contains_key(&turn) {
                     continue;
+                }
+
+                if self.folded.len() == self.players.len() - 1 {
+                    return Some(i);
                 }
 
                 let player_bet = bets.get(&turn).unwrap_or(&0);
@@ -221,14 +229,13 @@ impl GameManager {
                                                      // which means it does not matter.
                                                      // Or small or big blind, which is the highest bet
 
-                println!("{}", self.highest_bet);
-                println!("{}", self.players.len() - self.folded.len() - check_count);
                 // If everyone has checked, break
                 if check_count == self.players.len() - self.folded.len() {
                     break;
                 }
             }
         }
+        None
     }
 
     fn run_flop(&self) {

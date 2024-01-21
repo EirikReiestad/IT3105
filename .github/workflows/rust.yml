@@ -16,10 +16,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print working directory
+        run: pwd
       - name: Build 
-        working-directory: ../project2
+        working-directory: project2
         run: |
           cargo build --verbose
       - name: Run tests
-        working-directory: ../project2
+        working-directory: project2
         run: cargo test --verbose

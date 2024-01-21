@@ -19,7 +19,7 @@ jobs:
       - name: Print working directory
         run: pwd
       - name: Print contents of working directory
-        run: ls -la
+        run: ls -la ../
       - name: Build 
         working-directory: project2
         run: |

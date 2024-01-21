@@ -39,21 +39,21 @@ impl GameManager {
         // Deal cards to players
         let mut players = Vec::with_capacity(num_players as usize);
 
-        for i in 0..num_players {
-            let first_card = stack.pop().expect(&empty_stack_error);
-            let second_card = stack.pop().expect(&empty_stack_error);
+        for _ in 0..num_players {
+            let first_card = stack.pop().expect(empty_stack_error);
+            let second_card = stack.pop().expect(empty_stack_error);
 
             players.push(Player::new((first_card, second_card)));
         }
 
         // Deal flop, turn, and river
         let flop = (
-            stack.pop().expect(&empty_stack_error),
-            stack.pop().expect(&empty_stack_error),
-            stack.pop().expect(&empty_stack_error),
+            stack.pop().expect(empty_stack_error),
+            stack.pop().expect(empty_stack_error),
+            stack.pop().expect(empty_stack_error),
         );
-        let turn = stack.pop().expect(&empty_stack_error);
-        let river = stack.pop().expect(&empty_stack_error);
+        let turn = stack.pop().expect(empty_stack_error);
+        let river = stack.pop().expect(empty_stack_error);
 
         GameManager {
             players,
@@ -66,6 +66,7 @@ impl GameManager {
 
     fn generate_stack() -> Vec<Card> {
         let mut stack = Vec::with_capacity(52);
+        println!("{}", stack.len());
         for (i, suit) in (0..4).enumerate() {
             let suit = match suit {
                 0 => Suit::CLUBS,
@@ -92,8 +93,11 @@ impl std::fmt::Display for GameManager {
         writeln!(
             f,
             "=============================== GAME MANAGER ==============================="
-        );
-        writeln!(f, "(1) Players:");
+        )?;
+        writeln!(f, "Flop: {} {} {}", self.flop.0, self.flop.1, self.flop.2)?;
+        writeln!(f, "Turn: {}", self.turn)?;
+        writeln!(f, "River: {}", self.river)?;
+        writeln!(f, "(1) Players:")?;
         for (i, player) in self.players.iter().enumerate() {
             write!(f, "Player {}: {}", i, player)?;
         }

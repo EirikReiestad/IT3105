@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Card {
     pub suit: Suit,
     pub rank: usize,
@@ -6,11 +7,11 @@ pub struct Card {
 impl std::fmt::Display for Card {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let rank = match self.rank {
-            0 => "A",
-            1..=9 => &self.rank.to_string(),
-            10 => "J",
-            11 => "Q",
-            12 => "K",
+            0 => "A".to_string(),
+            1..=9 => self.rank.to_string(),
+            10 => "J".to_string(),
+            11 => "Q".to_string(),
+            12 => "K".to_string(),
             _ => panic!("Invalid rank"),
         };
         let suit = match self.suit {
@@ -23,6 +24,7 @@ impl std::fmt::Display for Card {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub enum Suit {
     CLUBS,
     DIAMONDS,

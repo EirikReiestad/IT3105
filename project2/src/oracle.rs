@@ -23,7 +23,7 @@ impl Oracle {
             .or(HandsCheck.is_one_pair(cards))
             .or(HandsCheck.is_high_card(cards))
         {
-            return hand;
+            hand
         }
     }
     pub fn hole_pair_evaluator(

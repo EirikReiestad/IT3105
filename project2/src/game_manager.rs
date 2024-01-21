@@ -141,6 +141,7 @@ impl GameManager {
                 }
                 GameStage::River => self.run_river(),
             }
+            break;
         }
     }
 

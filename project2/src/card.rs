@@ -7,11 +7,11 @@ pub struct Card {
 impl std::fmt::Display for Card {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let rank = match self.rank {
-            0 => "A".to_string(),
-            1..=9 => self.rank.to_string(),
-            10 => "J".to_string(),
-            11 => "Q".to_string(),
-            12 => "K".to_string(),
+            1 => "A".to_string(),
+            2..=10 => self.rank.to_string(),
+            11 => "J".to_string(),
+            12 => "Q".to_string(),
+            13 => "K".to_string(),
             _ => panic!("Invalid rank"),
         };
         let suit = match self.suit {
@@ -38,7 +38,7 @@ impl Deck {
     pub fn generate_deck() -> Vec<Card> {
         let mut deck = Vec::with_capacity(52);
         for suit in [Suit::Clubs, Suit::Diamonds, Suit::Hearts, Suit::Spades].iter() {
-            for rank in 0..13 {
+            for rank in 1..=13 {
                 deck.push(Card { suit: *suit, rank });
             }
         }

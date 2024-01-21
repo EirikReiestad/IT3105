@@ -76,5 +76,8 @@ impl Oracle {
         // for all the pairs use the method below
         self.hole_pair_evaluator()
     }
-    pub fn utility_matrix_generator(&mut self) -> Vec<Vec<i32>> {}
+    pub fn utility_matrix_generator(&mut self, public_cards: Vec<Card>) -> Vec<Vec<i32>> {
+        // for each hole pair 
+        self.hole_pair_evaluator()
+    }
 }

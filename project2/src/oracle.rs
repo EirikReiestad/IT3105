@@ -45,23 +45,21 @@ impl Oracle {
         } else if result_one < result_two {
             -1
         } else {
-            let unique_vec1: Vec<Card> = set_one
+            let unique_vec1: Vec<&Card> = set_one
                 .iter()
                 .filter(|&x| !cards_one.contains(x))
-                .cloned()
                 .collect();
 
-            let unique_vec2: Vec<Card> = set_two
+            let unique_vec2: Vec<&Card> = set_two
                 .iter()
                 .filter(|&x| !cards_two.contains(x))
-                .cloned()
                 .collect();
 
             if unique_vec1.len() == 0 && unique_vec2.len() == 0 {
                 0
             } else {
-                let max_card_one: Option<&Card> = unique_vec1.iter().max_by_key(|card| &card.rank);
-                let max_card_two: Option<&Card> = unique_vec1.iter().max_by_key(|card| &card.rank);
+                let max_card_one: Option<&Card> = unique_vec1.iter().max_by_key(|card| &card.rank).cloned();
+                let max_card_two: Option<&Card> = unique_vec1.iter().max_by_key(|card| &card.rank).cloned();
 
                 match (max_card_one, max_card_two) {
                     (Some(card1), Some(card2)) => {
@@ -186,16 +184,16 @@ impl Oracle {
                     continue;
                 }
 
-                let player_j_hole_pair = hole_pairs[i]
+                let player_j_hole_pair: Vec<Card> = hole_pairs[i]
                     .iter()
+                    .chain(public_cards.iter())
                     .cloned()
-                    .chain(public_cards.iter().cloned())
                     .collect();
 
-                let player_k_hole_pair = hole_pairs[j]
+                let player_k_hole_pair: Vec<Card> = hole_pairs[j]
                     .iter()
+                    .chain(public_cards.iter())
                     .cloned()
-                    .chain(public_cards.iter().cloned())
                     .collect();
                 matrix[[i, j]] = self.hand_evaluator(&player_j_hole_pair, &player_k_hole_pair);
             }

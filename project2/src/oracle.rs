@@ -6,31 +6,31 @@ pub struct Oracle {}
 
 impl Oracle {
     pub fn hand_classifier(&mut self, cards: &Vec<Card>) -> Hands {
-        if !(5 <= cards.len() && cards.len() <= 7) {
+        if !(5 < cards.len() && cards.len() > 7) {
             return Hands::None;
         }
-
-        if HandsCheck::is_royal_flush(&cards) {
-            return Hands::RoyalFlush;
-        } else if HandsCheck::is_straight_flush(&cards) {
-            return Hands::StraightFlush;
-        } else if HandsCheck::is_four_of_a_kind(&cards) {
-            return Hands::FourOfAKind;
-        } else if HandsCheck::is_full_house(&cards) {
-            return Hands::FullHouse;
-        } else if HandsCheck::is_flush(&cards) {
-            return Hands::Flush;
-        } else if HandsCheck::is_straight(&cards) {
-            return Hands::Straight;
-        } else if HandsCheck::is_three_of_a_kind(&cards) {
-            return Hands::ThreeOfAKind;
-        } else if HandsCheck::is_two_pairs(&cards) {
-            return Hands::TwoPairs;
-        } else if HandsCheck::is_one_pair(&cards) {
-            return Hands::OnePair;
-        } else {
-            return Hands::HighCard;
-        }
+        return Hands::None;
+        // if HandsCheck::is_royal_flush(&cards) {
+        //     return Hands::RoyalFlush;
+        // } else if HandsCheck::is_straight_flush(&cards) {
+        //     return Hands::StraightFlush;
+        // } else if HandsCheck::is_four_of_a_kind(&cards) {
+        //     return Hands::FourOfAKind;
+        // } else if HandsCheck::is_full_house(&cards) {
+        //     return Hands::FullHouse;
+        // } else if HandsCheck::is_flush(&cards) {
+        //     return Hands::Flush;
+        // } else if HandsCheck::is_straight(&cards) {
+        //     return Hands::Straight;
+        // } else if HandsCheck::is_three_of_a_kind(&cards) {
+        //     return Hands::ThreeOfAKind;
+        // } else if HandsCheck::is_two_pairs(&cards) {
+        //     return Hands::TwoPairs;
+        // } else if HandsCheck::is_one_pair(&cards) {
+        //     return Hands::OnePair;
+        // } else {
+        //     return Hands::HighCard;
+        // }
     }
 
     pub fn hand_evaluator(&mut self, set_one: &Vec<Card>, set_two: &Vec<Card>) -> isize {
@@ -57,7 +57,7 @@ impl Oracle {
 
         let empty_stack_error = "Not enough cards in stack";
 
-        for i in 0..=rollout_count {
+        for _ in 0..=rollout_count {
             let mut deck = Deck::new();
             deck.reset_stack();
 

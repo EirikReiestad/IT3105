@@ -1,7 +1,7 @@
 use rand::prelude::SliceRandom;
 use rand::thread_rng;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Card {
     pub suit: Suit,
     pub rank: usize,
@@ -27,7 +27,7 @@ impl std::fmt::Display for Card {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Eq, Hash)]
 pub enum Suit {
     Clubs,
     Diamonds,

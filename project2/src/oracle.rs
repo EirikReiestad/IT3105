@@ -118,7 +118,7 @@ impl Oracle {
                 ];
                 opponent_hole_pair.extend(public_cards.iter().cloned());
 
-                if self.hand_evaluator(&player_hole_pair, &opponent_hole_pair) == -1 {
+                if self.hand_evaluator(player_hole_pair, &opponent_hole_pair) == -1 {
                     win_all = false;
                 }
             }

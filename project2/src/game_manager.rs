@@ -31,6 +31,7 @@ impl GameManager {
     pub fn new(num_players: u32) -> GameManager {
         // Generate a stack of cards and shuffle them
         let mut deck = oracle::Deck::new();
+        deck.reset_stack();
         // stack.shuffle(&mut rng);
 
         // Error if there are not enough cards for the game

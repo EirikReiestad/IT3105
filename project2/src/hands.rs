@@ -225,8 +225,7 @@ impl HandsCheck {
     }
 
     pub fn is_three_of_a_kind(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let cards = cards.clone();
-        let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
+        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
 
         for combination in combinations {
             let mut unique_ranks = HashMap::new();
@@ -236,9 +235,11 @@ impl HandsCheck {
                     .or_insert(Vec::new())
                     .push(card.suit);
             }
-            for (rank, suits) in unique_ranks.clone() {
+            
+            let length_unique_ranks = unique_ranks.len();
+            for (rank, suits) in unique_ranks {
                 let unique_suits: HashSet<_> = suits.into_iter().collect();
-                if unique_suits.len() == 3 && unique_ranks.len() > 2 {
+                if unique_suits.len() == 3 && length_unique_ranks > 2 {
                     let new_cards: Vec<Card> = unique_suits
                         .into_iter()
                         .map(|suit| Card {

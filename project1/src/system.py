@@ -68,8 +68,11 @@ class System:
             # (e) Compute the gradients: ∂(MSE)/∂Ω
             mse, gradients = gradfunc(params)
             self.mse_history.append(mse)
+<<<<<<< HEAD
             print(mse)
             print(gradients)
+=======
+>>>>>>> cf041100ce002177882f52ed6b71c3821181cc9b
             # (f) Update Ω based on the gradients.
             params = self.controller.update_params(params, gradients)
             if self.params["controller"] == 0:
@@ -119,11 +122,16 @@ class System:
         '''
         Visualize the error (MSEs) and PID parameters
         '''
+<<<<<<< HEAD
         _, axis = plt.subplots(1, 2)
 
         print("MSE History")
         print(self.mse_history)
 
+=======
+
+        _, axis = plt.subplots(1, 2, figsize=(18, 8))
+>>>>>>> cf041100ce002177882f52ed6b71c3821181cc9b
         axis[0].plot(self.mse_history)
         axis[0].set_title("Learning Progression")
         axis[0].set_xlabel("Epoch")
@@ -142,5 +150,8 @@ class System:
             axis[1].set_xlabel("Epoch")
             axis[1].set_ylabel("Y")
             axis[1].legend()
+<<<<<<< HEAD
 
+=======
+>>>>>>> cf041100ce002177882f52ed6b71c3821181cc9b
         plt.show()

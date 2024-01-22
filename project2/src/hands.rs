@@ -1,7 +1,7 @@
 use crate::card::Card;
 use itertools::Itertools;
-use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[derive(PartialEq, PartialOrd)]
 pub enum Hands {
@@ -15,7 +15,7 @@ pub enum Hands {
     TwoPairs,
     OnePair,
     HighCard,
-    None
+    None,
 }
 
 pub struct HandsCheck {}
@@ -57,12 +57,13 @@ impl HandsCheck {
                 .windows(2)
                 .all(|window| (window[0].rank - window[1].rank) == 1);
 
-            if unique_suits.len() == 1 && is_one_apart{
+            if unique_suits.len() == 1 && is_one_apart {
                 true;
             }
         }
         false
     }
+
     pub fn is_four_of_a_kind(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
@@ -82,6 +83,7 @@ impl HandsCheck {
         }
         false
     }
+    
     pub fn is_full_house(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
@@ -102,7 +104,7 @@ impl HandsCheck {
         }
         false
     }
-        
+
     pub fn is_flush(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
@@ -119,7 +121,7 @@ impl HandsCheck {
                 .windows(2)
                 .all(|window| (window[0].rank - window[1].rank) == 1);
 
-            if unique_suits.len() == 1 && !is_one_apart{
+            if unique_suits.len() == 1 && !is_one_apart {
                 true;
             }
         }
@@ -174,7 +176,8 @@ impl HandsCheck {
                 *count += 1;
             }
 
-            let count_2_entries: Vec<_> = rank_counts.values().filter(|&count| *count == 2).collect();
+            let count_2_entries: Vec<_> =
+                rank_counts.values().filter(|&count| *count == 2).collect();
             return count_2_entries.len() == 2;
         }
         false

@@ -1,46 +1,6 @@
-use crate::card::{Card, Suit};
+use crate::card::{Card, Suit, Deck};
 use crate::hands::{Hands, HandsCheck};
 use itertools::Itertools;
-use rand::prelude::SliceRandom;
-use rand::thread_rng;
-
-pub struct Deck {
-    pub stack: Vec<Card>,
-}
-
-impl Deck {
-    pub fn new() -> Self {
-        Deck { stack: Vec::new() }
-    }
-
-    pub fn reset_stack(&mut self) -> () {
-        let mut stack = Vec::with_capacity(52);
-        for (i, suit) in (0..4).enumerate() {
-            let suit = match suit {
-                0 => Suit::CLUBS,
-                1 => Suit::DIAMONDS,
-                2 => Suit::HEARTS,
-                3 => Suit::SPADES,
-                _ => panic!("Invalid suit"),
-            };
-
-            for rank in 0..13 {
-                stack.push(Card { suit, rank });
-            }
-        }
-        let mut rng = thread_rng();
-        stack.shuffle(&mut rng);
-        self.stack = stack;
-    }
-
-    pub fn remove(&mut self, card: &Card) -> () {
-        self.stack.retain(|i| i != card);
-    }
-
-    pub fn pop(&mut self) -> Option<Card> {
-        self.stack.pop()
-    }
-}
 
 pub struct Oracle {}
 
@@ -219,8 +179,8 @@ impl Oracle {
 
     pub fn generate_all_hole_pairs_types(&mut self) -> Vec<Vec<Card>> {
 
-        let mut pair_of_rank: Vec<Vec<Card>> = (0..=12).map(|i| vec![Card{suit: Suit::CLUBS, rank:i}, Card{suit: Suit::SPADES, rank:i}]).collect();
-        let suits = &[Suit::CLUBS, Suit::SPADES];
+        let mut pair_of_rank: Vec<Vec<Card>> = (0..=12).map(|i| vec![Card{suit: Suit::Clubs, rank:i}, Card{suit: Suit::Spades, rank:i}]).collect();
+        let suits = &[Suit::Clubs, Suit::Spades];
         let suited_pairs: Vec<Vec<Card>> = (0..=12)
         .combinations(2)
         .map(|pair| pair.iter().map(|&value| Card { suit: suits[(value % suits.len()) as usize], rank: value }).collect())

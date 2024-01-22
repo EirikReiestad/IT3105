@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use std::collections::HashMap;
 
 #[derive(PartialEq, PartialOrd)]
-enum Hands {
+pub enum Hands {
     RoyalFlush,
     StraightFlush,
     FourOfAKind,
@@ -15,12 +15,13 @@ enum Hands {
     TwoPairs,
     OnePair,
     HighCard,
+    None
 }
 
 pub struct HandsCheck {}
 
 impl HandsCheck {
-    pub fn is_royal_flush(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_royal_flush(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
         let target_ranks: HashSet<usize> = [10, 11, 12, 13, 14].iter().cloned().collect();
@@ -40,7 +41,7 @@ impl HandsCheck {
         false
     }
 
-    pub fn is_straight_flush(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_straight_flush(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
 
@@ -62,7 +63,7 @@ impl HandsCheck {
         }
         false
     }
-    pub fn is_four_of_a_kind(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_four_of_a_kind(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
 
@@ -81,7 +82,7 @@ impl HandsCheck {
         }
         false
     }
-    pub fn is_full_house(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_full_house(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
 
@@ -102,7 +103,7 @@ impl HandsCheck {
         false
     }
         
-    pub fn is_flush(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_flush(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
 
@@ -125,7 +126,7 @@ impl HandsCheck {
         false
     }
 
-    pub fn is_straight(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_straight(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
 
@@ -140,7 +141,7 @@ impl HandsCheck {
         }
         false
     }
-    pub fn is_three_of_a_kind(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_three_of_a_kind(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
 
@@ -160,7 +161,7 @@ impl HandsCheck {
         }
         false
     }
-    pub fn is_two_pairs(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_two_pairs(cards: &Vec<Card>) -> bool {
         let cards = cards.clone();
         let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
 
@@ -179,7 +180,7 @@ impl HandsCheck {
         false
     }
 
-    pub fn is_one_pair(&mut self, cards: &Vec<Card>) -> bool {
+    pub fn is_one_pair(cards: &Vec<Card>) -> bool {
         let combinations: Vec<Vec<Card>> = cards.into_iter().cloned().combinations(5).collect();
         for combination in combinations {
             let mut unique_ranks = HashSet::new();

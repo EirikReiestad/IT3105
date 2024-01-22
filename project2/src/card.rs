@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Card {
     pub suit: Suit,
     pub rank: usize,

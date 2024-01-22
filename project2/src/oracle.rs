@@ -134,11 +134,10 @@ impl Oracle {
     pub fn cheat_sheet_generator(&mut self, num_opponents: usize, rollout_count: usize) {
         // for all the pairs use the method below
         let hole_pair_types = Oracle::generate_all_hole_pairs_types();
-        let num_hole_pairs = hole_pair_types.len();
 
-        let mut table: Vec<f32> = vec![0.0; num_hole_pairs];
+        let mut table: Vec<f32> = Vec::with_capacity(hole_pair_types.len());
         let public_cards: Vec<Card> = Vec::new();
-        for i in 0..num_hole_pairs {
+        for i in 0..hole_pair_types.len() {
             table[i] = self.hole_pair_evaluator(
                 &hole_pair_types[i],
                 &public_cards,

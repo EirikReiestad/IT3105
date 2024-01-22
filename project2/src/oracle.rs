@@ -45,21 +45,19 @@ impl Oracle {
         } else if result_one < result_two {
             -1
         } else {
-            let unique_vec1: Vec<&Card> = set_one
-                .iter()
-                .filter(|&x| !cards_one.contains(x))
-                .collect();
+            let unique_vec1: Vec<&Card> =
+                set_one.iter().filter(|&x| !cards_one.contains(x)).collect();
 
-            let unique_vec2: Vec<&Card> = set_two
-                .iter()
-                .filter(|&x| !cards_two.contains(x))
-                .collect();
+            let unique_vec2: Vec<&Card> =
+                set_two.iter().filter(|&x| !cards_two.contains(x)).collect();
 
             if unique_vec1.len() == 0 && unique_vec2.len() == 0 {
                 0
             } else {
-                let max_card_one: Option<&Card> = unique_vec1.iter().max_by_key(|card| &card.rank).cloned();
-                let max_card_two: Option<&Card> = unique_vec1.iter().max_by_key(|card| &card.rank).cloned();
+                let max_card_one: Option<&Card> =
+                    unique_vec1.iter().max_by_key(|card| &card.rank).cloned();
+                let max_card_two: Option<&Card> =
+                    unique_vec1.iter().max_by_key(|card| &card.rank).cloned();
 
                 match (max_card_one, max_card_two) {
                     (Some(card1), Some(card2)) => {
@@ -101,8 +99,8 @@ impl Oracle {
 
             let player_hole_pair = &hole_pair
                 .iter()
+                .chain(cloned_public_cards.iter())
                 .cloned()
-                .chain(cloned_public_cards.iter().cloned())
                 .collect();
 
             for j in player_hole_pair {
@@ -115,7 +113,7 @@ impl Oracle {
                     deck.pop().expect(empty_stack_error),
                     deck.pop().expect(empty_stack_error),
                 ];
-                opponent_hole_pair.extend(public_cards.iter().cloned());
+                opponent_hole_pair.extend(cloned_public_cards.iter().cloned());
 
                 if self.hand_evaluator(player_hole_pair, &opponent_hole_pair) == -1 {
                     win_all = false;
@@ -184,17 +182,12 @@ impl Oracle {
                     continue;
                 }
 
-                let player_j_hole_pair: Vec<Card> = hole_pairs[i]
-                    .iter()
-                    .chain(public_cards.iter())
-                    .cloned()
-                    .collect();
+                let player_j_hole_pair: Vec<Card> =
+                    hole_pairs[i].iter().chain(public_cards.iter()).cloned().collect();
 
-                let player_k_hole_pair: Vec<Card> = hole_pairs[j]
-                    .iter()
-                    .chain(public_cards.iter())
-                    .cloned()
-                    .collect();
+                let player_k_hole_pair: Vec<Card> =
+                    hole_pairs[j].iter().chain(public_cards.iter()).cloned().collect();
+
                 matrix[[i, j]] = self.hand_evaluator(&player_j_hole_pair, &player_k_hole_pair);
             }
         }

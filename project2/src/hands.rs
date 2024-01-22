@@ -21,9 +21,8 @@ pub struct HandsCheck;
 
 impl HandsCheck {
     pub fn is_royal_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let cards = cards.clone();
-        let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
-        let target_ranks: HashSet<usize> = [1, 10, 11, 12, 13].iter().cloned().collect();
+        let combinations: Vec<Vec<&Card>>= cards.into_iter().combinations(5).collect();
+        let target_ranks:HashSet<&usize> = [1, 10, 11, 12, 13].iter().collect();
 
         for combination in combinations {
             let mut unique_suits = HashMap::new();
@@ -31,17 +30,17 @@ impl HandsCheck {
                 unique_suits
                     .entry(card.suit)
                     .or_insert(Vec::new())
-                    .push(card.rank);
+                    .push(&card.rank);
             }
             for (suit, ranks) in unique_suits {
-                let unique_ranks: HashSet<_> = ranks.into_iter().collect();
+                let unique_ranks: HashSet<&usize> = ranks.into_iter().collect();
 
                 if unique_ranks == target_ranks {
                     let new_cards: Vec<Card> = unique_ranks
                         .into_iter()
                         .map(|rank| Card {
                             suit: suit,
-                            rank: rank,
+                            rank: *rank,
                         })
                         .collect();
                     return (true, new_cards);
@@ -52,10 +51,9 @@ impl HandsCheck {
     }
 
     pub fn is_straight_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let cards = cards.clone();
         let (result, new_cards) = HandsCheck::is_royal_flush(&cards);
 
-        let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
+        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
 
         if result {
             return (result, new_cards);
@@ -93,8 +91,7 @@ impl HandsCheck {
     }
 
     pub fn is_four_of_a_kind(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let cards = cards.clone();
-        let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
+        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
 
         for combination in combinations {
             let mut unique_ranks = HashMap::new();
@@ -122,7 +119,6 @@ impl HandsCheck {
     }
 
     pub fn is_full_house(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let cards = cards.clone();
         for combination in cards.iter().combinations(5) {
             let mut rank_counts: HashMap<usize, Vec<Suit>> = HashMap::new();
 
@@ -139,9 +135,9 @@ impl HandsCheck {
             for (rank, suits) in rank_counts.iter() {
                 match suits.len() {
                     2 => cards_len_2
-                        .extend(suits.iter().cloned().map(|suit| Card { rank: *rank, suit })),
+                        .extend(suits.iter().map(|suit| Card { rank: *rank, suit: *suit })),
                     3 => cards_len_3
-                        .extend(suits.iter().cloned().map(|suit| Card { rank: *rank, suit })),
+                        .extend(suits.iter().map(|suit| Card { rank: *rank, suit: *suit })),
                     _ => {}
                 }
             }
@@ -156,10 +152,9 @@ impl HandsCheck {
     }
 
     pub fn is_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let cards = cards.clone();
         let (result, new_cards) = HandsCheck::is_royal_flush(&cards);
 
-        let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
+        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
 
         if result {
             return (result, new_cards);
@@ -205,8 +200,6 @@ impl HandsCheck {
         if result {
             return (result, new_cards);
         }
-
-        let original_combinations = combinations.clone();
 
         for combination in combinations {
             let mut unique_suits = HashSet::new();

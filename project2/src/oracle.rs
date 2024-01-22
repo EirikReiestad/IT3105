@@ -1,6 +1,6 @@
 use std::vec;
 extern crate ndarray;
-use ndarray::{Array, Array2};
+use ndarray::Array2;
 
 use crate::card::{Card, Deck, Suit};
 use crate::hands::{Hands, HandsCheck};

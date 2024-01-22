@@ -1,5 +1,4 @@
 use crate::card::{Card, Deck};
-use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 use std::io;

@@ -192,11 +192,10 @@ impl HandsCheck {
     }
 
     pub fn is_straight(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let cards = cards.clone();
         let (result, new_cards) = HandsCheck::is_royal_flush(&cards);
 
-        let combinations: Vec<Vec<Card>> = cards.into_iter().combinations(5).collect();
-        let target_ranks: HashSet<usize> = [1, 10, 11, 12, 13].iter().cloned().collect();
+        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
+        let target_ranks: HashSet<&usize> = [1, 10, 11, 12, 13].iter().collect();
         if result {
             return (result, new_cards);
         }
@@ -207,10 +206,10 @@ impl HandsCheck {
 
             for card in combination.clone() {
                 unique_suits.insert(card.suit);
-                unique_ranks.insert(card.rank);
+                unique_ranks.insert(&card.rank);
             }
             let royal = unique_ranks == target_ranks;
-            let mut ranks_vec: Vec<usize> = unique_ranks.into_iter().collect();
+            let mut ranks_vec: Vec<&usize> = unique_ranks.into_iter().collect();
             ranks_vec.sort();
 
             let is_one_apart = ranks_vec
@@ -218,7 +217,8 @@ impl HandsCheck {
                 .all(|window| (window[1] - window[0]) == 1);
 
             if unique_suits.len() != 1 && ranks_vec.len() == 5 && (is_one_apart || royal) {
-                return (true, combination);
+                let new_cards: Vec<Card> = combination.iter().map(|&card| card.clone()).collect();
+                return (true, new_cards);
             }
         }
         (false, vec![])

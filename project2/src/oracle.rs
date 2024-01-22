@@ -129,7 +129,7 @@ impl Oracle {
     }
 
     pub fn cheat_sheet_generator(&mut self, num_opponents: usize, rollout_count: usize) {
-        // for all the pairs use the method below
+        // TODO: task says jth hole-pair but isnt it hard to find it again? maybe use a hashmap to easier find which hole pair type
         let hole_pair_types = Oracle::generate_all_hole_pairs_types();
 
         let mut table: Vec<f32> = Vec::with_capacity(hole_pair_types.len());
@@ -151,16 +151,18 @@ impl Oracle {
 
         for i in (0..hole_pairs.len()).into_iter() {
             for j in 0..hole_pairs.len() {
+                // two hole pairs overlap with each other
                 let overlap = hole_pairs[i].iter().any(|c1| {
                     hole_pairs[j]
                         .iter()
                         .any(|c2| c1.rank == c2.rank && c1.suit == c2.suit)
                 });
                 if overlap {
-                    matrix[[i, j]] = 42;
+                    matrix[[i, j]] = 0;
                     continue;
                 }
 
+                // overlap with public cards
                 let overlap = hole_pairs[i].iter().any(|c1| {
                     public_cards
                         .iter()
@@ -181,6 +183,7 @@ impl Oracle {
                     continue;
                 }
 
+                // merge player hole pairs to use in hand evaluator
                 let player_j_hole_pair: Vec<Card> = hole_pairs[i]
                     .iter()
                     .chain(public_cards.iter())

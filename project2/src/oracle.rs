@@ -43,13 +43,13 @@ impl Oracle {
         } else if result_one < result_two {
             -1
         } else {
-            let unique_vec1: Vec<_> = set_one
+            let unique_vec1: Vec<Card> = set_one
                 .iter()
                 .filter(|&x| !cards_one.contains(x))
                 .cloned()
                 .collect();
 
-            let unique_vec2: Vec<_> = set_two
+            let unique_vec2: Vec<Card> = set_two
                 .iter()
                 .filter(|&x| !cards_two.contains(x))
                 .cloned()
@@ -153,8 +153,8 @@ impl Oracle {
 
         let mut matrix = vec![vec![0; hole_pairs.len()]; hole_pairs.len()];
 
-        for i in 0..num_hole_pairs {
-            for j in 0..num_hole_pairs {
+        for i in 0..hole_pairs.len() {
+            for j in 0..hole_pairs.len() {
                 let overlap = hole_pairs[i].iter().any(|c1| {
                     hole_pairs[j]
                         .iter()

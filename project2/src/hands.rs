@@ -253,7 +253,7 @@ impl HandsCheck {
         (false, vec![])
     }
     pub fn is_two_pairs(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let combinations: Vec<Vec<Card>> = cards.into_iter().cloned().combinations(5).collect();
+        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
         for combination in combinations {
             let mut unique_ranks = HashMap::new();
             for card in combination {
@@ -288,7 +288,7 @@ impl HandsCheck {
     }
 
     pub fn is_one_pair(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let combinations: Vec<Vec<Card>> = cards.into_iter().cloned().combinations(5).collect();
+        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
         for combination in combinations {
             let mut unique_ranks = HashMap::new();
             for card in combination {

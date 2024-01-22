@@ -10,5 +10,4 @@ fn main() {
     let mut game_manager = GameManager::new(num_players);
 
     game_manager.run();
-    println!("{}", game_manager);
 }

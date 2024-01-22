@@ -133,7 +133,7 @@ impl Oracle {
 
     pub fn cheat_sheet_generator(&mut self, num_opponents: usize, rollout_count: usize) {
         // for all the pairs use the method below
-        let hole_pair_types = self.generate_all_hole_pairs_types();
+        let hole_pair_types = Oracle::generate_all_hole_pairs_types();
         let num_hole_pairs = hole_pair_types.len();
 
         let mut table: Vec<f32> = vec![0.0; num_hole_pairs];
@@ -149,7 +149,7 @@ impl Oracle {
     }
 
     pub fn utility_matrix_generator(&mut self, public_cards: Vec<Card>) -> Vec<Vec<isize>> {
-        let hole_pairs = self.generate_all_hole_pairs();
+        let hole_pairs = Oracle::generate_all_hole_pairs();
 
         let num_hole_pairs = hole_pairs.len();
         let mut matrix = vec![vec![0; num_hole_pairs]; num_hole_pairs];
@@ -204,12 +204,13 @@ impl Oracle {
         matrix
     }
 
-    pub fn generate_all_hole_pairs(&mut self) -> Vec<Vec<Card>> {
-        let deck = Deck::new();
+    pub fn generate_all_hole_pairs() -> Vec<Vec<Card>> {
+        let mut deck = Deck::new();
+        deck.reset_stack();
         deck.stack.into_iter().combinations(2).collect()
     }
 
-    pub fn generate_all_hole_pairs_types(&mut self) -> Vec<Vec<Card>> {
+    pub fn generate_all_hole_pairs_types() -> Vec<Vec<Card>> {
         let mut pair_of_ranks: Vec<Vec<Card>> = Vec::new();
 
         for i in 0..=12 {
@@ -251,5 +252,22 @@ impl Oracle {
         pair_of_ranks.extend(suited_pairs);
         pair_of_ranks.extend(unsuited_pairs);
         pair_of_ranks
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_generate_all_hole_pairs() {
+        let pairs = Oracle::generate_all_hole_pairs();
+        assert_eq!(pairs.len(), 1326);
+    }
+
+    #[test]
+    fn generate_all_hole_pairs_types() {
+        let pairs = Oracle::generate_all_hole_pairs_types();
+        assert_eq!(pairs.len(), 169);
     }
 }

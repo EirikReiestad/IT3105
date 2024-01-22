@@ -18,7 +18,7 @@ pub enum Hands {
     None,
 }
 
-pub struct HandsCheck {}
+pub struct HandsCheck;
 
 impl HandsCheck {
     pub fn is_royal_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {

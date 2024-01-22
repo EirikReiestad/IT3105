@@ -4,7 +4,7 @@ use crate::card::{Card, Deck, Suit};
 use crate::hands::{Hands, HandsCheck};
 use itertools::Itertools;
 
-pub struct Oracle {}
+pub struct Oracle;
 
 impl Oracle {
     pub fn hand_classifier(&mut self, cards: &Vec<Card>) -> (Hands, Vec<Card>) {
@@ -25,9 +25,9 @@ impl Oracle {
         ];
 
         for (check_fn, hand) in hand_checks {
-            let (result, new_cards) = check_fn(&cards);
+            let (result, new_cards) = check_fn(cards);
             if result {
-                return (hand, new_cards);
+                (hand, new_cards);
             }
         }
 
@@ -81,7 +81,7 @@ impl Oracle {
 
     pub fn hole_pair_evaluator(
         &mut self,
-        hole_pair: &Vec<Card>,
+        hole_pair: &[Card],
         public_cards: &Vec<Card>,
         num_opponents: usize,
         rollout_count: usize,
@@ -151,8 +151,7 @@ impl Oracle {
     pub fn utility_matrix_generator(&mut self, public_cards: Vec<Card>) -> Vec<Vec<isize>> {
         let hole_pairs = Oracle::generate_all_hole_pairs();
 
-        let num_hole_pairs = hole_pairs.len();
-        let mut matrix = vec![vec![0; num_hole_pairs]; num_hole_pairs];
+        let mut matrix = vec![vec![0; hole_pairs.len()]; hole_pairs.len()];
 
         for i in 0..num_hole_pairs {
             for j in 0..num_hole_pairs {
@@ -186,13 +185,13 @@ impl Oracle {
                     continue;
                 }
 
-                let player_j_hole_pair: Vec<_> = hole_pairs[i]
+                let player_j_hole_pair = hole_pairs[i]
                     .iter()
                     .cloned()
                     .chain(public_cards.iter().cloned())
                     .collect();
 
-                let player_k_hole_pair: Vec<_> = hole_pairs[j]
+                let player_k_hole_pair = hole_pairs[j]
                     .iter()
                     .cloned()
                     .chain(public_cards.iter().cloned())
@@ -231,7 +230,7 @@ impl Oracle {
             .map(|pair| {
                 pair.iter()
                     .map(|&value| Card {
-                        suit: suits[(value % suits.len()) as usize],
+                        suit: suits[(value % suits.len())],
                         rank: value,
                     })
                     .collect()

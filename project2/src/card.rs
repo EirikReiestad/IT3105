@@ -45,7 +45,7 @@ impl Deck {
         Deck { stack: Vec::new() }
     }
 
-    pub fn reset_stack(&mut self) -> () {
+    pub fn reset_stack(&mut self) {
         let mut stack = Vec::with_capacity(52);
         for (i, suit) in (0..4).enumerate() {
             let suit = match suit {

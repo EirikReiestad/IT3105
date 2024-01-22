@@ -3,8 +3,6 @@ use crate::hands::{Hands, HandsCheck};
 use itertools::Itertools;
 use rand::prelude::SliceRandom;
 use rand::thread_rng;
-use rand::Rng;
-use std::ptr::null;
 
 pub struct Deck {
     pub stack: Vec<Card>,
@@ -35,8 +33,8 @@ impl Deck {
         self.stack = stack;
     }
 
-    pub fn remove(&mut self, card: Card) -> () {
-        self.stack.retain(|&i| i != card);
+    pub fn remove(&mut self, card: &Card) -> () {
+        self.stack.retain(|i| i != card);
     }
 
     pub fn pop(&mut self) -> Option<Card> {
@@ -47,7 +45,7 @@ impl Deck {
 pub struct Oracle {}
 
 impl Oracle {
-    pub fn hand_classifier(&mut self, cards: Vec<Card>) -> Hands {
+    pub fn hand_classifier(&mut self, cards: &Vec<Card>) -> Hands {
         if !(5 <= cards.len() && cards.len() <= 7) {
             return Hands::None;
         }
@@ -75,7 +73,7 @@ impl Oracle {
         }
     }
 
-    pub fn hand_evaluator(&mut self, set_one: Vec<Card>, set_two: Vec<Card>) -> isize {
+    pub fn hand_evaluator(&mut self, set_one: &Vec<Card>, set_two: &Vec<Card>) -> isize {
         let result_one: Hands = self.hand_classifier(set_one);
         let result_two: Hands = self.hand_classifier(set_two);
 
@@ -90,47 +88,50 @@ impl Oracle {
 
     pub fn hole_pair_evaluator(
         &mut self,
-        hole_pair: Vec<Card>,
-        public_cards: Vec<Card>,
+        hole_pair: &Vec<Card>,
+        public_cards: &Vec<Card>,
         num_opponents: usize,
         rollout_count: usize,
     ) -> f32 {
-        let win_count = 0;
-        let player_hole_pair: Vec<_> = hole_pair
-            .iter()
-            .cloned()
-            .chain(public_cards.iter().cloned())
-            .collect();
+        let mut win_count = 0;
+
         let empty_stack_error = "Not enough cards in stack";
 
         for i in 0..=rollout_count {
-            let deck = Deck::new();
+            let mut deck = Deck::new();
             deck.reset_stack();
 
-            if public_cards.len() == 0 {
-                public_cards = vec![deck.pop().expect(empty_stack_error); 5];
-                player_hole_pair = hole_pair
-                    .iter()
-                    .cloned()
-                    .chain(public_cards.iter().cloned())
-                    .collect();
-            }
+            let cloned_public_cards: Vec<Card> = if public_cards.is_empty() {
+                vec![deck.pop().expect(empty_stack_error); 5]
+            } else {
+                public_cards.clone()
+            };
+
+            let player_hole_pair = &hole_pair
+            .iter()
+            .cloned()
+            .chain(cloned_public_cards.iter().cloned())
+            .collect();
 
             for j in player_hole_pair {
                 deck.remove(j);
             }
             // CREATE HOLE FOR EACH OPPONENTS
-            let mut win_all: i32 = 1;
-            for j in 0..=num_opponents {
-                let opponent_hole_pair = vec![
+            let mut win_all: bool = true;
+            for _ in 0..=num_opponents {
+                let mut opponent_hole_pair: Vec<Card> = vec![
                     deck.pop().expect(empty_stack_error),
                     deck.pop().expect(empty_stack_error),
                 ];
-                opponent_hole_pair.extend(public_cards);
+                opponent_hole_pair.extend(public_cards.iter().cloned());
 
-                if self.hand_evaluator(player_hole_pair, opponent_hole_pair) == -1 {
-                    win_all = 0
+                if self.hand_evaluator(&player_hole_pair, &opponent_hole_pair) == -1 {
+                    win_all = false;
                 }
+            }
+            
+            if win_all {
+                win_count+=1;
             }
         }
         let probability: f32 = win_count as f32 / rollout_count as f32;
@@ -146,8 +147,8 @@ impl Oracle {
         let public_cards: Vec<Card> = Vec::new();
         for i in 0..num_hole_pairs {
             table[i] = self.hole_pair_evaluator(
-                hole_pair_types[i],
-                public_cards,
+                &hole_pair_types[i],
+                &public_cards,
                 num_opponents,
                 rollout_count,
             );
@@ -171,6 +172,7 @@ impl Oracle {
                     matrix[i][j] = 0;
                     continue;
                 }
+
 
                 let overlap = hole_pairs[i].iter().any(|c1| {
                     public_cards
@@ -203,7 +205,7 @@ impl Oracle {
                     .cloned()
                     .chain(public_cards.iter().cloned())
                     .collect();
-                matrix[i][j] = self.hand_evaluator(player_j_hole_pair, player_k_hole_pair);
+                matrix[i][j] = self.hand_evaluator(&player_j_hole_pair, &player_k_hole_pair);
             }
         }
 
@@ -213,5 +215,23 @@ impl Oracle {
     pub fn generate_all_hole_pairs(&mut self) -> Vec<Vec<Card>> {
         let deck = Deck::new();
         deck.stack.into_iter().combinations(2).collect()
+    }
+
+    pub fn generate_all_hole_pairs_types(&mut self) -> Vec<Vec<Card>> {
+
+        let mut pair_of_rank: Vec<Vec<Card>> = (0..=12).map(|i| vec![Card{suit: Suit::CLUBS, rank:i}, Card{suit: Suit::SPADES, rank:i}]).collect();
+        let suits = &[Suit::CLUBS, Suit::SPADES];
+        let suited_pairs: Vec<Vec<Card>> = (0..=12)
+        .combinations(2)
+        .map(|pair| pair.iter().map(|&value| Card { suit: suits[(value % suits.len()) as usize], rank: value }).collect())
+        .collect();
+        let unsuited_pairs: Vec<Vec<Card>> = (0..=12)
+        .combinations(2)
+        .map(|pair| pair.iter().map(|&value| Card { suit: suits[0], rank: value }).collect())
+        .collect();
+
+        pair_of_rank.extend(suited_pairs);
+        pair_of_rank.extend(unsuited_pairs);
+        pair_of_rank
     }
 }

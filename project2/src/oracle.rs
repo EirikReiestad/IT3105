@@ -1,4 +1,6 @@
 use std::vec;
+extern crate ndarray;
+use ndarray::{Array, Array2};
 
 use crate::card::{Card, Deck, Suit};
 use crate::hands::{Hands, HandsCheck};
@@ -147,12 +149,13 @@ impl Oracle {
         }
     }
 
-    pub fn utility_matrix_generator(&mut self, public_cards: Vec<Card>) -> Vec<Vec<isize>> {
+    pub fn utility_matrix_generator(&mut self, public_cards: Vec<Card>) -> Array2<isize> {
         let hole_pairs = Oracle::generate_all_hole_pairs();
 
-        let mut matrix = vec![vec![0; hole_pairs.len()]; hole_pairs.len()];
+        // let mut matrix = vec![vec![0; hole_pairs.len()]; hole_pairs.len()];
+        let mut matrix: Array2<isize> = Array2::zeros((hole_pairs.len(), hole_pairs.len()));
 
-        for i in 0..hole_pairs.len() {
+        for i in (0..hole_pairs.len()).into_iter() {
             for j in 0..hole_pairs.len() {
                 let overlap = hole_pairs[i].iter().any(|c1| {
                     hole_pairs[j]
@@ -160,7 +163,7 @@ impl Oracle {
                         .any(|c2| c1.rank == c2.rank && c1.suit == c2.suit)
                 });
                 if overlap {
-                    matrix[i][j] = 0;
+                    matrix[[i, j]] = 42;
                     continue;
                 }
 
@@ -170,7 +173,7 @@ impl Oracle {
                         .any(|c2| c1.rank == c2.rank && c1.suit == c2.suit)
                 });
                 if overlap {
-                    matrix[i][j] = 0;
+                    matrix[[i, j]] = 0;
                     continue;
                 }
 
@@ -180,7 +183,7 @@ impl Oracle {
                         .any(|c2| c1.rank == c2.rank && c1.suit == c2.suit)
                 });
                 if overlap {
-                    matrix[i][j] = 0;
+                    matrix[[i, j]] = 0;
                     continue;
                 }
 
@@ -195,7 +198,7 @@ impl Oracle {
                     .cloned()
                     .chain(public_cards.iter().cloned())
                     .collect();
-                matrix[i][j] = self.hand_evaluator(&player_j_hole_pair, &player_k_hole_pair);
+                matrix[[i, j]] = self.hand_evaluator(&player_j_hole_pair, &player_k_hole_pair);
             }
         }
 
@@ -214,10 +217,7 @@ impl Oracle {
         for i in 0..=12 {
             let mut range_vector: Vec<Card> = Vec::new();
             for j in vec![Suit::Spades, Suit::Hearts] {
-                let card = Card {
-                    suit: j,
-                    rank: i
-                };
+                let card = Card { suit: j, rank: i };
                 range_vector.push(card);
             }
             pair_of_ranks.push(range_vector);

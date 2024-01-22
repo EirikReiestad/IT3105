@@ -15,7 +15,6 @@ pub enum Hands {
     TwoPairs,
     OnePair,
     HighCard,
-    None,
 }
 
 pub struct HandsCheck;

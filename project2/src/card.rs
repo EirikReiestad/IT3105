@@ -1,7 +1,9 @@
 use rand::prelude::SliceRandom;
 use rand::thread_rng;
+use std::cmp::Ordering;
 
-#[derive(Clone, Debug, PartialEq)]
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Card {
     pub suit: Suit,
     pub rank: usize,
@@ -24,6 +26,18 @@ impl std::fmt::Display for Card {
             Suit::Spades => "♠",
         };
         write!(f, "{}{}", rank, suit)
+    }
+}
+
+impl Ord for Card {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.rank.cmp(&other.rank)
+    }
+}
+
+impl PartialOrd for Card {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 

@@ -9,9 +9,9 @@ use itertools::Itertools;
 pub struct Oracle;
 
 impl Oracle {
-    pub fn hand_classifier(&mut self, cards: &Vec<Card>) -> (Hands, Vec<Card>) {
+    pub fn hand_classifier(&mut self, cards: &Vec<Card>) -> Option<(Hands, Vec<Card>)> {
         if !(5 < cards.len() && cards.len() > 7) {
-            return (Hands::None, Vec::new());
+            return None;
         }
 
         let hand_checks: Vec<(&dyn Fn(&Vec<Card>) -> (bool, Vec<Card>), Hands)> = vec![
@@ -33,12 +33,12 @@ impl Oracle {
             }
         }
 
-        (Hands::HighCard, cards.to_vec())
+        Some((Hands::HighCard, cards.to_vec()))
     }
 
     pub fn hand_evaluator(&mut self, set_one: &Vec<Card>, set_two: &Vec<Card>) -> isize {
-        let (result_one, cards_one) = self.hand_classifier(set_one);
-        let (result_two, cards_two) = self.hand_classifier(set_two);
+        let (result_one, cards_one) = self.hand_classifier(set_one).unwrap();
+        let (result_two, cards_two) = self.hand_classifier(set_two).unwrap();
 
         if result_one > result_two {
             1
@@ -65,12 +65,11 @@ impl Oracle {
 
                 match (max_card_one, max_card_two) {
                     (Some(card1), Some(card2)) => {
-                        if card1.rank > card2.rank {
-                            1
-                        } else if card1.rank < card2.rank {
-                            -1
-                        } else {
-                            0
+                        let comparison_result = card1.cmp(card2);
+                        match comparison_result {
+                            std::cmp::Ordering::Greater => 1,
+                            std::cmp::Ordering::Less => -1,
+                            std::cmp::Ordering::Equal => 0,
                         }
                     }
                     (Some(_), None) => 1,

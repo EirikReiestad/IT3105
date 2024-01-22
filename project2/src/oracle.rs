@@ -1,48 +1,81 @@
-use crate::card::{Card, Suit, Deck};
+use std::vec;
+
+use crate::card::{Card, Deck, Suit};
 use crate::hands::{Hands, HandsCheck};
 use itertools::Itertools;
 
 pub struct Oracle {}
 
 impl Oracle {
-    pub fn hand_classifier(&mut self, cards: &Vec<Card>) -> Hands {
+    pub fn hand_classifier(&mut self, cards: &Vec<Card>) -> (Hands, Vec<Card>) {
         if !(5 < cards.len() && cards.len() > 7) {
-            return Hands::None;
+            return (Hands::None, Vec::new());
         }
-        return Hands::None;
-        // if HandsCheck::is_royal_flush(&cards) {
-        //     return Hands::RoyalFlush;
-        // } else if HandsCheck::is_straight_flush(&cards) {
-        //     return Hands::StraightFlush;
-        // } else if HandsCheck::is_four_of_a_kind(&cards) {
-        //     return Hands::FourOfAKind;
-        // } else if HandsCheck::is_full_house(&cards) {
-        //     return Hands::FullHouse;
-        // } else if HandsCheck::is_flush(&cards) {
-        //     return Hands::Flush;
-        // } else if HandsCheck::is_straight(&cards) {
-        //     return Hands::Straight;
-        // } else if HandsCheck::is_three_of_a_kind(&cards) {
-        //     return Hands::ThreeOfAKind;
-        // } else if HandsCheck::is_two_pairs(&cards) {
-        //     return Hands::TwoPairs;
-        // } else if HandsCheck::is_one_pair(&cards) {
-        //     return Hands::OnePair;
-        // } else {
-        //     return Hands::HighCard;
-        // }
+
+        let hand_checks: Vec<(&dyn Fn(&Vec<Card>) -> (bool, Vec<Card>), Hands)> = vec![
+            (&HandsCheck::is_royal_flush, Hands::RoyalFlush),
+            (&HandsCheck::is_straight_flush, Hands::StraightFlush),
+            (&HandsCheck::is_four_of_a_kind, Hands::FourOfAKind),
+            (&HandsCheck::is_full_house, Hands::FullHouse),
+            (&HandsCheck::is_flush, Hands::Flush),
+            (&HandsCheck::is_straight, Hands::Straight),
+            (&HandsCheck::is_three_of_a_kind, Hands::ThreeOfAKind),
+            (&HandsCheck::is_two_pairs, Hands::TwoPairs),
+            (&HandsCheck::is_one_pair, Hands::OnePair),
+        ];
+
+        for (check_fn, hand) in hand_checks {
+            let (result, new_cards) = check_fn(&cards);
+            if result {
+                return (hand, new_cards);
+            }
+        }
+
+        (Hands::HighCard, cards.to_vec())
     }
 
     pub fn hand_evaluator(&mut self, set_one: &Vec<Card>, set_two: &Vec<Card>) -> isize {
-        let result_one: Hands = self.hand_classifier(set_one);
-        let result_two: Hands = self.hand_classifier(set_two);
+        let (result_one, cards_one) = self.hand_classifier(set_one);
+        let (result_two, cards_two) = self.hand_classifier(set_two);
 
         if result_one > result_two {
             1
         } else if result_one < result_two {
             -1
         } else {
-            0
+            let unique_vec1: Vec<_> = set_one
+                .iter()
+                .filter(|&x| !cards_one.contains(x))
+                .cloned()
+                .collect();
+
+            let unique_vec2: Vec<_> = set_two
+                .iter()
+                .filter(|&x| !cards_two.contains(x))
+                .cloned()
+                .collect();
+
+            if unique_vec1.len() == 0 && unique_vec2.len() == 0 {
+                0
+            } else {
+                let max_card_one: Option<&Card> = unique_vec1.iter().max_by_key(|card| &card.rank);
+                let max_card_two: Option<&Card> = unique_vec1.iter().max_by_key(|card| &card.rank);
+
+                match (max_card_one, max_card_two) {
+                    (Some(card1), Some(card2)) => {
+                        if card1.rank > card2.rank {
+                            1
+                        } else if card1.rank < card2.rank {
+                            -1
+                        } else {
+                            0
+                        }
+                    }
+                    (Some(_), None) => 1,
+                    (None, Some(_)) => -1,
+                    (None, None) => 0,
+                }
+            }
         }
     }
 
@@ -68,10 +101,10 @@ impl Oracle {
             };
 
             let player_hole_pair = &hole_pair
-            .iter()
-            .cloned()
-            .chain(cloned_public_cards.iter().cloned())
-            .collect();
+                .iter()
+                .cloned()
+                .chain(cloned_public_cards.iter().cloned())
+                .collect();
 
             for j in player_hole_pair {
                 deck.remove(j);
@@ -89,9 +122,9 @@ impl Oracle {
                     win_all = false;
                 }
             }
-            
+
             if win_all {
-                win_count+=1;
+                win_count += 1;
             }
         }
         let probability: f32 = win_count as f32 / rollout_count as f32;
@@ -132,7 +165,6 @@ impl Oracle {
                     matrix[i][j] = 0;
                     continue;
                 }
-
 
                 let overlap = hole_pairs[i].iter().any(|c1| {
                     public_cards
@@ -178,20 +210,46 @@ impl Oracle {
     }
 
     pub fn generate_all_hole_pairs_types(&mut self) -> Vec<Vec<Card>> {
+        let mut pair_of_ranks: Vec<Vec<Card>> = Vec::new();
 
-        let mut pair_of_rank: Vec<Vec<Card>> = (0..=12).map(|i| vec![Card{suit: Suit::Clubs, rank:i}, Card{suit: Suit::Spades, rank:i}]).collect();
+        for i in 0..=12 {
+            let mut range_vector: Vec<Card> = Vec::new();
+            for j in vec![Suit::Spades, Suit::Hearts] {
+                let card = Card {
+                    suit: j,
+                    rank: i
+                };
+                range_vector.push(card);
+            }
+            pair_of_ranks.push(range_vector);
+        }
+
         let suits = &[Suit::Clubs, Suit::Spades];
         let suited_pairs: Vec<Vec<Card>> = (0..=12)
-        .combinations(2)
-        .map(|pair| pair.iter().map(|&value| Card { suit: suits[(value % suits.len()) as usize], rank: value }).collect())
-        .collect();
+            .combinations(2)
+            .map(|pair| {
+                pair.iter()
+                    .map(|&value| Card {
+                        suit: suits[(value % suits.len()) as usize],
+                        rank: value,
+                    })
+                    .collect()
+            })
+            .collect();
         let unsuited_pairs: Vec<Vec<Card>> = (0..=12)
-        .combinations(2)
-        .map(|pair| pair.iter().map(|&value| Card { suit: suits[0], rank: value }).collect())
-        .collect();
+            .combinations(2)
+            .map(|pair| {
+                pair.iter()
+                    .map(|&value| Card {
+                        suit: suits[0],
+                        rank: value,
+                    })
+                    .collect()
+            })
+            .collect();
 
-        pair_of_rank.extend(suited_pairs);
-        pair_of_rank.extend(unsuited_pairs);
-        pair_of_rank
+        pair_of_ranks.extend(suited_pairs);
+        pair_of_ranks.extend(unsuited_pairs);
+        pair_of_ranks
     }
 }

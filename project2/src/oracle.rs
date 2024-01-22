@@ -9,8 +9,8 @@ use itertools::Itertools;
 pub struct Oracle;
 
 impl Oracle {
-    pub fn hand_classifier(&mut self, cards: &Vec<Card>) -> Option<(Hands, Vec<Card>)> {
-        if !(5 < cards.len() && cards.len() > 7) {
+    pub fn hand_classifier(cards: &Vec<Card>) -> Option<(Hands, Vec<Card>)> {
+        if !(5 < cards.len() && cards.len() < 7) {
             return None;
         }
 
@@ -29,7 +29,7 @@ impl Oracle {
         for (check_fn, hand) in hand_checks {
             let (result, new_cards) = check_fn(cards);
             if result {
-                (hand, new_cards);
+                return Some((hand, new_cards))
             }
         }
 
@@ -37,8 +37,9 @@ impl Oracle {
     }
 
     pub fn hand_evaluator(&mut self, set_one: &Vec<Card>, set_two: &Vec<Card>) -> isize {
-        let (result_one, cards_one) = self.hand_classifier(set_one).unwrap();
-        let (result_two, cards_two) = self.hand_classifier(set_two).unwrap();
+        let (result_one, cards_one) = Oracle::hand_classifier(set_one).unwrap();
+        let (result_two, cards_two) = Oracle::
+        hand_classifier(set_two).unwrap();
 
         if result_one > result_two {
             1
@@ -182,11 +183,17 @@ impl Oracle {
                     continue;
                 }
 
-                let player_j_hole_pair: Vec<Card> =
-                    hole_pairs[i].iter().chain(public_cards.iter()).cloned().collect();
+                let player_j_hole_pair: Vec<Card> = hole_pairs[i]
+                    .iter()
+                    .chain(public_cards.iter())
+                    .cloned()
+                    .collect();
 
-                let player_k_hole_pair: Vec<Card> =
-                    hole_pairs[j].iter().chain(public_cards.iter()).cloned().collect();
+                let player_k_hole_pair: Vec<Card> = hole_pairs[j]
+                    .iter()
+                    .chain(public_cards.iter())
+                    .cloned()
+                    .collect();
 
                 matrix[[i, j]] = self.hand_evaluator(&player_j_hole_pair, &player_k_hole_pair);
             }
@@ -257,5 +264,71 @@ mod tests {
     fn generate_all_hole_pairs_types() {
         let pairs = Oracle::generate_all_hole_pairs_types();
         assert_eq!(pairs.len(), 169);
+    }
+
+    #[test]
+    fn hand_classifier_royal_flush() {
+        let cards = vec![
+            Card {
+                suit: Suit::Clubs,
+                rank: 13,
+            },
+            Card {
+                suit: Suit::Clubs,
+                rank: 12,
+            },
+            Card {
+                suit: Suit::Clubs,
+                rank: 1,
+            },
+            Card {
+                suit: Suit::Clubs,
+                rank: 2,
+            },
+            Card {
+                suit: Suit::Clubs,
+                rank: 11,
+            },
+            Card {
+                suit: Suit::Clubs,
+                rank: 10,
+            },
+        ];
+
+        let (result, _) = Oracle::hand_classifier(&cards).unwrap();
+        assert_eq!(result, Hands::RoyalFlush);
+    }
+
+    #[test]
+    fn hand_classifier_one_pair() {
+        let cards = vec![
+            Card {
+                suit: Suit::Clubs,
+                rank: 13,
+            },
+            Card {
+                suit: Suit::Spades,
+                rank: 12,
+            },
+            Card {
+                suit: Suit::Hearts,
+                rank: 1,
+            },
+            Card {
+                suit: Suit::Clubs,
+                rank: 2,
+            },
+            Card {
+                suit: Suit::Clubs,
+                rank: 12,
+            },
+            Card {
+                suit: Suit::Clubs,
+                rank: 10,
+            },
+        ];
+
+        let (result, _) = Oracle::hand_classifier(&cards).unwrap();
+        assert_eq!(result, Hands::OnePair);
     }
 }

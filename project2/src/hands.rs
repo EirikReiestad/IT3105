@@ -3,7 +3,7 @@ use itertools::Itertools;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-#[derive(PartialEq, PartialOrd)]
+#[derive(PartialEq, PartialOrd, Debug)]
 pub enum Hands {
     RoyalFlush,
     StraightFlush,

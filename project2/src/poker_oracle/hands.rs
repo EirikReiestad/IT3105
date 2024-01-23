@@ -338,34 +338,13 @@ mod tests {
         #[test]
         fn test_royal_flush_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 11,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 12,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
+                Card::new(Suit::Spades, 10),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 11),
+                Card::new(Suit::Spades, 12),
+                Card::new(Suit::Spades, 13),
+                Card::new(Suit::Spades, 1),
+                Card::new(Suit::Hearts, 10),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_royal_flush(&cards);
 
@@ -375,26 +354,11 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 1,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 10,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 11,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 12,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 13,
-                    }
+                    Card::new(Suit::Spades, 1),
+                    Card::new(Suit::Spades, 10),
+                    Card::new(Suit::Spades, 11),
+                    Card::new(Suit::Spades, 12),
+                    Card::new(Suit::Spades, 13),
                 ]
             )
         }
@@ -402,34 +366,13 @@ mod tests {
         #[test]
         fn test_royal_flush_ok_2() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 11,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 12,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 11),
+                Card::new(Suit::Spades, 12),
+                Card::new(Suit::Spades, 13),
+                Card::new(Suit::Spades, 1),
+                Card::new(Suit::Spades, 10),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_royal_flush(&cards);
 
@@ -439,26 +382,11 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 1,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 10,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 11,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 12,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 13,
-                    }
+                    Card::new(Suit::Spades, 1),
+                    Card::new(Suit::Spades, 10),
+                    Card::new(Suit::Spades, 11),
+                    Card::new(Suit::Spades, 12),
+                    Card::new(Suit::Spades, 13),
                 ]
             );
         }
@@ -466,34 +394,13 @@ mod tests {
         #[test]
         fn test_royal_flush_not_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 11,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 11),
+                Card::new(Suit::Spades, 8),
+                Card::new(Suit::Spades, 13),
+                Card::new(Suit::Spades, 1),
+                Card::new(Suit::Spades, 10)
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_royal_flush(&cards);
 
@@ -509,34 +416,13 @@ mod tests {
         #[test]
         fn test_straight_flush_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 11,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 12,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
+                Card::new(Suit::Spades, 10),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 11),
+                Card::new(Suit::Spades, 12),
+                Card::new(Suit::Spades, 13),
+                Card::new(Suit::Spades, 1),
+                Card::new(Suit::Spades, 10),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight_flush(&cards);
 
@@ -546,26 +432,11 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 1,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 10,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 11,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 12,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 13,
-                    }
+                    Card::new(Suit::Spades, 1),
+                    Card::new(Suit::Spades, 10),
+                    Card::new(Suit::Spades, 11),
+                    Card::new(Suit::Spades, 12),
+                    Card::new(Suit::Spades, 13),
                 ]
             )
         }
@@ -573,34 +444,13 @@ mod tests {
         #[test]
         fn test_straight_flush_ok_2() {
             let cards = vec![
-                Card {
-                    suit: Suit::Spades,
-                    rank: 2,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 3,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 4,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 5,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 6,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
+                Card::new(Suit::Spades, 2),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 3),
+                Card::new(Suit::Spades, 4),
+                Card::new(Suit::Spades, 5),
+                Card::new(Suit::Spades, 6),
+                Card::new(Suit::Hearts, 10)
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight_flush(&cards);
 
@@ -610,26 +460,11 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 2,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 3,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 4,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 5,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 6,
-                    }
+                    Card::new(Suit::Spades, 2),
+                    Card::new(Suit::Spades, 3),
+                    Card::new(Suit::Spades, 4),
+                    Card::new(Suit::Spades, 5),
+                    Card::new(Suit::Spades, 6),
                 ]
             )
         }
@@ -637,34 +472,13 @@ mod tests {
         #[test]
         fn test_straight_flush_ok_3() {
             let cards = vec![
-                Card {
-                    suit: Suit::Spades,
-                    rank: 2,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 3,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 4,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 5,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 6,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 7,
-                },
+                Card::new(Suit::Spades, 2),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 3),
+                Card::new(Suit::Spades, 4),
+                Card::new(Suit::Spades, 5),
+                Card::new(Suit::Spades, 6),
+                Card::new(Suit::Spades, 7),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight_flush(&cards);
 
@@ -674,26 +488,11 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 3,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 4,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 5,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 6,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 7,
-                    }
+                    Card::new(Suit::Spades, 3),
+                    Card::new(Suit::Spades, 4),
+                    Card::new(Suit::Spades, 5),
+                    Card::new(Suit::Spades, 6),
+                    Card::new(Suit::Spades, 7)
                 ]
             )
         }
@@ -701,34 +500,13 @@ mod tests {
         #[test]
         fn test_straight_flush_not_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Spades,
-                    rank: 2,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 3,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 5,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 6,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
+                Card::new(Suit::Spades, 2),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 3),
+                Card::new(Suit::Hearts, 8),
+                Card::new(Suit::Spades, 5),
+                Card::new(Suit::Spades, 6),
+                Card::new(Suit::Hearts, 10)
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight_flush(&cards);
 
@@ -741,34 +519,13 @@ mod tests {
         #[test]
         fn test_straight_flush_not_ok_2() {
             let cards = vec![
-                Card {
-                    suit: Suit::Spades,
-                    rank: 2,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 3,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 4,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 5,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 6,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
+                Card::new(Suit::Spades, 2),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 3),
+                Card::new(Suit::Hearts, 4),
+                Card::new(Suit::Spades, 5),
+                Card::new(Suit::Spades, 6),
+                Card::new(Suit::Hearts, 10),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight_flush(&cards);
 
@@ -784,30 +541,12 @@ mod tests {
         #[test]
         fn test_four_of_a_kind_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Diamonds,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 1),
+                Card::new(Suit::Clubs, 1),
+                Card::new(Suit::Diamonds, 1),
+                Card::new(Suit::Spades, 10),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_four_of_a_kind(&cards);
 
@@ -819,31 +558,13 @@ mod tests {
 
         #[test]
         fn test_four_of_a_kind_not_ok() {
-            let mut cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 2,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Diamonds,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
+            let cards = vec![
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Spades, 2),
+                Card::new(Suit::Clubs, 1),
+                Card::new(Suit::Diamonds, 1),
+                Card::new(Suit::Spades, 10),
             ];
             let (result, cards): (bool, Vec<Card>) = HandsCheck::is_four_of_a_kind(&cards);
 
@@ -855,30 +576,13 @@ mod tests {
         #[test]
         fn test_full_house_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Diamonds,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 11,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Clubs, 10),
+                Card::new(Suit::Spades, 1),
+                Card::new(Suit::Clubs, 1),
+                Card::new(Suit::Diamonds, 1),
+                Card::new(Suit::Spades, 11),
+
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_full_house(&cards);
 
@@ -888,26 +592,11 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 1,
-                    },
-                    Card {
-                        suit: Suit::Clubs,
-                        rank: 1,
-                    },
-                    Card {
-                        suit: Suit::Diamonds,
-                        rank: 1,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 10,
-                    },
-                    Card {
-                        suit: Suit::Clubs,
-                        rank: 10,
-                    }
+                    Card::new(Suit::Spades, 1),
+                    Card::new(Suit::Clubs, 1),
+                    Card::new(Suit::Diamonds, 1),
+                    Card::new(Suit::Hearts, 10),
+                    Card::new(Suit::Clubs, 10),
                 ]
             );
         }
@@ -917,30 +606,12 @@ mod tests {
         #[test]
         fn test_full_house_not_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 9,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Diamonds,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 11,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Clubs, 9),
+                Card::new(Suit::Spades, 1),
+                Card::new(Suit::Clubs, 1),
+                Card::new(Suit::Diamonds, 1),
+                Card::new(Suit::Hearts, 11),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_full_house(&cards);
 
@@ -956,30 +627,12 @@ mod tests {
         #[test]
         fn test_flush_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 7,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 2,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 7),
+                Card::new(Suit::Hearts, 2),
+                Card::new(Suit::Clubs, 1),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Hearts, 11),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_flush(&cards);
 
@@ -989,57 +642,24 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 1,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 2,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 7,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 10,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 11,
-                    },
+                    Card::new(Suit::Hearts, 1),
+                    Card::new(Suit::Hearts, 2),
+                    Card::new(Suit::Hearts, 7),
+                    Card::new(Suit::Hearts, 10),
+                    Card::new(Suit::Hearts, 11),
                 ]
             );
         }
 
         #[test]
         fn test_flush_ok2() {
-            let mut cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 7,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 2,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
+            let cards = vec![
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 7),
+                Card::new(Suit::Hearts, 2),
+                Card::new(Suit::Hearts, 11),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Hearts, 13),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_flush(&cards);
 
@@ -1049,26 +669,11 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 2,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 7,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 10,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 11,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 13,
-                    },
+                    Card::new(Suit::Hearts, 2),
+                    Card::new(Suit::Hearts, 7),
+                    Card::new(Suit::Hearts, 10),
+                    Card::new(Suit::Hearts, 11),
+                    Card::new(Suit::Hearts, 13),
                 ]
             );
         }
@@ -1077,30 +682,12 @@ mod tests {
         #[test]
         fn test_flush_not_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 7,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 2,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 1,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 7),
+                Card::new(Suit::Spades, 2),
+                Card::new(Suit::Clubs, 1),
+                Card::new(Suit::Hearts, 1),
+                Card::new(Suit::Hearts, 11),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_flush(&cards);
 
@@ -1115,30 +702,12 @@ mod tests {
         #[test]
         fn test_straight_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 7,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 9,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Spades, 7),
+                Card::new(Suit::Hearts, 8),
+                Card::new(Suit::Clubs, 9),
+                Card::new(Suit::Hearts, 13),
+                Card::new(Suit::Hearts, 11),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight(&cards);
 
@@ -1148,26 +717,11 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 7,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 8,
-                    },
-                    Card {
-                        suit: Suit::Clubs,
-                        rank: 9,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 10,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 11,
-                    },
+                    Card::new(Suit::Spades, 7),
+                    Card::new(Suit::Hearts, 8),
+                    Card::new(Suit::Clubs, 9),
+                    Card::new(Suit::Hearts, 10),
+                    Card::new(Suit::Hearts, 11),
                 ]
             );
         }
@@ -1175,34 +729,13 @@ mod tests {
         #[test]
         fn test_straight_ok2() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 7,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 9,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 11,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 12,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 7),
+                Card::new(Suit::Clubs, 8),
+                Card::new(Suit::Hearts, 9),
+                Card::new(Suit::Spades, 13),
+                Card::new(Suit::Clubs, 11),
+                Card::new(Suit::Hearts, 12),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight(&cards);
 
@@ -1212,33 +745,18 @@ mod tests {
             assert_eq!(
                 cards,
                 vec![
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 9,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 10,
-                    },
-                    Card {
-                        suit: Suit::Clubs,
-                        rank: 11,
-                    },
-                    Card {
-                        suit: Suit::Hearts,
-                        rank: 12,
-                    },
-                    Card {
-                        suit: Suit::Spades,
-                        rank: 13,
-                    },
+                    Card::new(Suit::Hearts, 9),
+                    Card::new(Suit::Hearts, 10),
+                    Card::new(Suit::Clubs, 11),
+                    Card::new(Suit::Hearts, 12),
+                    Card::new(Suit::Spades, 13),
                 ]
             );
         }
 
         #[test]
         fn test_straight_not_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Hearts,
                     rank: 10,

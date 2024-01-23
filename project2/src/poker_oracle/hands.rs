@@ -52,8 +52,9 @@ impl HandsCheck {
 
     pub fn is_straight_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let (result, new_cards) = HandsCheck::is_royal_flush(cards);
-
-        let combinations: Vec<Vec<&Card>> = cards.iter().combinations(5).collect();
+        let mut sorted_cards = cards.clone();
+        sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
+        let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
 
         if result {
             return (result, new_cards);
@@ -118,7 +119,11 @@ impl HandsCheck {
     }
 
     pub fn is_full_house(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        for combination in cards.iter().combinations(5) {
+        let mut sorted_cards = cards.clone();
+        sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
+        let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
+
+        for combination in combinations {
             let mut rank_counts: HashMap<usize, Vec<Suit>> = HashMap::new();
 
             for card in &combination {
@@ -155,7 +160,6 @@ impl HandsCheck {
     }
 
     pub fn is_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let (result, new_cards) = HandsCheck::is_royal_flush(&cards);
 
         let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
 
@@ -195,13 +199,10 @@ impl HandsCheck {
     }
 
     pub fn is_straight(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let (result, new_cards) = HandsCheck::is_royal_flush(&cards);
-
-        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
+        let mut sorted_cards = cards.clone();
+        sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
+        let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
         let target_ranks: HashSet<&usize> = [1, 10, 11, 12, 13].iter().collect();
-        if result {
-            return (result, new_cards);
-        }
 
         for combination in combinations {
             let mut unique_suits = HashSet::new();
@@ -228,7 +229,9 @@ impl HandsCheck {
     }
 
     pub fn is_three_of_a_kind(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
+        let mut sorted_cards = cards.clone();
+        sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
+        let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
 
         for combination in combinations {
             let mut unique_ranks = HashMap::new();
@@ -257,7 +260,10 @@ impl HandsCheck {
         (false, vec![])
     }
     pub fn is_two_pairs(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
+        let mut sorted_cards = cards.clone();
+        sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
+        let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
+
         for combination in combinations {
             let mut unique_ranks = HashMap::new();
             for card in combination {
@@ -292,7 +298,10 @@ impl HandsCheck {
     }
 
     pub fn is_one_pair(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
+        let mut sorted_cards = cards.clone();
+        sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
+        let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
+
         for combination in combinations {
             let mut unique_ranks = HashMap::new();
             for card in combination {
@@ -622,6 +631,70 @@ mod tests {
                     Card {
                         suit: Suit::Spades,
                         rank: 6,
+                    }
+                ]
+            )
+        }
+
+        #[test]
+        fn test_straight_flush_ok_3() {
+            let mut cards = vec![
+                Card {
+                    suit: Suit::Spades,
+                    rank: 2,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 1,
+                },
+                Card {
+                    suit: Suit::Spades,
+                    rank: 3,
+                },
+                Card {
+                    suit: Suit::Spades,
+                    rank: 4,
+                },
+                Card {
+                    suit: Suit::Spades,
+                    rank: 5,
+                },
+                Card {
+                    suit: Suit::Spades,
+                    rank: 6,
+                },
+                Card {
+                    suit: Suit::Spades,
+                    rank: 7,
+                },
+            ];
+            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight_flush(&cards);
+
+            cards.sort_by(|a, b| a.rank.cmp(&b.rank));
+
+            assert_eq!(result, true);
+            assert_eq!(
+                cards,
+                vec![
+                    Card {
+                        suit: Suit::Spades,
+                        rank: 3,
+                    },
+                    Card {
+                        suit: Suit::Spades,
+                        rank: 4,
+                    },
+                    Card {
+                        suit: Suit::Spades,
+                        rank: 5,
+                    },
+                    Card {
+                        suit: Suit::Spades,
+                        rank: 6,
+                    },
+                    Card {
+                        suit: Suit::Spades,
+                        rank: 7,
                     }
                 ]
             )

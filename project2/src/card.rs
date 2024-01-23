@@ -1,7 +1,19 @@
-#[derive(Clone)]
+use std::cmp::Ordering;
+
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Card {
     pub suit: Suit,
     pub rank: usize,
+}
+
+impl Card {
+    pub fn new(suit: Suit, rank: usize) -> Card {
+        Card {
+            suit,
+            rank
+        }
+    }
 }
 
 impl std::fmt::Display for Card {
@@ -24,35 +36,22 @@ impl std::fmt::Display for Card {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Hash)]
+impl Ord for Card {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.rank.cmp(&other.rank)
+    }
+}
+
+impl PartialOrd for Card {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Eq, Hash)]
 pub enum Suit {
     Clubs,
     Diamonds,
     Hearts,
     Spades,
-}
-
-pub struct Deck;
-
-impl Deck {
-    pub fn generate_deck() -> Vec<Card> {
-        let mut deck = Vec::with_capacity(52);
-        for suit in [Suit::Clubs, Suit::Diamonds, Suit::Hearts, Suit::Spades].iter() {
-            for rank in 1..=13 {
-                deck.push(Card { suit: *suit, rank });
-            }
-        }
-        deck
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_generate_stack() {
-        let stack = Deck::generate_deck();
-        assert_eq!(stack.len(), 52);
-    }
 }

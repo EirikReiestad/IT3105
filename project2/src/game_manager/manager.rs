@@ -1,7 +1,7 @@
 //! This module contains the game manager which handles the game logic
 use super::players::{Player, Players};
-use crate::card::{Card, Deck};
-use rand::seq::SliceRandom;
+use crate::card::Card;
+use crate::poker_oracle::deck::Deck;
 use rand::{thread_rng, Rng};
 use std::io;
 
@@ -62,9 +62,9 @@ pub struct GameManager {
 impl GameManager {
     pub fn new(num_players: u32) -> GameManager {
         // Generate a stack of cards and shuffle them
-        let mut stack = Deck::generate_deck();
-        let mut rng = thread_rng();
-        stack.shuffle(&mut rng);
+        let mut deck = Deck::new();
+        deck.reset_stack();
+        // stack.shuffle(&mut rng);
 
         // Error if there are not enough cards for the game
         let empty_stack_error = "Not enough cards in stack";
@@ -73,8 +73,8 @@ impl GameManager {
         let mut players = Vec::with_capacity(num_players as usize);
 
         for _ in 0..num_players {
-            let first_card = stack.pop().expect(empty_stack_error);
-            let second_card = stack.pop().expect(empty_stack_error);
+            let first_card = deck.pop().expect(empty_stack_error);
+            let second_card = deck.pop().expect(empty_stack_error);
 
             players.push(Player::new((first_card, second_card)));
         }
@@ -83,12 +83,15 @@ impl GameManager {
 
         // Deal flop, turn, and river
         let flop = (
-            stack.pop().expect(empty_stack_error),
-            stack.pop().expect(empty_stack_error),
-            stack.pop().expect(empty_stack_error),
+            deck.pop().expect(empty_stack_error),
+            deck.pop().expect(empty_stack_error),
+            deck.pop().expect(empty_stack_error),
         );
-        let turn = stack.pop().expect(empty_stack_error);
-        let river = stack.pop().expect(empty_stack_error);
+        let turn = deck.pop().expect(empty_stack_error);
+        let river = deck.pop().expect(empty_stack_error);
+
+        // Determine dealer
+        let mut rng = thread_rng();
         let dealer = rng.gen_range(0..num_players as usize);
 
         let board = Board {

@@ -129,7 +129,7 @@ impl HandsCheck {
             for card in &combination {
                 rank_counts
                     .entry(card.rank)
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(card.suit);
             }
 

@@ -161,11 +161,9 @@ impl HandsCheck {
 
     pub fn is_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
 
-        let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
-
-        if result {
-            return (result, new_cards);
-        }
+        let mut sorted_cards = cards.clone();
+        sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
+        let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
 
         for combination in combinations {
             let mut unique_suits = HashSet::new();
@@ -1017,6 +1015,67 @@ mod tests {
         }
 
         #[test]
+        fn test_flush_ok2() {
+            let mut cards = vec![
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 10,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 7,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 2,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 11,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 1,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 13,
+                },
+            ];
+            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_flush(&cards);
+
+            cards.sort_by(|a, b| a.rank.cmp(&b.rank));
+
+            assert_eq!(result, true);
+            assert_eq!(
+                cards,
+                vec![
+                    Card {
+                        suit: Suit::Hearts,
+                        rank: 2,
+                    },
+                    Card {
+                        suit: Suit::Hearts,
+                        rank: 7,
+                    },
+                    Card {
+                        suit: Suit::Hearts,
+                        rank: 10,
+                    },
+                    Card {
+                        suit: Suit::Hearts,
+                        rank: 11,
+                    },
+                    Card {
+                        suit: Suit::Hearts,
+                        rank: 13,
+                    },
+                ]
+            );
+        }
+
+
+        #[test]
         fn test_flush_not_ok() {
             let mut cards = vec![
                 Card {
@@ -1051,10 +1110,12 @@ mod tests {
             assert_eq!(result, false);
             assert_eq!(cards, vec![]);
         }
-
+    }
+    mod straight {
+        use super::*;
         #[test]
         fn test_straight_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Hearts,
                     rank: 10,
@@ -1111,9 +1172,71 @@ mod tests {
                 ]
             );
         }
-    }
-    mod straight {
-        use super::*;
+
+        #[test]
+        fn test_straight_ok2() {
+            let cards = vec![
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 10,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 7,
+                },
+                Card {
+                    suit: Suit::Clubs,
+                    rank: 8,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 9,
+                },
+                Card {
+                    suit: Suit::Spades,
+                    rank: 13,
+                },
+                Card {
+                    suit: Suit::Clubs,
+                    rank: 11,
+                },
+                Card {
+                    suit: Suit::Hearts,
+                    rank: 12,
+                },
+            ];
+            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight(&cards);
+
+            cards.sort_by(|a, b| a.rank.cmp(&b.rank));
+
+            assert_eq!(result, true);
+            assert_eq!(
+                cards,
+                vec![
+                    Card {
+                        suit: Suit::Hearts,
+                        rank: 9,
+                    },
+                    Card {
+                        suit: Suit::Hearts,
+                        rank: 10,
+                    },
+                    Card {
+                        suit: Suit::Clubs,
+                        rank: 11,
+                    },
+                    Card {
+                        suit: Suit::Hearts,
+                        rank: 12,
+                    },
+                    Card {
+                        suit: Suit::Spades,
+                        rank: 13,
+                    },
+                ]
+            );
+        }
+
         #[test]
         fn test_straight_not_ok() {
             let mut cards = vec![
@@ -1225,7 +1348,7 @@ mod tests {
         use super::*;
         #[test]
         fn test_two_pair_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Hearts,
                     rank: 10,
@@ -1248,13 +1371,18 @@ mod tests {
                 },
                 Card {
                     suit: Suit::Hearts,
-                    rank: 11,
+                    rank: 13,
                 },
             ];
-            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_two_pairs(&cards);
+            let (result, cards): (bool, Vec<Card>) = HandsCheck::is_two_pairs(&cards);
 
             assert_eq!(result, true);
             assert_eq!(4, cards.len());
+            assert_eq!(true, cards.iter().any(|x| x.rank==13));
+            assert_eq!(true, cards.iter().any(|x| x.rank==10));
+            assert_eq!(true, cards.iter().all(|x| x.rank != 8));
+
+
         }
 
         #[test]

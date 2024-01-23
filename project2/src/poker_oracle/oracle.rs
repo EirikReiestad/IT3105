@@ -2,8 +2,9 @@ use std::vec;
 extern crate ndarray;
 use ndarray::Array2;
 
-use crate::card::{Card, Deck, Suit};
-use crate::hands::{Hands, HandsCheck};
+use crate::card::{Card, Suit};
+use crate::poker_oracle::hands::{HandsCheck, Hands};
+use crate::poker_oracle::deck::Deck;
 use itertools::Itertools;
 
 pub struct Oracle;
@@ -135,12 +136,12 @@ impl Oracle {
         let mut table: Vec<f32> = Vec::with_capacity(hole_pair_types.len());
         let public_cards: Vec<Card> = Vec::new();
         for i in 0..hole_pair_types.len() {
-            table[i] = self.hole_pair_evaluator(
+            table.push(self.hole_pair_evaluator(
                 &hole_pair_types[i],
                 &public_cards,
                 num_opponents,
                 rollout_count,
-            );
+            ));
         }
     }
 
@@ -149,7 +150,7 @@ impl Oracle {
 
         let mut matrix: Array2<isize> = Array2::zeros((hole_pairs.len(), hole_pairs.len()));
 
-        for i in (0..hole_pairs.len()).into_iter() {
+        for i in 0..hole_pairs.len() {
             for j in 0..hole_pairs.len() {
                 // two hole pairs overlap with each other
                 let overlap = hole_pairs[i].iter().any(|c1| {
@@ -227,7 +228,7 @@ impl Oracle {
             .map(|pair| {
                 pair.iter()
                     .map(|&value| Card {
-                        suit: suits[(value % suits.len())],
+                        suit: suits[value % suits.len()],
                         rank: value,
                     })
                     .collect()
@@ -334,7 +335,7 @@ mod tests {
     }
 
     #[test]
-    fn hand_evaluator_1() {
+    fn hand_evaluator_player_one_lose() {
         let cards_one = vec![
             Card {
                 suit: Suit::Clubs,
@@ -394,7 +395,7 @@ mod tests {
     }
 
     #[test]
-    fn hand_evaluator_2() {
+    fn hand_evaluator_player_one_win() {
         let cards_one = vec![
             Card {
                 suit: Suit::Clubs,
@@ -454,7 +455,7 @@ mod tests {
     }
 
     #[test]
-    fn hand_evaluator_3() {
+    fn hand_evaluator_tie() {
         let cards_one = vec![
             Card {
                 suit: Suit::Spades,
@@ -514,7 +515,7 @@ mod tests {
     }
 
     #[test]
-    fn hand_evaluator_4() {
+    fn hand_evaluator_resolve_tie_with_extra_cards() {
         let cards_one = vec![
             Card {
                 suit: Suit::Spades,

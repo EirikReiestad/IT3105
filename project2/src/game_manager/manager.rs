@@ -1,6 +1,7 @@
 //! This module contains the game manager which handles the game logic
 use super::players::{Player, Players};
-use crate::card::{Card, Deck};
+use crate::card::Card;
+use crate::poker_oracle::deck::Deck;
 use rand::{thread_rng, Rng};
 use std::io;
 

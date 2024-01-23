@@ -1,7 +1,6 @@
 mod card;
 mod game_manager;
-mod oracle;
-mod hands;
+mod poker_oracle;
 
 use game_manager::GameManager;
 

@@ -20,7 +20,7 @@ pub enum Hands {
 pub struct HandsCheck;
 
 impl HandsCheck {
-    pub fn is_royal_flush(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_royal_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
         let target_ranks: HashSet<&usize> = [1, 10, 11, 12, 13].iter().collect();
 
@@ -50,7 +50,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_straight_flush(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_straight_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let (result, new_cards) = HandsCheck::is_royal_flush(cards);
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
@@ -90,7 +90,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_four_of_a_kind(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_four_of_a_kind(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
 
         for combination in combinations {
@@ -118,7 +118,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_full_house(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_full_house(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -159,7 +159,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_flush(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
 
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
@@ -196,7 +196,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_straight(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_straight(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -226,7 +226,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_three_of_a_kind(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_three_of_a_kind(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -257,7 +257,7 @@ impl HandsCheck {
         }
         (false, vec![])
     }
-    pub fn is_two_pairs(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_two_pairs(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -295,7 +295,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_one_pair(cards: &[Card]) -> (bool, Vec<Card>) {
+    pub fn is_one_pair(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();

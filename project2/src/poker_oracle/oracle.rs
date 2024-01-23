@@ -10,12 +10,12 @@ use itertools::Itertools;
 pub struct Oracle;
 
 impl Oracle {
-    pub fn hand_classifier(cards: &[Card]) -> Option<(Hands, Vec<Card>)> {
+    pub fn hand_classifier(cards: &Vec<Card>) -> Option<(Hands, Vec<Card>)> {
         if !(5 < cards.len() && cards.len() < 7) {
             return None;
         }
 
-        let hand_checks: Vec<(&dyn Fn(&[Card]) -> (bool, Vec<Card>), Hands)> = vec![
+        let hand_checks: Vec<(&dyn Fn(&Vec<Card>) -> (bool, Vec<Card>), Hands)> = vec![
             (&HandsCheck::is_royal_flush, Hands::RoyalFlush),
             (&HandsCheck::is_straight_flush, Hands::StraightFlush),
             (&HandsCheck::is_four_of_a_kind, Hands::FourOfAKind),
@@ -271,30 +271,12 @@ mod tests {
     #[test]
     fn hand_classifier_royal_flush() {
         let cards = vec![
-            Card {
-                suit: Suit::Clubs,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 11,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 10,
-            },
+            Card::new(Suit::Clubs, 13),
+            Card::new(Suit::Clubs, 12),
+            Card::new(Suit::Clubs, 1),
+            Card::new(Suit::Clubs, 2),
+            Card::new(Suit::Clubs, 11),
+            Card::new(Suit::Clubs, 10),
         ];
 
         let (result, _) = Oracle::hand_classifier(&cards).unwrap();
@@ -304,30 +286,12 @@ mod tests {
     #[test]
     fn hand_classifier_one_pair() {
         let cards = vec![
-            Card {
-                suit: Suit::Clubs,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Hearts,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 10,
-            },
+            Card::new(Suit::Clubs, 13),
+            Card::new(Suit::Spades, 12),
+            Card::new(Suit::Hearts, 1),
+            Card::new(Suit::Clubs, 2),
+            Card::new(Suit::Clubs, 12),
+            Card::new(Suit::Clubs, 10),
         ];
 
         let (result, _) = Oracle::hand_classifier(&cards).unwrap();
@@ -337,57 +301,21 @@ mod tests {
     #[test]
     fn hand_evaluator_player_one_lose() {
         let cards_one = vec![
-            Card {
-                suit: Suit::Clubs,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Hearts,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 10,
-            },
+            Card::new(Suit::Clubs, 13),
+            Card::new(Suit::Spades, 12),
+            Card::new(Suit::Hearts, 1),
+            Card::new(Suit::Clubs, 2),
+            Card::new(Suit::Clubs, 12),
+            Card::new(Suit::Clubs, 10),
         ];
 
         let cards_two = vec![
-            Card {
-                suit: Suit::Clubs,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 11,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 10,
-            },
+            Card::new(Suit::Clubs, 13),
+            Card::new(Suit::Clubs, 12),
+            Card::new(Suit::Clubs, 1),
+            Card::new(Suit::Clubs, 2),
+            Card::new(Suit::Clubs, 11),
+            Card::new(Suit::Clubs, 10),
         ];
 
         let result = Oracle::hand_evaluator(&cards_one, &cards_two);
@@ -397,57 +325,21 @@ mod tests {
     #[test]
     fn hand_evaluator_player_one_win() {
         let cards_one = vec![
-            Card {
-                suit: Suit::Clubs,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Hearts,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 10,
-            },
+            Card::new(Suit::Clubs, 13),
+            Card::new(Suit::Spades, 12),
+            Card::new(Suit::Hearts, 1),
+            Card::new(Suit::Clubs, 2),
+            Card::new(Suit::Clubs, 12),
+            Card::new(Suit::Clubs, 10),
         ];
 
         let cards_two = vec![
-            Card {
-                suit: Suit::Clubs,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 11,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 10,
-            },
+            Card::new(Suit::Clubs, 13),
+            Card::new(Suit::Clubs, 12),
+            Card::new(Suit::Clubs, 1),
+            Card::new(Suit::Clubs, 2),
+            Card::new(Suit::Clubs, 11),
+            Card::new(Suit::Clubs, 10),
         ];
 
         let result = Oracle::hand_evaluator(&cards_two, &cards_one);
@@ -457,57 +349,21 @@ mod tests {
     #[test]
     fn hand_evaluator_tie() {
         let cards_one = vec![
-            Card {
-                suit: Suit::Spades,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 11,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 10,
-            },
+            Card::new(Suit::Spades, 13),
+            Card::new(Suit::Spades, 12),
+            Card::new(Suit::Spades, 1),
+            Card::new(Suit::Spades, 2),
+            Card::new(Suit::Spades, 11),
+            Card::new(Suit::Spades, 10),
         ];
 
         let cards_two = vec![
-            Card {
-                suit: Suit::Clubs,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 11,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 10,
-            },
+            Card::new(Suit::Clubs, 13),
+            Card::new(Suit::Clubs, 12),
+            Card::new(Suit::Clubs, 1),
+            Card::new(Suit::Clubs, 2),
+            Card::new(Suit::Clubs, 11),
+            Card::new(Suit::Clubs, 10),
         ];
 
         let result = Oracle::hand_evaluator(&cards_two, &cards_one);
@@ -517,57 +373,21 @@ mod tests {
     #[test]
     fn hand_evaluator_resolve_tie_with_extra_cards() {
         let cards_one = vec![
-            Card {
-                suit: Suit::Spades,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 2,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 11,
-            },
-            Card {
-                suit: Suit::Spades,
-                rank: 10,
-            },
+            Card::new(Suit::Spades, 13),
+            Card::new(Suit::Spades, 12),
+            Card::new(Suit::Spades, 1),
+            Card::new(Suit::Spades, 2),
+            Card::new(Suit::Spades, 11),
+            Card::new(Suit::Spades, 10)
         ];
 
         let cards_two = vec![
-            Card {
-                suit: Suit::Clubs,
-                rank: 13,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 12,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 1,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 5,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 11,
-            },
-            Card {
-                suit: Suit::Clubs,
-                rank: 10,
-            },
+            Card::new(Suit::Clubs, 13),
+            Card::new(Suit::Clubs, 12),
+            Card::new(Suit::Clubs, 1),
+            Card::new(Suit::Clubs, 5),
+            Card::new(Suit::Clubs, 11),
+            Card::new(Suit::Clubs, 10),
         ];
 
         let result = Oracle::hand_evaluator(&cards_one, &cards_two);

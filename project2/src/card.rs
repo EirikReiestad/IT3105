@@ -7,6 +7,15 @@ pub struct Card {
     pub rank: usize,
 }
 
+impl Card {
+    pub fn new(suit: Suit, rank: usize) -> Card {
+        Card {
+            suit,
+            rank
+        }
+    }
+}
+
 impl std::fmt::Display for Card {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let rank = match self.rank {

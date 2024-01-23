@@ -10,12 +10,12 @@ use itertools::Itertools;
 pub struct Oracle;
 
 impl Oracle {
-    pub fn hand_classifier(cards: &Vec<Card>) -> Option<(Hands, Vec<Card>)> {
+    pub fn hand_classifier(cards: &[Card]) -> Option<(Hands, Vec<Card>)> {
         if !(5 < cards.len() && cards.len() < 7) {
             return None;
         }
 
-        let hand_checks: Vec<(&dyn Fn(&Vec<Card>) -> (bool, Vec<Card>), Hands)> = vec![
+        let hand_checks: Vec<(&dyn Fn(&[Card]) -> (bool, Vec<Card>), Hands)> = vec![
             (&HandsCheck::is_royal_flush, Hands::RoyalFlush),
             (&HandsCheck::is_straight_flush, Hands::StraightFlush),
             (&HandsCheck::is_four_of_a_kind, Hands::FourOfAKind),
@@ -52,7 +52,7 @@ impl Oracle {
             let unique_vec2: Vec<&Card> =
                 set_two.iter().filter(|&x| !cards_two.contains(x)).collect();
 
-            if unique_vec1.len() == 0 && unique_vec2.len() == 0 {
+            if unique_vec1.is_empty() && unique_vec2.is_empty() {
                 0
             } else {
                 let max_card_one: Option<&Card> =

@@ -20,7 +20,7 @@ pub enum Hands {
 pub struct HandsCheck;
 
 impl HandsCheck {
-    pub fn is_royal_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_royal_flush(cards: &[Card]) -> (bool, Vec<Card>) {
         let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
         let target_ranks: HashSet<&usize> = [1, 10, 11, 12, 13].iter().collect();
 
@@ -50,7 +50,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_straight_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_straight_flush(cards: &[Card]) -> (bool, Vec<Card>) {
         let (result, new_cards) = HandsCheck::is_royal_flush(cards);
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
@@ -90,7 +90,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_four_of_a_kind(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_four_of_a_kind(cards: &[Card]) -> (bool, Vec<Card>) {
         let combinations: Vec<Vec<&Card>> = cards.into_iter().combinations(5).collect();
 
         for combination in combinations {
@@ -118,7 +118,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_full_house(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_full_house(cards: &[Card]) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -159,7 +159,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_flush(cards: &[Card]) -> (bool, Vec<Card>) {
 
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
@@ -196,7 +196,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_straight(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_straight(cards: &[Card]) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -226,7 +226,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_three_of_a_kind(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_three_of_a_kind(cards: &[Card]) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -257,7 +257,7 @@ impl HandsCheck {
         }
         (false, vec![])
     }
-    pub fn is_two_pairs(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_two_pairs(cards: &[Card]) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -295,7 +295,7 @@ impl HandsCheck {
         (false, vec![])
     }
 
-    pub fn is_one_pair(cards: &Vec<Card>) -> (bool, Vec<Card>) {
+    pub fn is_one_pair(cards: &[Card]) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -371,7 +371,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -435,7 +435,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -499,7 +499,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(cards, vec![]);
         }
     }
@@ -508,7 +508,7 @@ mod tests {
         use super::*;
         #[test]
         fn test_straight_flush_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Spades,
                     rank: 10,
@@ -542,7 +542,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -572,7 +572,7 @@ mod tests {
 
         #[test]
         fn test_straight_flush_ok_2() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Spades,
                     rank: 2,
@@ -606,7 +606,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -636,7 +636,7 @@ mod tests {
 
         #[test]
         fn test_straight_flush_ok_3() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Spades,
                     rank: 2,
@@ -700,7 +700,7 @@ mod tests {
 
         #[test]
         fn test_straight_flush_not_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Spades,
                     rank: 2,
@@ -734,13 +734,13 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(cards, vec![])
         }
 
         #[test]
         fn test_straight_flush_not_ok_2() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Spades,
                     rank: 2,
@@ -774,7 +774,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(cards, vec![])
         }
     }
@@ -783,7 +783,7 @@ mod tests {
         use super::*;
         #[test]
         fn test_four_of_a_kind_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Hearts,
                     rank: 10,
@@ -813,7 +813,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(cards.len(), 4);
         }
 
@@ -845,17 +845,16 @@ mod tests {
                     rank: 10,
                 },
             ];
-            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_four_of_a_kind(&cards);
+            let (result, cards): (bool, Vec<Card>) = HandsCheck::is_four_of_a_kind(&cards);
 
-            // cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(cards, vec![]);
         }
 
         #[test]
         fn test_full_house_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Hearts,
                     rank: 10,
@@ -885,7 +884,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -917,7 +916,7 @@ mod tests {
         use super::*;
         #[test]
         fn test_full_house_not_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Hearts,
                     rank: 10,
@@ -947,7 +946,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(cards, vec![]);
         }
     }
@@ -956,7 +955,7 @@ mod tests {
         use super::*;
         #[test]
         fn test_flush_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Hearts,
                     rank: 10,
@@ -986,7 +985,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -1046,7 +1045,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -1077,7 +1076,7 @@ mod tests {
 
         #[test]
         fn test_flush_not_ok() {
-            let mut cards = vec![
+            let cards = vec![
                 Card {
                     suit: Suit::Hearts,
                     rank: 10,
@@ -1107,7 +1106,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(cards, vec![]);
         }
     }
@@ -1145,7 +1144,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -1209,7 +1208,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(
                 cards,
                 vec![
@@ -1269,7 +1268,7 @@ mod tests {
 
             cards.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(cards, vec![]);
         }
     }
@@ -1303,9 +1302,9 @@ mod tests {
                     rank: 11,
                 },
             ];
-            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_three_of_a_kind(&cards);
+            let (result, cards): (bool, Vec<Card>) = HandsCheck::is_three_of_a_kind(&cards);
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(3, cards.len());
         }
 
@@ -1337,9 +1336,9 @@ mod tests {
                     rank: 13,
                 },
             ];
-            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_three_of_a_kind(&cards);
+            let (result, cards): (bool, Vec<Card>) = HandsCheck::is_three_of_a_kind(&cards);
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(0, cards.len());
         }
     }
@@ -1376,7 +1375,7 @@ mod tests {
             ];
             let (result, cards): (bool, Vec<Card>) = HandsCheck::is_two_pairs(&cards);
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(4, cards.len());
             assert_eq!(true, cards.iter().any(|x| x.rank==13));
             assert_eq!(true, cards.iter().any(|x| x.rank==10));
@@ -1413,9 +1412,9 @@ mod tests {
                     rank: 11,
                 },
             ];
-            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_two_pairs(&cards);
+            let (result, cards): (bool, Vec<Card>) = HandsCheck::is_two_pairs(&cards);
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(0, cards.len());
         }
     }
@@ -1452,7 +1451,7 @@ mod tests {
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_one_pair(&cards);
 
-            assert_eq!(result, true);
+            assert!(result);
             assert_eq!(2, cards.len());
         }
 
@@ -1484,9 +1483,9 @@ mod tests {
                     rank: 11,
                 },
             ];
-            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_one_pair(&cards);
+            let (result, cards): (bool, Vec<Card>) = HandsCheck::is_one_pair(&cards);
 
-            assert_eq!(result, false);
+            assert!(!result);
             assert_eq!(0, cards.len());
         }
     }

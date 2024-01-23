@@ -38,10 +38,7 @@ impl HandsCheck {
                 if unique_ranks == target_ranks {
                     let new_cards: Vec<Card> = unique_ranks
                         .into_iter()
-                        .map(|rank| Card {
-                            suit: suit,
-                            rank: *rank,
-                        })
+                        .map(|rank| Card::new(suit, *rank))
                         .collect();
                     return (true, new_cards);
                 }
@@ -79,10 +76,7 @@ impl HandsCheck {
             if unique_suits.len() == 1 && ranks_vec.len() == 5 && is_one_apart {
                 let new_cards: Vec<Card> = ranks_vec
                     .into_iter()
-                    .map(|rank: usize| Card {
-                        suit: first_suit,
-                        rank: rank,
-                    })
+                    .map(|rank: usize| Card::new(first_suit, rank))
                     .collect();
                 return (true, new_cards);
             }
@@ -106,10 +100,7 @@ impl HandsCheck {
                 if unique_suits.len() == 4 {
                     let new_cards: Vec<Card> = unique_suits
                         .into_iter()
-                        .map(|suit| Card {
-                            suit: suit,
-                            rank: rank,
-                        })
+                        .map(|suit| Card::new(suit, rank))
                         .collect();
                     return (true, new_cards);
                 }
@@ -127,10 +118,7 @@ impl HandsCheck {
             let mut rank_counts: HashMap<usize, Vec<Suit>> = HashMap::new();
 
             for card in &combination {
-                rank_counts
-                    .entry(card.rank)
-                    .or_default()
-                    .push(card.suit);
+                rank_counts.entry(card.rank).or_default().push(card.suit);
             }
 
             let mut cards_len_2: Vec<Card> = Vec::new();
@@ -138,14 +126,8 @@ impl HandsCheck {
 
             for (rank, suits) in rank_counts.iter() {
                 match suits.len() {
-                    2 => cards_len_2.extend(suits.iter().map(|suit| Card {
-                        rank: *rank,
-                        suit: *suit,
-                    })),
-                    3 => cards_len_3.extend(suits.iter().map(|suit| Card {
-                        rank: *rank,
-                        suit: *suit,
-                    })),
+                    2 => cards_len_2.extend(suits.iter().map(|suit| Card::new(*suit, *rank))),
+                    3 => cards_len_3.extend(suits.iter().map(|suit| Card::new(*suit, *rank))),
                     _ => {}
                 }
             }
@@ -160,7 +142,6 @@ impl HandsCheck {
     }
 
     pub fn is_flush(cards: &Vec<Card>) -> (bool, Vec<Card>) {
-
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
         let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
@@ -185,10 +166,7 @@ impl HandsCheck {
             if unique_suits.len() == 1 && ranks_vec.len() == 5 && !is_one_apart {
                 let new_cards: Vec<Card> = ranks_vec
                     .into_iter()
-                    .map(|rank: usize| Card {
-                        suit: first_suit,
-                        rank: rank,
-                    })
+                    .map(|rank: usize| Card::new(first_suit, rank))
                     .collect();
                 return (true, new_cards);
             }
@@ -246,10 +224,7 @@ impl HandsCheck {
                 if unique_suits.len() == 3 && length_unique_ranks > 2 {
                     let new_cards: Vec<Card> = unique_suits
                         .into_iter()
-                        .map(|suit| Card {
-                            suit: suit,
-                            rank: rank,
-                        })
+                        .map(|suit| Card::new(suit, rank))
                         .collect();
                     return (true, new_cards);
                 }
@@ -281,12 +256,7 @@ impl HandsCheck {
 
                 let new_cards: Vec<Card> = filtered_map
                     .iter()
-                    .flat_map(|(rank, suits)| {
-                        suits.iter().map(move |suit| Card {
-                            suit: *suit,
-                            rank: *rank,
-                        })
-                    })
+                    .flat_map(|(rank, suits)| suits.iter().map(move |suit| Card::new(*suit, *rank)))
                     .collect();
 
                 return (true, new_cards);
@@ -317,10 +287,7 @@ impl HandsCheck {
                 if let Some((first_key, first_value)) = filtered_map.iter().next() {
                     let new_cards: Vec<Card> = first_value
                         .into_iter()
-                        .map(|suit| Card {
-                            suit: *suit,
-                            rank: *first_key,
-                        })
+                        .map(|suit| Card::new(*suit, *first_key))
                         .collect();
                     return (true, new_cards);
                 }
@@ -400,7 +367,7 @@ mod tests {
                 Card::new(Suit::Spades, 8),
                 Card::new(Suit::Spades, 13),
                 Card::new(Suit::Spades, 1),
-                Card::new(Suit::Spades, 10)
+                Card::new(Suit::Spades, 10),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_royal_flush(&cards);
 
@@ -450,7 +417,7 @@ mod tests {
                 Card::new(Suit::Spades, 4),
                 Card::new(Suit::Spades, 5),
                 Card::new(Suit::Spades, 6),
-                Card::new(Suit::Hearts, 10)
+                Card::new(Suit::Hearts, 10),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight_flush(&cards);
 
@@ -506,7 +473,7 @@ mod tests {
                 Card::new(Suit::Hearts, 8),
                 Card::new(Suit::Spades, 5),
                 Card::new(Suit::Spades, 6),
-                Card::new(Suit::Hearts, 10)
+                Card::new(Suit::Hearts, 10),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight_flush(&cards);
 
@@ -568,7 +535,6 @@ mod tests {
             ];
             let (result, cards): (bool, Vec<Card>) = HandsCheck::is_four_of_a_kind(&cards);
 
-
             assert!(!result);
             assert_eq!(cards, vec![]);
         }
@@ -582,7 +548,6 @@ mod tests {
                 Card::new(Suit::Clubs, 1),
                 Card::new(Suit::Diamonds, 1),
                 Card::new(Suit::Spades, 11),
-
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_full_house(&cards);
 
@@ -677,7 +642,6 @@ mod tests {
                 ]
             );
         }
-
 
         #[test]
         fn test_flush_not_ok() {
@@ -823,11 +787,9 @@ mod tests {
 
             assert!(result);
             assert_eq!(4, cards.len());
-            assert_eq!(true, cards.iter().any(|x| x.rank==13));
-            assert_eq!(true, cards.iter().any(|x| x.rank==10));
+            assert_eq!(true, cards.iter().any(|x| x.rank == 13));
+            assert_eq!(true, cards.iter().any(|x| x.rank == 10));
             assert_eq!(true, cards.iter().all(|x| x.rank != 8));
-
-
         }
 
         #[test]

@@ -757,30 +757,12 @@ mod tests {
         #[test]
         fn test_straight_not_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 7,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 9,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Hearts, 7),
+                Card::new(Suit::Hearts, 8),
+                Card::new(Suit::Hearts, 9),
+                Card::new(Suit::Hearts, 13),
+                Card::new(Suit::Hearts, 11),
             ];
             let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_straight(&cards);
 
@@ -794,31 +776,13 @@ mod tests {
         use super::*;
         #[test]
         fn test_three_of_a_kind_ok() {
-            let mut cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
+            let cards = vec![
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Spades, 10),
+                Card::new(Suit::Hearts, 8),
+                Card::new(Suit::Clubs, 10),
+                Card::new(Suit::Hearts, 13),
+                Card::new(Suit::Hearts, 11),
             ];
             let (result, cards): (bool, Vec<Card>) = HandsCheck::is_three_of_a_kind(&cards);
 
@@ -828,31 +792,13 @@ mod tests {
 
         #[test]
         fn test_three_of_a_kind_not_ok() {
-            let mut cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 13,
-                },
+            let cards = vec![
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Spades, 10),
+                Card::new(Suit::Clubs, 13),
+                Card::new(Suit::Clubs, 10),
+                Card::new(Suit::Hearts, 13),
+                Card::new(Suit::Spades, 13),
             ];
             let (result, cards): (bool, Vec<Card>) = HandsCheck::is_three_of_a_kind(&cards);
 
@@ -866,30 +812,12 @@ mod tests {
         #[test]
         fn test_two_pair_ok() {
             let cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Spades, 10),
+                Card::new(Suit::Hearts, 8),
+                Card::new(Suit::Clubs, 8),
+                Card::new(Suit::Hearts, 13),
+                Card::new(Suit::Clubs, 13),
             ];
             let (result, cards): (bool, Vec<Card>) = HandsCheck::is_two_pairs(&cards);
 
@@ -904,31 +832,13 @@ mod tests {
 
         #[test]
         fn test_two_pair_not_ok() {
-            let mut cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 7,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
+            let cards = vec![
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Spades, 10),
+                Card::new(Suit::Hearts, 7),
+                Card::new(Suit::Clubs, 8),
+                Card::new(Suit::Hearts, 13),
+                Card::new(Suit::Hearts, 11),
             ];
             let (result, cards): (bool, Vec<Card>) = HandsCheck::is_two_pairs(&cards);
 
@@ -941,33 +851,15 @@ mod tests {
         use super::*;
         #[test]
         fn test_one_pair_ok() {
-            let mut cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
+            let cards = vec![
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Spades, 10),
+                Card::new(Suit::Hearts, 8),
+                Card::new(Suit::Clubs, 8),
+                Card::new(Suit::Hearts, 13),
+                Card::new(Suit::Hearts, 11),
             ];
-            let (result, mut cards): (bool, Vec<Card>) = HandsCheck::is_one_pair(&cards);
+            let (result, cards): (bool, Vec<Card>) = HandsCheck::is_one_pair(&cards);
 
             assert!(result);
             assert_eq!(2, cards.len());
@@ -975,31 +867,13 @@ mod tests {
 
         #[test]
         fn test_one_pair_not_ok() {
-            let mut cards = vec![
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 10,
-                },
-                Card {
-                    suit: Suit::Spades,
-                    rank: 7,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 8,
-                },
-                Card {
-                    suit: Suit::Clubs,
-                    rank: 6,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 13,
-                },
-                Card {
-                    suit: Suit::Hearts,
-                    rank: 11,
-                },
+            let cards = vec![
+                Card::new(Suit::Hearts, 10),
+                Card::new(Suit::Spades, 7),
+                Card::new(Suit::Hearts, 8),
+                Card::new(Suit::Clubs, 6),
+                Card::new(Suit::Hearts, 13),
+                Card::new(Suit::Hearts, 11),
             ];
             let (result, cards): (bool, Vec<Card>) = HandsCheck::is_one_pair(&cards);
 

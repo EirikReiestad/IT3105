@@ -6,11 +6,13 @@ import configparser
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 if __name__ == "__main__":
+    # Retrieve parameters from the configuration files needed for the network
     config_path = "parameters.conf"
 
     config = configparser.RawConfigParser()
     config.read(config_path)
 
+    # Use predefined parameters that are good for different type of runs
     parameters = dict(config.items("PLANT2_PID"))
 
     for k, v in parameters.items():

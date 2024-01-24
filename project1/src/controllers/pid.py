@@ -39,6 +39,9 @@ class PIDController(Controller):
         return u_p + u_d + u_i
 
     def update_params(self, params, gradients):
+        """
+        Update the PID controller's parameters using the given gradients
+        """
         params = params.copy()
         params["k_p"] = params["k_p"] - self.learning_rate * gradients["k_p"]
         params["k_d"] = params["k_d"] - self.learning_rate * gradients["k_d"]

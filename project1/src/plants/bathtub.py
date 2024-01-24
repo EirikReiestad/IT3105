@@ -21,14 +21,25 @@ class Bathtub(Plant):
         self.init_height_bathtub = init_height_bathtub
 
     def reset(self) -> dict:
+        """
+        Return the initial state of the plant
+        water_height: the initial height in the bathtub
+        """
         return {"water_height": self.init_height_bathtub}
 
     def run_one_epoch(self, state: dict, control_signal: float, noise: float) -> (dict, float):
+        """
+        Update the plant's state based on the given control signal and noise 
+        """
         water_height = state["water_height"]
 
-        volume = jnp.sqrt(2 * G * water_height)
-        flow_rate = volume * self.cross_section_drain
+        # The velocity of water exiting through the drain
+        velocity = jnp.sqrt(2 * G * water_height)
+        # Calculate the flow rate
+        flow_rate = velocity * self.cross_section_drain
+        # Calculate the volume change
         volume_change = control_signal + noise - flow_rate
+        # Calculate the new water height in the bathtub
         water_height += volume_change / self.cross_section_area
 
         return {"water_height": water_height}, water_height

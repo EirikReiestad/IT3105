@@ -13,6 +13,7 @@ class System:
         self.params = parameters
         self.visualize = visualize
 
+        # Initialize the different controller and plant based on the configuration parameters
         self.controller = None
         if self.params["controller"] == 0:
             if len(self.params["pid"]) == 3:
@@ -48,8 +49,6 @@ class System:
             self.plant = plant3.Plant3(self.params['init_population'])
             self.target = self.params['target_population']
 
-        # PLANT
-
         self.mse_history = []
         self.params_history = []
 
@@ -57,8 +56,6 @@ class System:
         # 1. Initialize the controller’s parameters (Ω): the three k values
         # for a standard PID controller and the
         # weights and biases for a neural-net-based controller.
-        # print(f"Running {self.params['epochs']} epochs")
-        # print("##############################")
         params = self.controller.initialize()
         gradfunc = jax.value_and_grad(self.run_one_epoch, argnums=0)
 
@@ -70,6 +67,7 @@ class System:
             self.mse_history.append(mse)
             # (f) Update Ω based on the gradients.
             params = self.controller.update_params(params, gradients)
+            # Save to parameter history to later visualize for PID
             if self.params["controller"] == 0:
                 self.params_history.append(params)
         if self.visualize:
@@ -111,6 +109,9 @@ class System:
         return mse
 
     def mse(self, errors):
+        '''
+        Calculate the mean squared error
+        '''
         return jnp.mean(jnp.square(jnp.array(errors)))
 
     def visualize_training(self):

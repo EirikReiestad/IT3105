@@ -151,6 +151,7 @@ impl GameManager {
         println!("{}", self);
 
         while check_count != self.players.get_number_of_active_players() {
+            self.roate_dealer();
             for i in 0..self.players.len() {
                 let turn = (self.board.dealer + i + 1) % self.players.len();
 
@@ -260,6 +261,10 @@ impl GameManager {
             println!("Player bet: {}, bet {}", player_bet, bet);
             self.board.highest_bet = player_bet;
         };
+    }
+
+    fn roate_dealer(&mut self) {
+        self.board.dealer = (self.board.dealer + 1) % self.players.len();
     }
 
     fn get_action(&mut self) -> Action {

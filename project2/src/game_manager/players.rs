@@ -43,6 +43,7 @@ impl std::fmt::Display for Player {
 /// Keep track of the highest bet
 pub struct Players {
     pub players: Vec<Player>,
+    // TODO: Impleemnt if go bust, remember that impacts the choice of the dealer
 }
 
 impl Players {

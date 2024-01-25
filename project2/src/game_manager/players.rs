@@ -6,9 +6,9 @@ use crate::card::Card;
 /// Keep track of how much the player has bet in the current round
 pub struct Player {
     cards: (Card, Card),
-    chips: u32,
-    folded: bool,
-    bet: u32,
+    pub chips: u32,
+    pub folded: bool,
+    pub bet: u32,
 }
 
 impl Player {

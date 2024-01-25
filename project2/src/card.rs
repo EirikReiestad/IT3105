@@ -1,6 +1,5 @@
 use std::cmp::Ordering;
 
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Card {
     pub suit: Suit,
@@ -9,10 +8,7 @@ pub struct Card {
 
 impl Card {
     pub fn new(suit: Suit, rank: usize) -> Card {
-        Card {
-            suit,
-            rank
-        }
+        Card { suit, rank }
     }
 }
 
@@ -55,3 +51,4 @@ pub enum Suit {
     Hearts,
     Spades,
 }
+

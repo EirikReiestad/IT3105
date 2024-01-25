@@ -1,1 +1,1 @@
-mod game_state;
+pub mod states;

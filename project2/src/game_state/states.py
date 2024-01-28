@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from src.card import Card
+from src.poker_oracle.deck import Card
 from src.game_manager.game_stage import GameStage
 
 

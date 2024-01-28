@@ -1,5 +1,5 @@
-from src.card import Card
-from typing import List, Tuple, Optional
+from src.poker_oracle.deck import Card
+from typing import List, Tuple
 
 
 class Player:
@@ -13,12 +13,12 @@ class Player:
         self.cards = cards  # A tuple of two Card instances
         self.chips = 100  # An integer
         self.folded = False  # A boolean
-        self.bet = 0  # An integer
+        self.player_bet = 0  # An integer
 
     def bet(self, amount) -> bool:
         if self.chips < amount:
             return False
-        self.bet += amount
+        self.player_bet += amount
         self.chips -= amount
         return True
 
@@ -52,8 +52,7 @@ class Players:
         self.players[player].folded = True
 
     def get_bet(self, player: int) -> int:
-        return self.players[player].bet
+        return self.players[player].player_bet
 
-    def place_bet(self, player, bet):
-        self.players[player].bet += bet
-        self.players[player].bet(bet)
+    def place_bet(self, player, amount) -> bool:
+        return self.players[player].bet(amount)

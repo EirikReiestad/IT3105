@@ -1,8 +1,7 @@
-from src.card import Card
-from src.poker_oracle.deck import Deck
+from src.poker_oracle.deck import Deck, Card
 from src.game_state.states import GameState, PlayerState, BoardState
 from .players import Players, Player
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from dataclasses import dataclass
 from .game_stage import GameStage
 from .game_action import Action
@@ -53,18 +52,14 @@ class GameManager:
 
             if not isinstance(first_card, Card):
                 raise TypeError(
-                    "first_card must be a {}, not {}".format(
-                        type(Card), type(first_card)
-                    )
+                    "first_card must be a Card, not {}".format(type(first_card))
                 )
             if not isinstance(second_card, Card):
                 raise TypeError(
-                    "second_card must be a {}, not {}".format(
-                        type(Card), type(second_card)
-                    )
+                    "second_card must be a Card, not {}".format(type(second_card))
                 )
 
-            players.append(Player(first_card, second_card))
+            players.append(Player((first_card, second_card)))
 
         # Deal flop, turn, and river
         flop = (deck.pop(), deck.pop(), deck.pop())
@@ -82,12 +77,17 @@ class GameManager:
         # Determine dealer
         dealer: int = random.randint(0, num_players - 1)
 
-        self.players: Players = players
+        self.players: Players = Players(players)
         self.game_stage: GameStage = GameStage.PreFlop
         self.board: Board = Board(flop, turn, river, 0, 0, dealer)
         self.buy_in: int = 10
 
-    def get_action(self) -> Action:
+    def get_action(self) -> Tuple[Action, Optional[int]]:
+        """
+        Returns
+        -------
+        Tuple[Action, Optional[int]]: The action and the amount to bet if the action is raise
+        """
         options = "Fold(0) Call/Check(1) Raise(2)"  # TODO: Implement all-in
         print(f"Options: {options}")
 
@@ -95,11 +95,11 @@ class GameManager:
             user_input = input()
 
             if user_input == "0":
-                return Action.Fold
+                return Action.Fold, None
             elif user_input == "1":
-                return Action.CallOrCheck
+                return Action.CallOrCheck, None
             elif user_input == "2":
-                return Action.Raise  # TODO: Implement raise amount
+                return Action.Raise, 10  # TODO: Implement raise amount
             else:
                 print("Invalid input")
                 return get_input()
@@ -218,12 +218,12 @@ class GameManager:
                         check_count += x
                         continue
 
-                action = self.get_action()
+                action, amount = self.get_action()
 
-                if action == GameStage.Fold:
+                if action == Action.Fold:
                     self.players.fold(turn)
                     continue
-                elif action == GameStage.CallOrCheck:
+                elif action == Action.CallOrCheck:
                     player_bet = self.players.get_bet(turn)
                     bet = self.board.highest_bet - player_bet
                     self.make_bet(turn, bet)
@@ -232,16 +232,23 @@ class GameManager:
                     else:
                         print(f"Called {bet}")
                     check_count += 1
-                elif action == GameStage.Raise(x):
+                elif action == Action.Raise:
                     player_bet = self.players.get_bet(turn)
-                    raise_amount = self.board.highest_bet - player_bet + x
+                    raise_amount = self.board.highest_bet - player_bet + amount
+                    self.make_bet(turn, raise_amount)
+                    check_count = 1
+                else:
+                    raise ValueError("Invalid action")
+
+                if check_count == self.players.get_number_of_active_players():
+                    break
 
     # Handles the small and big blind
     # Handles automatic betting for the small and big blind
     # Assuming they can not fold.
     # Returns 1 if the player is the big blind, 0 otherwise
     def preflop_bets(self, turn: int):
-        player_bet = self.players.get_bet(turn)
+        player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
 
@@ -265,6 +272,7 @@ class GameManager:
             "\n" + "=" * 75 + "\n" + " " * 25 + "GAME MANAGER" + "\n" + "=" * 75 + "\n"
         )
         result += "===== {} =====\n".format(self.game_stage)
+        result += "Pot: {}\n".format(self.board.pot)
 
         if self.game_stage in ["Flop", "Turn", "River"]:
             result += "Flop: {} {} {}\n".format(

@@ -1,0 +1,24 @@
+name: Project 2 - Python 
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Pip install
+        working-directory: project2/
+        run: |
+          pip install requirements.txt
+      - name: Run tests
+        working-directory: project2/
+        run: |
+          python3 -m unittest discover tests -v

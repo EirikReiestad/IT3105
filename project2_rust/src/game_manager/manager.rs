@@ -1,12 +1,13 @@
 //! This module contains the game manager which handles the game logic
 use super::players::{Player, Players};
 use crate::card::Card;
+use crate::game_state::states::{BoardState, GameState, PlayerState};
 use crate::poker_oracle::deck::Deck;
 use rand::{thread_rng, Rng};
 use std::io;
 
-#[derive(PartialEq)]
-enum GameStage {
+#[derive(Copy, Clone, PartialEq)]
+pub enum GameStage {
     PreFlop,
     Flop,
     Turn,
@@ -111,6 +112,114 @@ impl GameManager {
         }
     }
 
+    fn get_action(&mut self) -> Action {
+        let options = "Fold(0) Call/Check(1) Raise(2)"; // TODO: Implement all-in
+        println!("Options: {}", options);
+
+        fn get_input() -> Action {
+            let mut user_input = String::new();
+            match io::stdin().read_line(&mut user_input) {
+                Ok(_) => {
+                    let trimmed_input = user_input.trim();
+
+                    match trimmed_input {
+                        "0" => Action::Fold,
+                        "1" => Action::CallOrCheck,
+                        "2" => Action::Raise(10), // TODO: Implement raise amount
+                        _ => {
+                            println!("Invalid input");
+                            get_input()
+                        }
+                    }
+                }
+                Err(error) => {
+                    println!("error: {}", error);
+                    get_input()
+                }
+            }
+        }
+
+        get_input()
+    }
+}
+
+impl GameManager {
+    // Handles generating the game state
+    fn get_current_state(&mut self) -> GameState {
+        let player_states = self.get_player_states();
+        let board_state = self.get_board_state();
+        let game_stage = self.game_stage;
+
+        GameState::new(player_states, board_state, game_stage)
+    }
+
+    fn get_player_states(&mut self) -> Vec<PlayerState> {
+        let mut player_states = Vec::new();
+        for player in self.players.iter() {
+            let player_state = PlayerState::new(player.chips, player.folded, player.bet);
+            player_states.push(player_state);
+        }
+        player_states
+    }
+
+    fn get_board_state(&mut self) -> BoardState {
+        let cards = match self.game_stage {
+            GameStage::PreFlop => vec![],
+            GameStage::Flop => {
+                let flop = self.board.flop.clone();
+                vec![flop.0, flop.1, flop.2]
+            }
+            GameStage::Turn => {
+                let flop = self.board.flop.clone();
+                let turn = self.board.turn.clone();
+                vec![flop.0, flop.1, flop.2, turn]
+            }
+            GameStage::River => {
+                let flop = self.board.flop.clone();
+                let turn = self.board.turn.clone();
+                let river = self.board.river.clone();
+                vec![flop.0, flop.1, flop.2, turn, river]
+            }
+        };
+        BoardState::new(
+            cards,
+            self.board.pot,
+            self.board.highest_bet,
+            self.board.dealer,
+        )
+    }
+}
+
+impl GameManager {
+    /// Implements the rules
+
+    /// Handles making a bet
+    /// If the player does not have enough money, they are forced to fold
+    /// If the player has enough money, the bet is made
+    /// The bet is added to the pot
+    /// The bet is added to the player_bets HashMap
+    /// The highest_bet is updated
+    fn make_bet(&mut self, player: usize, bet: u32) {
+        if self.players.place_bet(player, bet).is_err() {
+            println!("Not enough money. Folded."); // TODO: Do not need to fold. Can go all-in or
+                                                   // check if possible
+            self.players.fold(player);
+        } else {
+            let player_bet = self.players.get_bet(player);
+            self.board.pot += bet;
+            println!("Player bet: {}, bet {}", player_bet, bet);
+            self.board.highest_bet = player_bet;
+        };
+    }
+
+    fn roate_dealer(&mut self) {
+        self.board.dealer = (self.board.dealer + 1) % self.players.len();
+    }
+}
+
+impl GameManager {
+    /// Implements the game logic
+
     /// Runs the game
     /// The game is run in a loop until a player wins
     /// The game is run in stages
@@ -151,6 +260,7 @@ impl GameManager {
         println!("{}", self);
 
         while check_count != self.players.get_number_of_active_players() {
+            self.roate_dealer();
             for i in 0..self.players.len() {
                 let turn = (self.board.dealer + i + 1) % self.players.len();
 
@@ -241,55 +351,6 @@ impl GameManager {
         } else {
             None
         }
-    }
-
-    /// Handles making a bet
-    /// If the player does not have enough money, they are forced to fold
-    /// If the player has enough money, the bet is made
-    /// The bet is added to the pot
-    /// The bet is added to the player_bets HashMap
-    /// The highest_bet is updated
-    fn make_bet(&mut self, player: usize, bet: u32) {
-        if self.players.place_bet(player, bet).is_err() {
-            println!("Not enough money. Folded."); // TODO: Do not need to fold. Can go all-in or
-                                                   // check if possible
-            self.players.fold(player);
-        } else {
-            let player_bet = self.players.get_bet(player);
-            self.board.pot += bet;
-            println!("Player bet: {}, bet {}", player_bet, bet);
-            self.board.highest_bet = player_bet;
-        };
-    }
-
-    fn get_action(&mut self) -> Action {
-        let options = "Fold(0) Call/Check(1) Raise(2)"; // TODO: Implement all-in
-        println!("Options: {}", options);
-
-        fn get_input() -> Action {
-            let mut user_input = String::new();
-            match io::stdin().read_line(&mut user_input) {
-                Ok(_) => {
-                    let trimmed_input = user_input.trim();
-
-                    match trimmed_input {
-                        "0" => Action::Fold,
-                        "1" => Action::CallOrCheck,
-                        "2" => Action::Raise(10), // TODO: Implement raise amount
-                        _ => {
-                            println!("Invalid input");
-                            get_input()
-                        }
-                    }
-                }
-                Err(error) => {
-                    println!("error: {}", error);
-                    get_input()
-                }
-            }
-        }
-
-        get_input()
     }
 }
 

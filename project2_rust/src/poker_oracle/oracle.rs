@@ -2,9 +2,9 @@ use std::vec;
 extern crate ndarray;
 use ndarray::Array2;
 
+use super::deck::Deck;
+use super::hands::{Hands, HandsCheck};
 use crate::card::{Card, Suit};
-use crate::poker_oracle::hands::{HandsCheck, Hands};
-use crate::poker_oracle::deck::Deck;
 use itertools::Itertools;
 
 pub struct Oracle;
@@ -378,7 +378,7 @@ mod tests {
             Card::new(Suit::Spades, 1),
             Card::new(Suit::Spades, 2),
             Card::new(Suit::Spades, 11),
-            Card::new(Suit::Spades, 10)
+            Card::new(Suit::Spades, 10),
         ];
 
         let cards_two = vec![

@@ -13,7 +13,7 @@ if __name__ == "__main__":
     config.read(config_path)
 
     # Use predefined parameters that are good for different type of runs
-    parameters = dict(config.items("PLANT2_PID"))
+    parameters = dict(config.items("PLANT1_PID"))
 
     for k, v in parameters.items():
         try:

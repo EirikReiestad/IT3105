@@ -268,7 +268,7 @@ impl HandsCheck {
     pub fn is_one_pair(cards: &Vec<Card>) -> (bool, Vec<Card>) {
         let mut sorted_cards = cards.clone();
         sorted_cards.sort_by(|a, b| b.rank.cmp(&a.rank));
-        let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
+       let combinations: Vec<Vec<&Card>> = sorted_cards.iter().combinations(5).collect();
 
         for combination in combinations {
             let mut unique_ranks = HashMap::new();
@@ -295,7 +295,7 @@ impl HandsCheck {
         }
         (false, vec![])
     }
-}
+} 
 
 #[cfg(test)]
 mod tests {
@@ -539,6 +539,10 @@ mod tests {
             assert_eq!(cards, vec![]);
         }
 
+        
+    }
+    mod full_house {
+        use super::*;
         #[test]
         fn test_full_house_ok() {
             let cards = vec![
@@ -565,9 +569,7 @@ mod tests {
                 ]
             );
         }
-    }
-    mod full_house {
-        use super::*;
+
         #[test]
         fn test_full_house_not_ok() {
             let cards = vec![
@@ -589,6 +591,7 @@ mod tests {
 
     mod flush {
         use super::*;
+        
         #[test]
         fn test_flush_ok() {
             let cards = vec![

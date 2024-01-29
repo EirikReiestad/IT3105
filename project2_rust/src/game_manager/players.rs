@@ -6,9 +6,9 @@ use crate::card::Card;
 /// Keep track of how much the player has bet in the current round
 pub struct Player {
     cards: (Card, Card),
-    chips: u32,
-    folded: bool,
-    bet: u32,
+    pub chips: u32,
+    pub folded: bool,
+    pub bet: u32,
 }
 
 impl Player {
@@ -43,6 +43,7 @@ impl std::fmt::Display for Player {
 /// Keep track of the highest bet
 pub struct Players {
     pub players: Vec<Player>,
+    // TODO: Impleemnt if go bust, remember that impacts the choice of the dealer
 }
 
 impl Players {

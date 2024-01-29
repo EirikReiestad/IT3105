@@ -1,0 +1,2 @@
+class GameRules:
+    pass

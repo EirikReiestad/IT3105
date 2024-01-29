@@ -1,24 +1,4 @@
-use std::cmp::Ordering;
-
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Card {
-    pub suit: Suit,
-    pub rank: usize,
-}
-
-impl Card {
-    pub fn new(suit: Suit, rank: usize) -> Card {
-        Card {
-            suit,
-            rank
-        }
-    }
-}
-
-impl std::fmt::Display for Card {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let rank = match self.rank {
+use std::cmp::Ordering; #[derive(Clone, Debug, PartialEq, Eq)] pub struct Card { pub suit: Suit, pub rank: usize, } impl Card { pub fn new(suit: Suit, rank: usize) -> Card { Card { suit, rank } } } impl std::fmt::Display for Card { fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result { let rank = match self.rank {
             1 => "A".to_string(),
             2..=10 => self.rank.to_string(),
             11 => "J".to_string(),
@@ -55,3 +35,4 @@ pub enum Suit {
     Hearts,
     Spades,
 }
+

@@ -1,7 +1,7 @@
 import numpy as np
 from src.resolver.subtree_travesal_rollout import subtreeTraversalRollout
 from src.resolver.update_strategy import updateStrategy
-from src.game_state import GameState
+from src.game_state.states import GameState
 
 # TEMPORARY ONLY USE EIRIK'S LATER
 class Node:
@@ -44,7 +44,7 @@ def resolve(S, r1, r2, endStage, endDepth, T):
         # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
         v_1, v_2 = subtreeTraversalRollout(S, r1, r2, endStage, endDepth)
         # S ← UpdateStrategy(Root) ▷ Returns current strategy matrix for the root
-        sigma = updateStrategy(root)
+        sigma = updateStrategy(root, v_1)
         sigmas.append(sigma)
 
     # ▷ Generate the Average Strategy over all rollouts

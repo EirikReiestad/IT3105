@@ -38,7 +38,7 @@ class Deck:
     def __init__(self):
         self.stack = []
 
-    def reset_stack(self, simplify=True):
+    def reset_stack(self, simplify=False):
         self.stack = []
         for suit_idx in range(4):
             suit = None

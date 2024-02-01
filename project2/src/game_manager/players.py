@@ -28,6 +28,9 @@ class Players:
             player.reset_round((first_card, second_card))
         return deck
 
+    def winner(self, player: int, amount: int):
+        self.players[player].chips += amount
+
     def __len__(self):
         return len(self.players)
 
@@ -41,8 +44,11 @@ class Players:
         # TODO: Consider using a counter instead.
         return sum(player.folded for player in self.players)
 
+    def get_number_of_bust(self) -> int:
+        return sum(player.bust for player in self.players)
+
     def get_number_of_active_players(self) -> int:
-        return len(self.players) - self.get_number_of_folded()
+        return len(self.players) - self.get_number_of_folded() - self.get_number_of_bust()
 
     def has_folded(self, player: int) -> bool:
         return self.players[player].folded

@@ -114,9 +114,11 @@ class GameManager:
         Runs a single round, meaning from the pre-flop to the river
         """
         while True:
+            print(self)
             if self.game_stage == GameStage.PreFlop:
                 winner = self.run_game_stage()
                 if winner is not None:
+                    self.players.winner(winner, self.board.pot)
                     print(f"Player {winner} won {self.board.pot} units!")
                     break
                 self.game_stage = GameStage.Flop
@@ -174,23 +176,23 @@ class GameManager:
             elif action == Action.CallOrCheck:
                 player_bet = self.players.get_bet(turn)
                 bet = self.board.highest_bet - player_bet
-                self.make_bet(turn, bet)
                 if bet == 0:
                     print("Checked")
+                    self.make_bet(turn, Action.Check, 0)
                 else:
                     print(f"Called {bet}")
+                    self.make_bet(turn, Action.Call, bet)
                 check_count += 1
             elif action == Action.Raise:
                 player_bet = self.players.get_bet(turn)
                 raise_amount = self.board.highest_bet - player_bet + amount
-                self.make_bet(turn, raise_amount)
+                self.make_bet(turn, Action.Raise, raise_amount)
                 check_count = 1
             else:
                 raise ValueError("Invalid action")
 
             if check_count == self.players.get_number_of_active_players():
                 break
-
         return False, check_count
 
         # Handles the small and big blind

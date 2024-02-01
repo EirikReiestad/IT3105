@@ -42,6 +42,7 @@ class PrivatePlayerState(PublicPlayerState):
         self.betting_history.append(0)
         if action == Action.Fold:
             self.folded = True
+        return True
 
     def to_public(self) -> PublicPlayerState:
         return PublicPlayerState(

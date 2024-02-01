@@ -65,4 +65,8 @@ class PrivatePlayerState(PublicPlayerState):
         self.action_history = list()
 
     def __str__(self):
-        return f"Cards: {self.cards[0]}, {self.cards[1]} Chips: {self.chips}"
+        s = ""
+        if self.folded:
+            s = "Folded "
+        s += f"Cards: {self.cards[0]}, {self.cards[1]} Chips: {self.chips}"
+        return s

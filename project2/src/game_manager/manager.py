@@ -117,20 +117,34 @@ class GameManager:
             print(self)
             if self.game_stage == GameStage.PreFlop:
                 winner = self.run_game_stage()
-                if winner is not None:
-                    self.players.winner(winner, self.board.pot)
-                    print(f"Player {winner} won {self.board.pot} units!")
-                    break
+                if self.round_winner(winner):
+                    return
                 self.game_stage = GameStage.Flop
             elif self.game_stage == GameStage.Flop:
-                self.run_game_stage()
+                winner = self.run_game_stage()
+                if self.round_winner(winner):
+                    return
                 self.game_stage = GameStage.Turn
             elif self.game_stage == GameStage.Turn:
-                self.run_game_stage()
+                winner = self.run_game_stage()
+                if self.round_winner(winner):
+                    return
                 self.game_stage = GameStage.River
             elif self.game_stage == GameStage.River:
-                self.run_game_stage()
+                if self.round_winner(winner):
+                    return
+                self.round_winner(winner)
                 break
+
+    def round_winner(self, winner: int) -> bool:
+        """
+        Handles the winner of the round
+        """
+        if winner is None:
+            return False
+        self.players.winner(winner, self.board.pot)
+        print(f"Player {winner} won {self.board.pot} units!")
+        return True
 
     # Runs a game stage
     def run_game_stage(self) -> int:
@@ -163,10 +177,7 @@ class GameManager:
             print(self.players.players[turn])
 
             if self.game_stage == GameStage.PreFlop:
-                x = self.preflop_bets(turn)
-                if x is not None:
-                    check_count += x
-                    continue
+                check_count += self.preflop_bets(turn)
 
             action, amount = self.get_action()
 
@@ -200,7 +211,7 @@ class GameManager:
         # Assuming they can not fold.
         # Returns 1 if the player is the big blind, 0 otherwise
 
-    def preflop_bets(self, turn: int):
+    def preflop_bets(self, turn: int) -> int:
         player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
@@ -219,7 +230,7 @@ class GameManager:
             self.make_bet(turn, Action.Raise, self.buy_in)
             return 1
         else:
-            return None
+            return 0
 
     def get_new_dealer(self, dealer: int):
         dealer = (dealer + 1) % len(self.players)

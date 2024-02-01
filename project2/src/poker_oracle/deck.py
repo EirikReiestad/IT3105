@@ -15,7 +15,8 @@ class Card:
         self.rank = rank
 
     def __str__(self):
-        rank = {1: "A", 11: "J", 12: "Q", 13: "K"}.get(self.rank, str(self.rank))
+        rank = {1: "A", 11: "J", 12: "Q", 13: "K"}.get(
+            self.rank, str(self.rank))
         return f"{rank}{self.suit.value}"
 
     def __eq__(self, other) -> bool:
@@ -68,4 +69,5 @@ class Deck:
     def __len__(self):
         return len(self.stack)
 
-
+    def __str__(self):
+        return str(self.stack)

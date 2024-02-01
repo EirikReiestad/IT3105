@@ -1,7 +1,10 @@
-from game_manager.manager import GameManager
+from src.game_manager.manager import GameManager
+from src.poker_oracle.deck import Deck
 
 if __name__ == '__main__':
     num_players = 6
-    game_manager = GameManager(num_players)
+    deck = Deck()
+    deck.reset_stack()
+    game_manager = GameManager(num_players, deck)
 
-    game_manager.run()
+    game_manager.run_game()

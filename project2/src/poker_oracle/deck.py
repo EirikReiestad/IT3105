@@ -39,7 +39,7 @@ class Deck:
     def __init__(self):
         self.stack = []
 
-    def reset_stack(self):
+    def reset_stack(self, simplify=False):
         self.stack = []
         for suit_idx in range(4):
             suit = None
@@ -52,8 +52,13 @@ class Deck:
             elif suit_idx == 3:
                 suit = Suit.Spades
 
-            for rank in range(1, 14):
-                self.stack.append(Card(suit, rank))
+            if not simplify:
+                for rank in range(1, 14):
+                    self.stack.append(Card(suit, rank))
+            else:
+                for rank in range(9, 14):
+                    self.stack.append(Card(suit, rank))
+                self.stack.append(Card(suit, 1))
 
         random.shuffle(self.stack)
 

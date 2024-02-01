@@ -1,6 +1,6 @@
 import unittest
 from src.game_manager.manager import GameManager
-from src.game_state.deck import Deck
+from src.poker_oracle.deck import Deck
 
 
 class TestGameManager(unittest.TestCase):

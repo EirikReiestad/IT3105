@@ -16,6 +16,16 @@ class PublicGameState:
         self.player_states = player_states  # A list of PlayerState instances
         self.board_state = board_state  # An instance of BoardState
         self.game_stage = game_stage  # An instance of GameStage
+        self._current_player_index = (
+            self.board_state.dealer + 1) % len(self.player_states)
+
+    @property
+    def current_player_index(self):
+        return self._current_player_index
+
+    @current_player_index.setter
+    def current_player_index(self, value):
+        self._current_player_index = (value + 1) % len(self.player_states)
 
 
 @dataclass
@@ -29,3 +39,5 @@ class PrivateGameState:
         self.player_states = player_states
         self.board_state = board_state
         self.game_stage = game_stage
+        self.current_player_index = (
+            self.board_state.dealer + 1) % len(self.player_states)

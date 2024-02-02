@@ -55,9 +55,10 @@ class SubtreeTraversalRollout:
                 state = state.get_next_state(action)
                 p_values[action], o_values[action] = SubtreeTraversalRollout.subtree_traversal_rollout(
                     state, p_dist, o_dist, end_stage, end_depth)
+                hole_pairs = Resolver.generate_all_hole_pairs()  # TODO: Prob wrong, fix
                 for pair in hole_pairs:
-                    p_values[pair] += strategy(pair,
-                                               action) * p_values[action][pair]
+                    p_values[pair] += Resolver.strategy(
+                        pair, action) * p_values[action][pair]
         else:
             p_values = np.zeros((0, 0))
             o_values = np.zeros((0, 0))
@@ -69,10 +70,8 @@ class SubtreeTraversalRollout:
                 p_values[event], o_values[event] = SubtreeTraversalRollout.subtree_traversal_rollout(
                     state, p_dist, o_dist, end_stage, end_depth)
                 for pair in hole_pairs:
-                    p_values[pair] += p_values[event][pair] / \
-                        abs(events)
-                    o_values[pair] += o_values[event][pair] / \
-                        abs(events)
+                    p_values[pair] += p_values[event][pair] / abs(events)
+                    o_values[pair] += o_values[event][pair] / abs(events)
         return p_values, o_values
 
     @ staticmethod

@@ -11,14 +11,17 @@ class PublicBoardState:
     def __init__(self,
                  cards: List[Card],
                  pot: int,
-                 highest_bet: int,):
+                 highest_bet: int,
+                 dealer: int,
+                 game_stage: GameStage
+                 ):
         if not isinstance(cards, list):
             raise TypeError("cards must be a list")
         self.cards = cards  # A list of Card instances
         self.pot = pot  # An integer
         self.highest_bet = highest_bet  # An integer
-        self.game_stage = GameStage
-        self.dealer: int = 0  # This should be updated by the reset_round function
+        self.dealer: int = dealer
+        self.game_stage: GameStage = game_stage  # An instance of GameStage
 
 
 @dataclass
@@ -64,7 +67,8 @@ class PrivateBoardState(PublicBoardState):
             cards=self.cards,
             pot=self.pot,
             highest_bet=self.highest_bet,
-            dealer=self.dealer)
+            dealer=self.dealer,
+            game_stage=game_stage)
 
     def _update_card_state(self, game_stage: GameStage):
         if game_stage == GameStage.PreFlop:

@@ -10,4 +10,8 @@ class StateManager:
         self.board: PublicGameBoard = public_game_state.board
         self.game_stage: GameStage = public_game_state.game_stage
 
-    
+    def get_legal_actions(self):
+        pass
+
+    def get_next_state(self, action):
+        pass

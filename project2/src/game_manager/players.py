@@ -1,5 +1,5 @@
 from typing import List
-from src.game_state.player_state import PrivatePlayerState
+from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
 from src.poker_oracle.deck import Deck, Card
 
 
@@ -30,6 +30,12 @@ class Players:
 
     def winner(self, player: int, amount: int):
         self.players[player].chips += amount
+
+    def get_private_player_states(self) -> List[PrivatePlayerState]:
+        return self.players
+
+    def get_public_player_states(self) -> List[PublicPlayerState]:
+        return [player.to_public() for player in self.players]
 
     def __len__(self):
         return len(self.players)

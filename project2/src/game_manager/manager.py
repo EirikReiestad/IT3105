@@ -1,9 +1,9 @@
 from typing import List, Tuple, Optional
 import random
 from src.poker_oracle.deck import Deck
-from src.game_state.player_state import PublicPlayerState
+from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
 from src.game_state.board_state import PublicBoardState, PrivateBoardState
-from src.game_state.game_state import PublicGameState
+from src.game_state.game_state import PublicGameState, PrivateGameState
 from .players import Players
 from .game_stage import GameStage
 from .game_action import Action
@@ -46,20 +46,19 @@ class GameManager:
         return get_input()
 
     # Handles generating the game state
-    def get_current_state(self) -> PublicGameState:
-        player_states: List[PublicPlayerState] = self.get_player_states()
+    def get_current_public_state(self) -> PublicGameState:
+        player_states: List[PublicPlayerState] = self.players.get_public_player_states(
+        )
         board_state: PublicBoardState = self.get_board_state()
         game_stage: GameStage = self.game_stage
 
         return PublicGameState(player_states, board_state, game_stage)
 
-    def get_player_states(self) -> List[PublicPlayerState]:
-        player_states = []
-        for player in self.players:
-            player_state = PublicPlayerState(
-                player.chips, player.folded, player.bet)
-            player_states.append(player_state)
-        return player_states
+    def get_current_private_state(self) -> PrivateGameState:
+        players: PrivatePlayerState = self.players.get_private_player_states()
+        board_state: PrivateBoardState = self.board
+        game_stage: GameStage = self.game_stage
+        return PrivateGameState(players, board_state, game_stage)
 
     # Implements the rules
 

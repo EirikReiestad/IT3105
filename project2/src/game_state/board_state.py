@@ -12,8 +12,8 @@ class PublicBoardState:
                  cards: List[Card],
                  pot: int,
                  highest_bet: int,
-                 dealer: int,
-                 game_stage: GameStage
+                 dealer: int = 0,
+                 game_stage: GameStage = GameStage.PreFlop
                  ):
         if not isinstance(cards, list):
             raise TypeError("cards must be a list")
@@ -61,26 +61,30 @@ class PrivateBoardState(PublicBoardState):
 
         return deck
 
-    def to_public(self, game_stage: GameStage) -> PublicBoardState:
-        self._update_card_state(game_stage)
+    def to_public(self) -> PublicBoardState:
+        self._update_card_state()
         return PublicBoardState(
             cards=self.cards,
             pot=self.pot,
             highest_bet=self.highest_bet,
             dealer=self.dealer,
-            game_stage=game_stage)
+            game_stage=self.game_stage)
 
-    def _update_card_state(self, game_stage: GameStage):
-        if game_stage == GameStage.PreFlop:
+    def update_board_state(self, game_stage: GameStage):
+        self.game_stage = game_stage
+        self._update_card_state()
+
+    def _update_card_state(self):
+        if self.game_stage == GameStage.PreFlop:
             pass  # Doesn't matter because already an empty list
-        elif game_stage == GameStage.Flop:
+        elif self.game_stage == GameStage.Flop:
             flop = self.flop
-            self.cards = [flop[0], flop[1], flop[2]]
-        elif game_stage == GameStage.Turn:
+            self.cards = flop
+        elif self.game_stage == GameStage.Turn:
             flop = self.flop
             turn = self.turn
             self.cards = [flop[0], flop[1], flop[2], turn]
-        elif game_stage == GameStage.River:
+        elif self.game_stage == GameStage.River:
             flop = self.flop
             turn = self.turn
             river = self.river

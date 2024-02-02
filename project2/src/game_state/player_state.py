@@ -22,6 +22,7 @@ class PublicPlayerState:
 class PrivatePlayerState(PublicPlayerState):
     def __init__(self):
         super().__init__(chips=100)
+        self.cards: Tuple[Card, Card] = (None, None)
 
     def _bet(self, amount) -> bool:
         if self.chips < amount:
@@ -50,6 +51,9 @@ class PrivatePlayerState(PublicPlayerState):
             folded=self.folded,
             bet=self.bet,
         )
+
+    def hand(self) -> Tuple[Card, Card]:
+        return self.cards
 
     def reset_round(self, cards: Tuple[Card, Card]):
         # Enforce type

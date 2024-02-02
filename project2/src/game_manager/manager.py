@@ -7,10 +7,11 @@ from src.game_state.game_state import PublicGameState, PrivateGameState
 from .players import Players
 from .game_stage import GameStage
 from .game_action import Action
+from src.gui.display import Display
 
 
 class GameManager:
-    def __init__(self, num_players: int, deck: Deck):
+    def __init__(self, num_players: int, deck: Deck, graphics: bool = True):
         # Determine dealer
         dealer: int = random.randint(0, num_players - 1)
         self.board: PrivateBoardState = PrivateBoardState(0, 0)
@@ -20,6 +21,12 @@ class GameManager:
 
         self.game_stage: GameStage = GameStage.PreFlop
         self.buy_in: int = 10
+        self.graphics: bool = graphics
+        if graphics:
+            self._init_graphics()
+
+    def _init_graphics(self):
+        self.display = Display()
 
     def get_action(self) -> Tuple[Action, Optional[int]]:
         """
@@ -27,11 +34,12 @@ class GameManager:
         -------
         Tuple[Action, Optional[int]]: The action and the amount to bet if the action is raise
         """
-        options = "Fold(0) Call/Check(1) Raise(2)"  # TODO: Implement all-in
-        print(f"Options: {options}")
 
         def get_input():
-            user_input = input()
+            if self.graphics:
+                user_input = self.display.get_input()
+            else:
+                user_input = input()
 
             if user_input == "0":
                 return Action.Fold, None
@@ -45,20 +53,23 @@ class GameManager:
 
         return get_input()
 
-    # Handles generating the game state
+        # Handles generating the game state
+
     def get_current_public_state(self) -> PublicGameState:
         player_states: List[PublicPlayerState] = self.players.get_public_player_states(
         )
-        board_state: PublicBoardState = self.get_board_state()
+        self.board.update_board_state(self.game_stage)
+        board_state: PublicBoardState = self.board.to_public()
         game_stage: GameStage = self.game_stage
 
         return PublicGameState(player_states, board_state, game_stage)
 
     def get_current_private_state(self) -> PrivateGameState:
         players: PrivatePlayerState = self.players.get_private_player_states()
+        self.board.update_board_state(self.game_stage)
         board_state: PrivateBoardState = self.board
         game_stage: GameStage = self.game_stage
-        return PrivateGameState(players, board_state, game_stage)
+        return PrivateGameState(players, board_state, game_stage, self.current_player_index)
 
     # Implements the rules
 
@@ -75,7 +86,8 @@ class GameManager:
             player_bet = self.players.get_bet(player)
             self.board.pot += bet
             self.board.highest_bet = player_bet
-            print(f"Player bet: {player_bet}, bet {bet}")
+            if not self.graphics:
+                print(f"Player bet: {player_bet}, bet {bet}")
 
     def reset_round(self, deck: Deck):
         """
@@ -100,7 +112,7 @@ class GameManager:
         """
         Runs the game, multiple rounds
         """
-        print("Running game")
+        print(self._rules())
         # TODO: Remove the generation of deck, it should ideally be passed in
         while True:
             deck = Deck()
@@ -113,27 +125,32 @@ class GameManager:
         Runs a single round, meaning from the pre-flop to the river
         """
         while True:
-            print(self)
-            if self.game_stage == GameStage.PreFlop:
-                winner = self.run_game_stage()
-                if self.round_winner(winner):
-                    return
-                self.game_stage = GameStage.Flop
-            elif self.game_stage == GameStage.Flop:
-                winner = self.run_game_stage()
-                if self.round_winner(winner):
-                    return
-                self.game_stage = GameStage.Turn
-            elif self.game_stage == GameStage.Turn:
-                winner = self.run_game_stage()
-                if self.round_winner(winner):
-                    return
-                self.game_stage = GameStage.River
-            elif self.game_stage == GameStage.River:
-                if self.round_winner(winner):
-                    return
-                self.round_winner(winner)
-                break
+            if not self.graphics:
+                print(self)
+            match self.game_stage:
+                case GameStage.PreFlop:
+                    winner = self.run_game_stage()
+                    if self.round_winner(winner):
+                        return
+                    self.game_stage = GameStage.Flop
+                case GameStage.Flop:
+                    winner = self.run_game_stage()
+                    if self.round_winner(winner):
+                        return
+                    self.game_stage = GameStage.Turn
+                case GameStage.Turn:
+                    winner = self.run_game_stage()
+                    if self.round_winner(winner):
+                        return
+                    self.game_stage = GameStage.River
+                case GameStage.River:
+                    winner = self.run_game_stage()
+                    if self.round_winner(winner):
+                        return
+                    self.game_stage = GameStage.Showdown
+                case GameStage.Showdown:
+                    self.round_winner(winner)
+                    break
 
     def round_winner(self, winner: int) -> bool:
         """
@@ -171,9 +188,14 @@ class GameManager:
             if self.players.get_number_of_active_players() == 1:
                 return True, turn
 
-            print(" ")
-            print(f"--- Player {turn}'s turn ---")
-            print(self.players.players[turn])
+            self.current_player_index = turn
+
+            if self.graphics:
+                self.display.update(self.get_current_private_state())
+            else:
+                print(" ")
+                print(f"--- Player {turn}'s turn ---")
+                print(self.players.players[turn])
 
             if self.game_stage == GameStage.PreFlop:
                 check_count += self.preflop_bets(turn)
@@ -187,10 +209,12 @@ class GameManager:
                 player_bet = self.players.get_bet(turn)
                 bet = self.board.highest_bet - player_bet
                 if bet == 0:
-                    print("Checked")
+                    if not self.graphics:
+                        print("Checked")
                     self.make_bet(turn, Action.Check, 0)
                 else:
-                    print(f"Called {bet}")
+                    if not self.graphics:
+                        print(f"Called {bet}")
                     self.make_bet(turn, Action.Call, bet)
                 check_count += 1
             elif action == Action.Raise:
@@ -215,17 +239,21 @@ class GameManager:
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
 
-        print(f"turn {turn} player_bet {player_bet}")
+        if not self.graphics:
+            print(f"turn {turn} player_bet {player_bet}")
 
         if turn == small_blind and self.board.highest_bet == 0:
             # Small blind
-            print(
-                f"Player {turn} is the small blind and must bet {self.buy_in / 2}")
+            if not self.graphics:
+                print(
+                    f"Player {turn} is the small blind and must bet {self.buy_in / 2}")
             self.make_bet(turn, Action.Raise, self.buy_in / 2)
             return 0
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
             # Big blind
-            print(f"Player {turn} is the big blind and must bet {self.buy_in}")
+            if not self.graphics:
+                print(
+                    f"Player {turn} is the big blind and must bet {self.buy_in}")
             self.make_bet(turn, Action.Raise, self.buy_in)
             return 1
         else:
@@ -237,6 +265,11 @@ class GameManager:
         if self.players.is_bust(dealer):
             self.rotate_dealer()
         return dealer
+
+    def _rules(self) -> str:
+        s = "Welcome to Poker!\n"
+        s += "Press 0 to fold, 1 to call/check, and 2 to raise\n"
+        return s
 
     def __str__(self):
         result = (

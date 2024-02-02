@@ -4,6 +4,7 @@ from src.game_state.game_state import PublicGameState
 from src.game_state.board_state import PrivateBoardState
 from src.game_state.player_state import PrivatePlayerState
 from src.game_manager.game_stage import GameStage
+from src.poker_oracle.card import Card
 
 
 class Display:
@@ -32,6 +33,9 @@ class Display:
         text = self.font.render(text, True, color)
         self.display.blit(text, (x, y))
 
+    def _draw_card(self, card: Card, x: int, y: int):
+        pass
+
     def clear(self):
         self.display.fill(self.background)
 
@@ -45,6 +49,8 @@ class Display:
         player_width = self.width // len(self.player_states)
         for (i, player) in enumerate(self.player_states):
             self.draw_text(f"Player {i + 1}", player_width * i, 20)
+            for card in player.hand:
+                self.draw_card(card, player_width * i, 40)
 
 
 if __name__ == "__main__":

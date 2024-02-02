@@ -9,3 +9,5 @@ class StateManager:
         self.players: Players = public_game_state.players
         self.board: PublicGameBoard = public_game_state.board
         self.game_stage: GameStage = public_game_state.game_stage
+
+    

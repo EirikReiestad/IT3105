@@ -5,37 +5,43 @@ from src.game_state.states import GameState
 from src.poker_oracle.oracle import Oracle
 from src.game_state.states import PlayerState
 
+
 class Node:
     def __init__(self):
         self.state: GameState = None
 
+
 class Resolver:
     def __init__(self):
         pass
-    
+
+        # TODO: snake_case, fix parameter names
     def bayesianRangeUpdate(self, r1, a, sigma_flat):
         # TODO: må fikse arrays og sånt
         prob_pair = r1 / np.sum(r1)
         prob_act = np.sum(sigma_flat[a])/np.sum(sigma_flat)
         prob_act_given_pair = sigma_flat[a] * prob_pair
-        
+
         updated_prob = (prob_act_given_pair * prob_pair) / prob_act
-        
+
         return updated_prob
-    
+
+        # TODO: snake_case
     def sampleActionAverageStrategy(self, sigma_flat):
         # Compute the sum of probabilities across columns
         action_probabilities = np.sum(sigma_flat, axis=0)
-        
+
         # Normalize probabilities to ensure they sum up to 1
         action_probabilities /= np.sum(action_probabilities)
-        
+
         # Sample an action based on the computed probabilities
-        sampled_action = np.random.choice(np.arange(len(action_probabilities)), p=action_probabilities)
-        
+        sampled_action = np.random.choice(
+            np.arange(len(action_probabilities)), p=action_probabilities)
+
         return sampled_action
-    
+
     # def updateStrategy(self, node):
+        # TODO: snake_case, fix parameter names
     def updateStrategy(self, node, v_1, v_2, S, r1, r2, endStage, endDepth):
         s = node.state
         for c in node.successors:
@@ -53,16 +59,19 @@ class Resolver:
                     s_new = s.copy()
                     s_new.act(a)
                     # USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
-                    v_1_s_new, v_2_s_new = subtreeTraversalRollout(s_new, r1, r2, endStage, endDepth)
+                    v_1_s_new, v_2_s_new = subtreeTraversalRollout(
+                        s_new, r1, r2, endStage, endDepth)
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
                     R_s[h][a] = R_s[h][a] + [v_1_s_new[h] - v_1[h]]
                     R_s_plus[h][a] = max(0, R_s)
             for h in range(len(all_hole_pairs)):
                 for a in s.actions:
-                    sigma_s[h][a] = R_s_plus[h][a]/sum([R_s_plus[h, a_p] for a_p in s.actions])
-        
+                    sigma_s[h][a] = R_s_plus[h][a] / \
+                        sum([R_s_plus[h, a_p] for a_p in s.actions])
+
         return sigma_s
 
+        # TODO: fix parameter names
     def resolve(self, S, r1, r2, endStage, endDepth, T):
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
@@ -83,7 +92,7 @@ class Resolver:
         # ▷ r1(a∗) is presumed normalized.
         r1_a = self.bayesianRangeUpdate(r1, a, sigma_flat)
 
-        ## MAYBE PLAYER SHOULD DO THE ACT?
+        # MAYBE PLAYER SHOULD DO THE ACT?
         new_state = S.act(a)
 
         # NEW STATE S' made from strategy 'a'

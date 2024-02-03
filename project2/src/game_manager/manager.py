@@ -62,14 +62,14 @@ class GameManager:
         board_state: PublicBoardState = self.board.to_public()
         game_stage: GameStage = self.game_stage
 
-        return PublicGameState(player_states, board_state, game_stage)
+        return PublicGameState(player_states, board_state, game_stage, self.current_player_index, self.buy_in)
 
     def get_current_private_state(self) -> PrivateGameState:
-        players: PrivatePlayerState = self.players.get_private_player_states()
+        player_states: PrivatePlayerState = self.players.get_private_player_states()
         self.board.update_board_state(self.game_stage)
         board_state: PrivateBoardState = self.board
         game_stage: GameStage = self.game_stage
-        return PrivateGameState(players, board_state, game_stage, self.current_player_index)
+        return PrivateGameState(player_states, board_state, game_stage, self.current_player_index)
 
     # Implements the rules
 

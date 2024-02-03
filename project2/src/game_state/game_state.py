@@ -13,11 +13,13 @@ class PublicGameState:
         board_state: PublicBoardState,
         game_stage: GameStage,
         current_player_index: int,
+        buy_in: int,
     ):
         self.player_states = player_states  # A list of PlayerState instances
         self.board_state = board_state  # An instance of BoardState
         self.game_stage = game_stage  # An instance of GameStage
         self.current_player_index = current_player_index
+        self.buy_in = buy_in
 
 
 @dataclass
@@ -28,8 +30,10 @@ class PrivateGameState:
         board_state: PrivateBoardState,
         game_stage: GameStage,
         current_player_index: int,
+        buy_in: int,
     ):
         self.player_states = player_states
         self.board_state = board_state
         self.game_stage = game_stage
         self.current_player_index = current_player_index
+        self.buy_in = buy_in

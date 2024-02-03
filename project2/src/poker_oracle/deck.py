@@ -19,6 +19,27 @@ class Card:
             self.rank, str(self.rank))
         return f"{rank}{self.suit.value}"
 
+    def to_png_str(self) -> str:
+        suit = ""
+        match self.suit:
+            case Suit.Clubs:
+                suit = "clubs"
+            case Suit.Diamonds:
+                suit = "diamonds"
+            case Suit.Hearts:
+                suit = "hearts"
+            case Suit.Spades:
+                suit = "spades"
+        if self.rank == 1:
+            return f"ace_of_{suit}.png"
+        if self.rank == 11:
+            return f"jack_of_{suit}.png"
+        if self.rank == 12:
+            return f"queen_of_{suit}.png"
+        if self.rank == 13:
+            return f"king_of_{suit}.png"
+        return f"{self.rank}_of_{suit}.png"
+
     def __eq__(self, other) -> bool:
         return self.rank == other.rank and self.suit == other.suit
 

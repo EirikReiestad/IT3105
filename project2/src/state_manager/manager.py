@@ -13,6 +13,7 @@ class StateManager:
         self.game_stage: GameStage = public_game_state.game_stage
         self.current_player_index: int = public_game_state.current_player_index
         self.buy_in: int = public_game_state.buy_in
+        self.check_count: int = 0
 
     def get_legal_actions(self) -> List[Action]:
         """
@@ -68,20 +69,66 @@ class StateManager:
             return False, 0
         return True, raise_sum
 
-    def generate_sub_states(self, player_index: int, action: Action) -> [PublicGameState]:
+    def generate_sub_state(self, action: Action) -> [PublicGameState]:
         """
         The generate_sub_state method is used to generate a new state from the current state based on the action
         """
+        state = StateManager(
+            self.players,
+            self.board,
+            self.game_stage,
+            self.current_player_index,
+            self.buy_in,
+            self.check_count)
+        return state.generate_state(action)
+
+    def generate_state(self, action: Action) -> PublicGameState:
+        """
+        Generate a new state based on the action
+        """
+        # Increment the current player index
+        self.current_player_index = (self.current_player_index + 1) % len(
+            self.players)
+
+        # TODO: This is a bit of a mess. Need to clean this up.
+        # The logic is not very clear as it already exists in the Player class
+        # Consider passing in the Player class instead of PublicPlayerState
+        #
+        active_players = [
+            player for player in self.players if not player.folded and not player.bust]
+
+        if self.check_count == active_players:
+            self.game_stage = self.game_stage.next_stage()
+            self.check_count = 0
+
+        # TODO: Check if the game is over
+
+        if action == Action.Fold():
+            self.players[self.current_player_index].folded = True
+        elif action == Action.Check():
+            self.check_count += 1
+        elif action == Action.Call():
+            _, call_sum = self._can_call()
+            self.players[self.current_player_index].chips -= call_sum
+            self.players[self.current_player_index].round_bet += call_sum
+            self.board.pot += call_sum
+        elif action == Action.Raise():
+            _, raise_sum = self._can_raise()
+            self.players[self.current_player_index].chips -= raise_sum
+            self.players[self.current_player_index].round_bet += raise_sum
+            self.board.pot += raise_sum
+            self.board.highest_bet += raise_sum
 
         return PublicGameState(
-            players=self.players,
-            board=self.board,
-            game_stage=self.game_stage,
-            current_player_index=player_index)
+            self.players,
+            self.board,
+            self.game_stage,
+            self.current_player_index,
+            self.buy_in,
+            self.check_count)
 
     def generate_possible_states(self) -> List[PublicGameState]:
         possible_states = list()
         for action in self.get_legal_actions():
-            possible_states.append(self.generate_sub_state(
-                self.current_player_index, action))
+            possible_states.append(self.generate_sub_state(action))
         return possible_states

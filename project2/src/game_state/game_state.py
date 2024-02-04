@@ -20,6 +20,7 @@ class PublicGameState:
         self.game_stage = game_stage  # An instance of GameStage
         self.current_player_index = current_player_index
         self.buy_in = buy_in
+        self.check_count = 0
 
 
 @dataclass
@@ -37,3 +38,4 @@ class PrivateGameState:
         self.game_stage = game_stage
         self.current_player_index = current_player_index
         self.buy_in = buy_in
+        self.check_count = 0

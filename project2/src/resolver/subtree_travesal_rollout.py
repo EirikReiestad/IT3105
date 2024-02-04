@@ -74,18 +74,18 @@ class SubtreeTraversalRollout:
                     o_values[pair] += o_values[event][pair] / abs(events)
         return p_values, o_values
 
-    @ staticmethod
+    @staticmethod
     def showdown_state(self, state: GameState) -> bool:
         pass
 
-    @ staticmethod
+    @staticmethod
     def utility_matrix(self,
                        state: GameState,
                        player_hand_distribution: np.ndarray,
                        opponent_hand_distribution: np.ndarray) -> np.ndarray:
         pass
 
-    @ staticmethod
+    @staticmethod
     def player_state(self, state: GameState) -> np.ndarray:
         """
         Parameters

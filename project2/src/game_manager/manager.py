@@ -28,25 +28,25 @@ class GameManager:
     def _init_graphics(self):
         self.display = Display()
 
-    def get_action(self) -> Tuple[Action, Optional[int]]:
+    def get_action(self) -> Action:
         """
         Returns
         -------
         Tuple[Action, Optional[int]]: The action and the amount to bet if the action is raise
         """
 
-        def get_input():
+        def get_input() -> Action:
             if self.graphics:
                 user_input = self.display.get_input()
             else:
                 user_input = input()
 
             if user_input == "0":
-                return Action.Fold, None
+                return Action.Fold()
             elif user_input == "1":
-                return Action.CallOrCheck, None
+                return Action.CallOrCheck()
             elif user_input == "2":
-                return Action.Raise, 10  # TODO: Implement raise amount
+                return Action.Raise(10)  # TODO: Implement raise amount
             else:
                 print("Invalid input")
                 return get_input()
@@ -79,15 +79,15 @@ class GameManager:
     # The bet is added to the pot
     # The bet is added to the player_bets HashMap
     # The highest_bet is updated
-    def make_bet(self, player: int, action: Action, bet: int):
-        if not self.players.action(player, action, bet):
-            self.players.action(player, Action.Fold, 0)
+    def make_bet(self, player: int, action: Action):
+        if not self.players.action(player, action, action.amount):
+            self.players.action(player, Action.Fold(), 0)
         else:
             player_bet = self.players.get_bet(player)
-            self.board.pot += bet
+            self.board.pot += action.amount
             self.board.highest_bet = player_bet
             if not self.graphics:
-                print(f"Player bet: {player_bet}, bet {bet}")
+                print(f"Player bet: {player_bet}, bet {action.amount}")
 
     def reset_round(self, deck: Deck):
         """
@@ -200,27 +200,27 @@ class GameManager:
             if self.game_stage == GameStage.PreFlop:
                 check_count += self.preflop_bets(turn)
 
-            action, amount = self.get_action()
+            action: Action = self.get_action()
 
-            if action == Action.Fold:
+            if action == Action.Fold():
                 self.players.fold(turn)
                 continue
-            elif action == Action.CallOrCheck:
+            elif action == Action.CallOrCheck():
                 player_bet = self.players.get_bet(turn)
                 bet = self.board.highest_bet - player_bet
                 if bet == 0:
                     if not self.graphics:
                         print("Checked")
-                    self.make_bet(turn, Action.Check, 0)
+                    self.make_bet(turn, Action.Check(), 0)
                 else:
                     if not self.graphics:
                         print(f"Called {bet}")
-                    self.make_bet(turn, Action.Call, bet)
+                    self.make_bet(turn, Action.Call(), bet)
                 check_count += 1
-            elif action == Action.Raise:
+            elif action == Action.Raise():
                 player_bet = self.players.get_bet(turn)
-                raise_amount = self.board.highest_bet - player_bet + amount
-                self.make_bet(turn, Action.Raise, raise_amount)
+                raise_amount = self.board.highest_bet - player_bet + action.amount
+                self.make_bet(turn, Action.Raise(raise_amount))
                 check_count = 1
             else:
                 raise ValueError("Invalid action")
@@ -247,14 +247,14 @@ class GameManager:
             if not self.graphics:
                 print(
                     f"Player {turn} is the small blind and must bet {self.buy_in / 2}")
-            self.make_bet(turn, Action.Raise, self.buy_in / 2)
+            self.make_bet(turn, Action.Raise(self.buy_in/2), self.buy_in / 2)
             return 0
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
             # Big blind
             if not self.graphics:
                 print(
                     f"Player {turn} is the big blind and must bet {self.buy_in}")
-            self.make_bet(turn, Action.Raise, self.buy_in)
+            self.make_bet(turn, Action.Raise(self.buy_in), self.buy_in)
             return 1
         else:
             return 0

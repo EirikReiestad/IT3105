@@ -22,26 +22,51 @@ class StateManager:
             - 2x big blind
             - 1/2 pot
         """
+        actions = list()
+        if self._can_fold():
+            actions.append(Action.Fold())
+        if self._can_check():
+            actions.append(Action.Check())
+        if self._can_call():
+            _, call_sum = self._can_call()
+            actions.append(Action.Call(call_sum))
+        if self._can_raise(2 * self.buy_in):
+            _, raise_sum = self._can_raise(2 * self.buy_in)
+            actions.append(Action.Raise(raise_sum))
+        if self._can_raise(self.board.pot / 2):
+            _, raise_sum = self._can_raise(self.board.pot / 2)
+            actions.append(Action.Raise(raise_sum))
+        # TODO: Add AllIn
+
+    def _can_fold(self) -> bool:
+        """
+        Can only fold if the player has not folded and the player has not matched the highest bet
+        If it has matched the highest bet, there is no point in folding
+        """
         if self.players[self.current_player_index].round_bet == self.board.highest_bet:
-            # You can fold, but there is no point as you can check for free
-            # NOTE: We use Action.CheckOrCall in the game_manager
-            # TODO: Need to distinguish between the different types of raises as it can afford one type but not the other
-            if self.players[self.current_player_index].chips < self.self.buy_in * 2:
-                return [Action.Check]
-            if self.players[self.current_player_index].chips < self.board.pot / 2:
-                return [Action.Check]
-            return [Action.Check, Action.Raise]
-        if self.players[self.current_player_index].round_bet < self.board.highest_bet:
-            check_sum = self.board.highest_bet - \
-                self.players[self.current_player_index].round_bet
-            if self.players[self.current_player_index].chips < check_sum:
-                return [Action.Fold]
-            if self.players[self.current_player_index].chips < self.self.buy_in * 2 + check_sum:
-                return [Action.Fold, Action.Call]
-            if self.players[self.current_player_index].chips < self.board.pot / 2 + check_sum:
-                return [Action.Fold, Action.Call]
-            return [Action.Fold, Action.Call, Action.Raise]
-        return []
+            return False
+        return True
+
+    def _can_check(self) -> bool:
+        return self.players[self.current_player_index].round_bet == self.board.highest_bet
+
+    def _can_call(self) -> (bool, float):
+        call_sum = self.board.highest_bet - \
+            self.players[self.current_player_index].round_bet
+        if self.players[self.current_player_index].chips < call_sum:
+            return False, 0
+        return True, call_sum
+
+    def _can_raise(self, amount: float) -> (bool, float):
+        """
+        The amount assume the amount is the amount to raise with and not the total amount to raise to (i.e. the total bet)
+        """
+        call_sum = self.board.highest_bet - \
+            self.players[self.current_player_index].round_bet
+        raise_sum = amount + call_sum
+        if self.players[self.current_player_index].chips < raise_sum:
+            return False, 0
+        return True, raise_sum
 
     def generate_sub_states(self, player_index: int, action: Action) -> [PublicGameState]:
         """

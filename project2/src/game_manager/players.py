@@ -68,5 +68,5 @@ class Players:
     def get_bet(self, player: int) -> int:
         return self.players[player].round_bet
 
-    def action(self, player, action, amount) -> bool:
-        return self.players[player].action(action, amount)
+    def action(self, player, action) -> bool:
+        return self.players[player].action(action, action.amount)

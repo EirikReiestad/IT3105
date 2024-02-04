@@ -69,7 +69,7 @@ class GameManager:
         self.board.update_board_state(self.game_stage)
         board_state: PrivateBoardState = self.board
         game_stage: GameStage = self.game_stage
-        return PrivateGameState(player_states, board_state, game_stage, self.current_player_index)
+        return PrivateGameState(player_states, board_state, game_stage, self.current_player_index, self.buy_in)
 
     # Implements the rules
 
@@ -80,8 +80,8 @@ class GameManager:
     # The bet is added to the player_bets HashMap
     # The highest_bet is updated
     def make_bet(self, player: int, action: Action):
-        if not self.players.action(player, action, action.amount):
-            self.players.action(player, Action.Fold(), 0)
+        if not self.players.action(player, action):
+            self.players.action(player, Action.Fold())
         else:
             player_bet = self.players.get_bet(player)
             self.board.pot += action.amount
@@ -211,11 +211,11 @@ class GameManager:
                 if bet == 0:
                     if not self.graphics:
                         print("Checked")
-                    self.make_bet(turn, Action.Check(), 0)
+                    self.make_bet(turn, Action.Check())
                 else:
                     if not self.graphics:
                         print(f"Called {bet}")
-                    self.make_bet(turn, Action.Call(), bet)
+                    self.make_bet(turn, Action.Call(bet))
                 check_count += 1
             elif action == Action.Raise():
                 player_bet = self.players.get_bet(turn)
@@ -247,14 +247,14 @@ class GameManager:
             if not self.graphics:
                 print(
                     f"Player {turn} is the small blind and must bet {self.buy_in / 2}")
-            self.make_bet(turn, Action.Raise(self.buy_in/2), self.buy_in / 2)
+            self.make_bet(turn, Action.Raise(self.buy_in/2))
             return 0
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
             # Big blind
             if not self.graphics:
                 print(
                     f"Player {turn} is the big blind and must bet {self.buy_in}")
-            self.make_bet(turn, Action.Raise(self.buy_in), self.buy_in)
+            self.make_bet(turn, Action.Raise(self.buy_in))
             return 1
         else:
             return 0

@@ -21,6 +21,7 @@ class GameManager:
 
         self.game_stage: GameStage = GameStage.PreFlop
         self.buy_in: int = 10
+        self.check_count: int = 0
         self.graphics: bool = graphics
         if graphics:
             self._init_graphics()
@@ -28,25 +29,25 @@ class GameManager:
     def _init_graphics(self):
         self.display = Display()
 
-    def get_action(self) -> Tuple[Action, Optional[int]]:
+    def get_action(self) -> Action:
         """
         Returns
         -------
         Tuple[Action, Optional[int]]: The action and the amount to bet if the action is raise
         """
 
-        def get_input():
+        def get_input() -> Action:
             if self.graphics:
                 user_input = self.display.get_input()
             else:
                 user_input = input()
 
             if user_input == "0":
-                return Action.Fold, None
+                return Action.Fold()
             elif user_input == "1":
-                return Action.CallOrCheck, None
+                return Action.CallOrCheck()
             elif user_input == "2":
-                return Action.Raise, 10  # TODO: Implement raise amount
+                return Action.Raise(10)  # TODO: Implement raise amount
             else:
                 print("Invalid input")
                 return get_input()
@@ -62,14 +63,26 @@ class GameManager:
         board_state: PublicBoardState = self.board.to_public()
         game_stage: GameStage = self.game_stage
 
-        return PublicGameState(player_states, board_state, game_stage)
+        return PublicGameState(
+            player_states,
+            board_state,
+            game_stage,
+            self.current_player_index,
+            self.buy_in,
+            self.check_count)
 
     def get_current_private_state(self) -> PrivateGameState:
-        players: PrivatePlayerState = self.players.get_private_player_states()
+        player_states: PrivatePlayerState = self.players.get_private_player_states()
         self.board.update_board_state(self.game_stage)
         board_state: PrivateBoardState = self.board
         game_stage: GameStage = self.game_stage
-        return PrivateGameState(players, board_state, game_stage, self.current_player_index)
+        return PublicGameState(
+            player_states,
+            board_state,
+            game_stage,
+            self.current_player_index,
+            self.buy_in,
+            self.check_count)
 
     # Implements the rules
 
@@ -79,15 +92,15 @@ class GameManager:
     # The bet is added to the pot
     # The bet is added to the player_bets HashMap
     # The highest_bet is updated
-    def make_bet(self, player: int, action: Action, bet: int):
-        if not self.players.action(player, action, bet):
-            self.players.action(player, Action.Fold, 0)
+    def make_bet(self, player: int, action: Action):
+        if not self.players.action(player, action):
+            self.players.action(player, Action.Fold())
         else:
             player_bet = self.players.get_bet(player)
-            self.board.pot += bet
+            self.board.pot += action.amount
             self.board.highest_bet = player_bet
             if not self.graphics:
-                print(f"Player bet: {player_bet}, bet {bet}")
+                print(f"Player bet: {player_bet}, bet {action.amount}")
 
     def reset_round(self, deck: Deck):
         """
@@ -132,22 +145,22 @@ class GameManager:
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage = GameStage.Flop
+                    self.game_stage.next_stage()
                 case GameStage.Flop:
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage = GameStage.Turn
+                    self.game_stage.next_stage()
                 case GameStage.Turn:
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage = GameStage.River
+                    self.game_stage.next_stage()
                 case GameStage.River:
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage = GameStage.Showdown
+                    self.game_stage.next_stage()
                 case GameStage.Showdown:
                     self.round_winner(winner)
                     break
@@ -164,15 +177,15 @@ class GameManager:
 
     # Runs a game stage
     def run_game_stage(self) -> int:
-        check_count = 0
+        self.check_count = 0
 
-        while check_count != self.players.get_number_of_active_players():
-            game_over, value = self.game_stage_next(check_count)
+        while self.check_count != self.players.get_number_of_active_players():
+            game_over, value = self.game_stage_next()
             if game_over:
                 return value
-            check_count = value
+            self.check_count = value
 
-    def game_stage_next(self, check_count: int) -> (bool, int):
+    def game_stage_next(self) -> (bool, int):
         """
         Returns
         -------
@@ -198,36 +211,36 @@ class GameManager:
                 print(self.players.players[turn])
 
             if self.game_stage == GameStage.PreFlop:
-                check_count += self.preflop_bets(turn)
+                self.check_count += self.preflop_bets(turn)
 
-            action, amount = self.get_action()
+            action: Action = self.get_action()
 
-            if action == Action.Fold:
+            if action == Action.Fold():
                 self.players.fold(turn)
                 continue
-            elif action == Action.CallOrCheck:
+            elif action == Action.CallOrCheck():
                 player_bet = self.players.get_bet(turn)
                 bet = self.board.highest_bet - player_bet
                 if bet == 0:
                     if not self.graphics:
                         print("Checked")
-                    self.make_bet(turn, Action.Check, 0)
+                    self.make_bet(turn, Action.Check())
                 else:
                     if not self.graphics:
                         print(f"Called {bet}")
-                    self.make_bet(turn, Action.Call, bet)
-                check_count += 1
-            elif action == Action.Raise:
+                    self.make_bet(turn, Action.Call(bet))
+                self.check_count += 1
+            elif action == Action.Raise():
                 player_bet = self.players.get_bet(turn)
-                raise_amount = self.board.highest_bet - player_bet + amount
-                self.make_bet(turn, Action.Raise, raise_amount)
-                check_count = 1
+                raise_amount = self.board.highest_bet - player_bet + action.amount
+                self.make_bet(turn, Action.Raise(raise_amount))
+                self.check_count = 1
             else:
                 raise ValueError("Invalid action")
 
-            if check_count == self.players.get_number_of_active_players():
+            if self.check_count == self.players.get_number_of_active_players():
                 break
-        return False, check_count
+        return False, self.check_count
 
         # Handles the small and big blind
         # Handles automatic betting for the small and big blind
@@ -247,14 +260,14 @@ class GameManager:
             if not self.graphics:
                 print(
                     f"Player {turn} is the small blind and must bet {self.buy_in / 2}")
-            self.make_bet(turn, Action.Raise, self.buy_in / 2)
+            self.make_bet(turn, Action.Raise(self.buy_in/2))
             return 0
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
             # Big blind
             if not self.graphics:
                 print(
                     f"Player {turn} is the big blind and must bet {self.buy_in}")
-            self.make_bet(turn, Action.Raise, self.buy_in)
+            self.make_bet(turn, Action.Raise(self.buy_in))
             return 1
         else:
             return 0

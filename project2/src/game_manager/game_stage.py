@@ -8,5 +8,17 @@ class GameStage(Enum):
     River = "River"
     Showdown = "Showdown"
 
+    def next_stage(self):
+        if self == GameStage.PreFlop:
+            return GameStage.Flop
+        elif self == GameStage.Flop:
+            return GameStage.Turn
+        elif self == GameStage.Turn:
+            return GameStage.River
+        elif self == GameStage.River:
+            return GameStage.Showdown
+        else:
+            return None
+
     def __str__(self):
         return self.value

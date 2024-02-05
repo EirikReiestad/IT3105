@@ -4,19 +4,17 @@ from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
 from src.poker_oracle.deck import Deck, Card
 
 
-class _Player:
-    def __init__(self, state: PrivatePlayerState, ai: bool = False):
-        self.state: PrivatePlayerState = state
+class _Player(PrivatePlayerState):
+    def __init__(self, ai: bool = False):
+        super().__init__()
         self.ai = ai
 
 
 class Players:
     def __init__(self, num_players: int, num_ai: int):
         self.players = []
-        self.players.extend([_Player(PrivatePlayerState()) for _ in range(num_players)])
-        self.players.extend(
-            [_Player(PrivatePlayerState(), ai=True) for _ in range(num_ai)]
-        )
+        self.players.extend([_Player() for _ in range(num_players)])
+        self.players.extend([_Player(ai=True) for _ in range(num_ai)])
         random.shuffle(self.players)
 
     def reset_round(self, deck: Deck) -> Deck:
@@ -39,6 +37,9 @@ class Players:
 
     def winner(self, player: int, amount: int):
         self.players[player].chips += amount
+
+    def is_ai(self, player: int) -> bool:
+        return self.players[player].ai
 
     def get_private_player_states(self) -> List[PrivatePlayerState]:
         return self.players

@@ -14,13 +14,14 @@ class PublicGameState:
         game_stage: GameStage,
         current_player_index: int,
         buy_in: int,
+        check_count: int,
     ):
         self.player_states = player_states  # A list of PlayerState instances
         self.board_state = board_state  # An instance of BoardState
         self.game_stage = game_stage  # An instance of GameStage
         self.current_player_index = current_player_index
         self.buy_in = buy_in
-        self.check_count = 0
+        self.check_count = check_count
 
 
 @dataclass

@@ -1,31 +1,34 @@
 import numpy as np
-from src.resolver.subtree_travesal_rollout import (
-    subtreeTraversalRollout,
-    generateInitialSubtree,
-)
-from .subtree import SubTree, SubtreeTraversalRollout
-from src.resolver.update_strategy import updateStrategy
-from src.game_state.states import GameState
+from .subtree import SubTree
+from src.game_state.game_state import PublicGameState
+from src.game_state.player_state import PublicPlayerState, PublicPlayerState
 from src.poker_oracle.oracle import Oracle
-from src.game_state.states import PlayerState
-from src.game_state.actions import Action
-from src.game_state.game_stage import GameStage
+from src.game_manager.game_action import Action
+from src.game_manager.game_stage import GameStage
+from src.game_state.game_state import PublicGameState
+from src.state_manager.manager import StateManager
+from .subtree_travesal_rollout import SubtreeTraversalRollout
 
 
 class Node:
     def __init__(self):
-        self.state: GameState = None
+        self.state: PublicGameState = None
 
 
 class Resolver:
     def __init__(self):
-        self.p_range: np.ndarray = np.full((1326,), 1 / 1326)
-        self.o_range: np.ndarray = np.full((1326,), 1 / 1326)
+        amount_of_pairs = len(Oracle.generate_all_hole_pairs())
+        self.p_range: np.ndarray = np.full((amount_of_pairs,), 1 / amount_of_pairs)
+        self.o_range: np.ndarray = np.full((amount_of_pairs,), 1 / amount_of_pairs)
 
         # TODO: Not sure if action can be Action or if it need to be int
 
     def bayesian_range_update(
-        self, p_range: np.ndarray, action: Action, sigma_flat: np.ndarray
+        self,
+        p_range: np.ndarray,
+        action: Action,
+        all_actions: list[Action],
+        sigma_flat: np.ndarray,
     ):
         """
         Parameters
@@ -40,9 +43,10 @@ class Resolver:
             The average strategy over all rollouts
         """
         # TODO: må fikse arrays og sånt
+        index = all_actions.index(action)
         prob_pair = p_range / np.sum(p_range)
-        prob_act = np.sum(sigma_flat[action]) / np.sum(sigma_flat)
-        prob_act_given_pair = sigma_flat[action] * prob_pair
+        prob_act = np.sum(sigma_flat[index]) / np.sum(sigma_flat)
+        prob_act_given_pair = sigma_flat[index] * prob_pair
 
         updated_prob = (prob_act_given_pair * prob_pair) / prob_act
 
@@ -70,13 +74,17 @@ class Resolver:
 
         return max_action
 
+    # TODO: create strategy matrix
+    def generate_strategy_matrix(self):
+        return
+
     # def updateStrategy(self, node):
     def update_strategy(
         self,
-        node,
+        node: SubTree,
         p_value: np.ndarray,
-        o_value: np.ndarray,
-        state: GameState,  # NOTE: This is not used
+        # o_value: np.ndarray,
+        # state: PublicGameState,  # NOTE: This is not used
         p_range: np.ndarray,
         o_range: np.ndarray,
         end_stage: GameStage,
@@ -106,36 +114,52 @@ class Resolver:
         -------
         np.ndarray: The current strategy matrix for the root
         """
-        node_state = node.state
-        for c in node.successors:
-            self.update_strategy(c, o_value, p_value)
-        if type(node_state) == PlayerState:
+        node_state = node.root
+        for c in node.nodes:
+            # self.update_strategy(c, o_value, p_value)
+            self.update_strategy(c, p_value, p_range, o_range, end_stage, end_depth)
+
+        # TODO: samme som subtreetraversal, remove true
+        sigma_s = np.array([])
+        if True:
             # P = s
+            state_manager = StateManager(node_state)
             all_hole_pairs = Oracle.generate_all_hole_pairs()
+            # TODO: har initialisert her som 0 (strategi matrisen)
+
             sigma_s = np.zeros((len(all_hole_pairs), len(node_state.actions)))
+
             R_s = np.zeros((len(all_hole_pairs), len(node_state.actions)))
             R_s_plus = np.zeros((len(all_hole_pairs), len(node_state.actions)))
 
             for pair in range(len(all_hole_pairs)):
-                # MAYBE NEED TO ADD A SET OF ACTIONS IN PLAYER STATE
-                for action in node_state.actions:
-                    new_node_state = node_state.copy()
-                    new_node_state.act(action)
-                    # USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
-                    new_p_value, new_o_value = subtreeTraversalRollout(
-                        new_node_state, p_range, o_range, end_stage, end_depth
+                for action in state_manager.get_legal_actions():
+                    index_pair = all_hole_pairs.index(pair)
+                    index_action = state_manager.get_legal_actions().index(action)
+                    new_node_state = state_manager.generate_state(action)
+                    # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
+                    new_p_value, new_o_value = (
+                        SubtreeTraversalRollout.subtree_traversal_rollout(
+                            new_node_state, p_range, o_range, end_stage, end_depth
+                        )
                     )
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
-                    # TODO: Fix R_s parameter name
-                    R_s[pair][action] = R_s[pair][action] + [
+                    R_s[pair][action] += (
                         new_p_value[pair] - p_value[pair]
-                    ]
-                    R_s_plus[pair][action] = max(0, R_s)
+                    )
+                    R_s_plus[pair][action] = max(
+                        0, R_s[pair][action]
+                    )
             for pair in range(len(all_hole_pairs)):
                 for action in node_state.actions:
                     # TODO: Fix a_p parameter name
-                    sigma_s[pair][action] = R_s_plus[pair][action] / sum(
-                        [R_s_plus[pair, a_p] for a_p in node_state.actions]
+                    sigma_s[pair][action] = R_s_plus[
+                        pair
+                    ][action] / sum(
+                        [
+                            R_s_plus[offset_sigma_s[pair], offset_actions[a_p]]
+                            for a_p in state_manager.get_legal_actions()
+                        ]
                     )
 
         return sigma_s
@@ -144,7 +168,7 @@ class Resolver:
 
     def resolve(
         self,
-        state: GameState,
+        state: PublicGameState,
         end_stage: GameStage,
         end_depth: int,
         num_rollouts: int,
@@ -172,15 +196,22 @@ class Resolver:
                 state, self.p_range, self.o_range, end_stage, end_depth
             )
             # S ← UpdateStrategy(Root) ▷ Returns current strategy matrix for the root
-            sigma = self.update_strategy(subtree.root, p_value, o_value)
+            sigma = self.update_strategy(
+                subtree, p_value, self.p_range, self.o_range, end_stage, end_depth
+            )
             sigmas.append(sigma)
 
         # ▷ Generate the Average Strategy over all rollouts
+        # TODO: NUMPYYYY
         sigma_flat = 1 / t * sum(sigmas)
         # ▷ Sample an action based on the average strategy
         action = self.sample_action_average_strategy(sigma_flat)
+
         # ▷ r1(a∗) is presumed normalized.
-        p_range_action = self.bayesian_range_update(self.p_range, action, sigma_flat)
+        state_manager = StateManager(state)
+        p_range_action = self.bayesian_range_update(
+            self.p_range, action, state_manager.get_legal_actions(), sigma_flat
+        )
 
         self.p_range = p_range_action
         self.o_range = self.o_range

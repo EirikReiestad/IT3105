@@ -41,8 +41,3 @@ class SubTree:
 
     def __repr__(self):
         return self.root
-
-
-def generateInitialSubtree(state, endStage, endDepth):
-    # TODO: EIRIK
-    return 0

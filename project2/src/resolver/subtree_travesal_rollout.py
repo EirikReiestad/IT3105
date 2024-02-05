@@ -53,7 +53,7 @@ class SubtreeTraversalRollout:
         # TODO: Check if chance event (consider adding the chance events to the game state)
         elif SubtreeTraversalRollout.player_state(state):
             # Value vector is the range times the utility matrix (or the hole pairs)
-            hole_pairs = Oracle.generate_all_hole_pairs(state.board.cards)
+            hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
             state_manager = StateManager(state)

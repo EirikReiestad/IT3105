@@ -126,14 +126,16 @@ class Resolver:
             state_manager = StateManager(node_state)
             all_hole_pairs = Oracle.generate_all_hole_pairs()
             # TODO: har initialisert her som 0 (strategi matrisen)
+            state_manager.get_legal_actions()
 
-            sigma_s = np.zeros((len(all_hole_pairs), len(node_state.actions)))
+            all_actions = state_manager.get_legal_actions()
+            sigma_s = np.zeros((len(all_hole_pairs), len(all_actions)))
 
-            R_s = np.zeros((len(all_hole_pairs), len(node_state.actions)))
-            R_s_plus = np.zeros((len(all_hole_pairs), len(node_state.actions)))
+            R_s = np.zeros((len(all_hole_pairs), len(all_actions)))
+            R_s_plus = np.zeros((len(all_hole_pairs), len(all_actions)))
 
-            for pair in range(len(all_hole_pairs)):
-                for action in state_manager.get_legal_actions():
+            for pair in all_hole_pairs:
+                for action in all_actions:
                     index_pair = all_hole_pairs.index(pair)
                     index_action = state_manager.get_legal_actions().index(action)
                     new_node_state = state_manager.generate_state(action)
@@ -144,21 +146,23 @@ class Resolver:
                         )
                     )
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
-                    R_s[pair][action] += (
-                        new_p_value[pair] - p_value[pair]
+                    R_s[index_pair][index_action] += (
+                        new_p_value[index_pair] - p_value[index_pair]
                     )
-                    R_s_plus[pair][action] = max(
-                        0, R_s[pair][action]
+                    R_s_plus[index_pair][index_action] = max(
+                        0, R_s[index_pair][index_action]
                     )
-            for pair in range(len(all_hole_pairs)):
-                for action in node_state.actions:
+            for pair in all_hole_pairs:
+                for action in all_actions:
+                    index_pair = all_hole_pairs.index(pair)
+                    index_action = all_actions.index(action)
                     # TODO: Fix a_p parameter name
-                    sigma_s[pair][action] = R_s_plus[
-                        pair
-                    ][action] / sum(
+                    sigma_s[index_pair][index_action] = R_s_plus[index_pair][
+                        index_action
+                    ] / sum(
                         [
-                            R_s_plus[offset_sigma_s[pair], offset_actions[a_p]]
-                            for a_p in state_manager.get_legal_actions()
+                            R_s_plus[index_pair, all_actions.index(a_p)]
+                            for a_p in all_actions
                         ]
                     )
 

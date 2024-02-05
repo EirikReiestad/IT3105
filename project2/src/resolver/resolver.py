@@ -21,8 +21,6 @@ class Resolver:
         self.p_range: np.ndarray = np.full((amount_of_pairs,), 1 / amount_of_pairs)
         self.o_range: np.ndarray = np.full((amount_of_pairs,), 1 / amount_of_pairs)
 
-        # TODO: Not sure if action can be Action or if it need to be int
-
     def bayesian_range_update(
         self,
         p_range: np.ndarray,
@@ -42,7 +40,6 @@ class Resolver:
         sigma_flat: np.ndarray
             The average strategy over all rollouts
         """
-        # TODO: må fikse arrays og sånt
         index = all_actions.index(action)
         prob_pair = p_range / np.sum(p_range)
         prob_act = np.sum(sigma_flat[index]) / np.sum(sigma_flat)
@@ -52,7 +49,7 @@ class Resolver:
 
         return updated_prob
 
-    def sample_action_average_strategy(self, sigma_flat: np.ndarray) -> Action:
+    def sample_action_average_strategy(self, sigma_flat: np.ndarray, all_actions) -> Action:
         """
         Parameters
         ----------
@@ -68,15 +65,10 @@ class Resolver:
         # Normalize probabilities to ensure they sum up to 1
         action_probabilities /= np.sum(action_probabilities)
 
-        # TODO: fix matrix to be more explainable about action
         # Find the maximum value in action_probabilities
         max_action = np.max(action_probabilities)
 
-        return max_action
-
-    # TODO: create strategy matrix
-    def generate_strategy_matrix(self):
-        return
+        return all_actions[max_action]
 
     # def updateStrategy(self, node):
     def update_strategy(
@@ -125,8 +117,6 @@ class Resolver:
             # P = s
             state_manager = StateManager(node_state)
             all_hole_pairs = Oracle.generate_all_hole_pairs()
-            # TODO: har initialisert her som 0 (strategi matrisen)
-            state_manager.get_legal_actions()
 
             all_actions = state_manager.get_legal_actions()
             sigma_s = np.zeros((len(all_hole_pairs), len(all_actions)))
@@ -168,8 +158,6 @@ class Resolver:
 
         return sigma_s
 
-        # TODO: fix T parameter name
-
     def resolve(
         self,
         state: PublicGameState,
@@ -205,16 +193,18 @@ class Resolver:
             )
             sigmas.append(sigma)
 
+        state_manager = StateManager(state)
+        all_actions = state_manager.get_legal_actions()
+
         # ▷ Generate the Average Strategy over all rollouts
-        # TODO: NUMPYYYY
-        sigma_flat = 1 / t * sum(sigmas)
+        sigmas = np.array(sigmas)
+        sigma_flat = np.mean(sigmas, axis=0)
         # ▷ Sample an action based on the average strategy
-        action = self.sample_action_average_strategy(sigma_flat)
+        action = self.sample_action_average_strategy(sigma_flat, all_actions)
 
         # ▷ r1(a∗) is presumed normalized.
-        state_manager = StateManager(state)
         p_range_action = self.bayesian_range_update(
-            self.p_range, action, state_manager.get_legal_actions(), sigma_flat
+            self.p_range, action, all_actions, sigma_flat
         )
 
         self.p_range = p_range_action

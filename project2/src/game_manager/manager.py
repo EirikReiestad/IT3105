@@ -62,7 +62,7 @@ class GameManager:
         return get_input()
 
     def get_ai_action(self) -> Action:
-        # TODO: WHAT SEND HERE
+        # TODO: Environment file?
         end_stage = self.game_stage.next_stage()
         end_depth = 3
         num_rollouts = 10

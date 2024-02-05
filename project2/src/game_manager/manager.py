@@ -4,6 +4,7 @@ from src.poker_oracle.deck import Deck
 from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
 from src.game_state.board_state import PublicBoardState, PrivateBoardState
 from src.game_state.game_state import PublicGameState, PrivateGameState
+from src.resolver.resolver import Resolver
 from .players import Players
 from .game_stage import GameStage
 from .game_action import Action
@@ -11,17 +12,21 @@ from src.gui.display import Display
 
 
 class GameManager:
-    def __init__(self, num_players: int, deck: Deck, graphics: bool = True):
-        # Determine dealer
+    def __init__(
+        self, num_players: int, deck: Deck, num_ai: int = 1, graphics: bool = True
+    ):
+        # Initialization
+        self.buy_in: int = 10
+
         dealer: int = random.randint(0, num_players - 1)
         self.board: PrivateBoardState = PrivateBoardState(0, 0)
         deck = self.board.reset_round(deck, dealer)
-        self.players: Players = Players(num_players)
+        self.players: Players = Players(num_players, num_ai)
         deck = self.players.reset_round(deck)
 
         self.game_stage: GameStage = GameStage.PreFlop
-        self.buy_in: int = 10
         self.check_count: int = 0
+        self.resolver = Resolver()
         self.graphics: bool = graphics
         if graphics:
             self._init_graphics()
@@ -29,11 +34,11 @@ class GameManager:
     def _init_graphics(self):
         self.display = Display()
 
-    def get_action(self) -> Action:
+    def get_player_action(self) -> Action:
         """
         Returns
         -------
-        Tuple[Action, Optional[int]]: The action and the amount to bet if the action is raise
+        Action: The action and the amount to bet if the action is raise
         """
 
         def get_input() -> Action:
@@ -54,11 +59,13 @@ class GameManager:
 
         return get_input()
 
+    def get_ai_action(self) -> Action:
+        return self.resolver.resolve()
+
         # Handles generating the game state
 
     def get_current_public_state(self) -> PublicGameState:
-        player_states: List[PublicPlayerState] = self.players.get_public_player_states(
-        )
+        player_states: List[PublicPlayerState] = self.players.get_public_player_states()
         self.board.update_board_state(self.game_stage)
         board_state: PublicBoardState = self.board.to_public()
         game_stage: GameStage = self.game_stage
@@ -69,7 +76,8 @@ class GameManager:
             game_stage,
             self.current_player_index,
             self.buy_in,
-            self.check_count)
+            self.check_count,
+        )
 
     def get_current_private_state(self) -> PrivateGameState:
         player_states: PrivatePlayerState = self.players.get_private_player_states()
@@ -82,7 +90,8 @@ class GameManager:
             game_stage,
             self.current_player_index,
             self.buy_in,
-            self.check_count)
+            self.check_count,
+        )
 
     # Implements the rules
 
@@ -180,7 +189,7 @@ class GameManager:
         self.check_count = 0
 
         while self.check_count != self.players.get_number_of_active_players():
-            game_over, value = self.game_stage_next()
+            game_over, value = self.player_game_stage_next()
             if game_over:
                 return value
             self.check_count = value
@@ -213,7 +222,11 @@ class GameManager:
             if self.game_stage == GameStage.PreFlop:
                 self.check_count += self.preflop_bets(turn)
 
-            action: Action = self.get_action()
+            # Check if the player is an AI
+            if self.players.is_ai(turn):
+                action: Action = self.get_ai_action()
+            else:
+                action: Action = self.get_player_action()
 
             if action == Action.Fold():
                 self.players.fold(turn)
@@ -242,6 +255,19 @@ class GameManager:
                 break
         return False, self.check_count
 
+    def run_player(self):
+        """
+        Run the game with players turn
+        """
+        pass
+
+    def run_ai(self):
+        """
+        Run the game with AIs turn
+        """
+        # Add resolver
+        pass
+
         # Handles the small and big blind
         # Handles automatic betting for the small and big blind
         # Assuming they can not fold.
@@ -259,14 +285,14 @@ class GameManager:
             # Small blind
             if not self.graphics:
                 print(
-                    f"Player {turn} is the small blind and must bet {self.buy_in / 2}")
-            self.make_bet(turn, Action.Raise(self.buy_in/2))
+                    f"Player {turn} is the small blind and must bet {self.buy_in / 2}"
+                )
+            self.make_bet(turn, Action.Raise(self.buy_in / 2))
             return 0
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
             # Big blind
             if not self.graphics:
-                print(
-                    f"Player {turn} is the big blind and must bet {self.buy_in}")
+                print(f"Player {turn} is the big blind and must bet {self.buy_in}")
             self.make_bet(turn, Action.Raise(self.buy_in))
             return 1
         else:

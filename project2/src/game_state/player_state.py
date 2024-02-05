@@ -6,14 +6,12 @@ from src.game_manager.game_action import Action
 
 @dataclass
 class PublicPlayerState:
-    def __init__(self,
-                 chips: int,
-                 folded: bool = False,
-                 bust: bool = False,
-                 bet: int = 0):
+    def __init__(
+        self, chips: int, folded: bool = False, bust: bool = False, bet: int = 0
+    ):
         self.chips: int = chips
         self.folded: bool = folded
-        self.bust: bool = False
+        self.bust: bool = bust
         self.round_bet: int = bet  # Betting for that round
         self.betting_history = list()
         self.action_history = list()

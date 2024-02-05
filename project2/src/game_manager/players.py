@@ -1,12 +1,23 @@
+import random
 from typing import List
 from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
 from src.poker_oracle.deck import Deck, Card
 
 
+class _Player:
+    def __init__(self, state: PrivatePlayerState, ai: bool = False):
+        self.state: PrivatePlayerState = state
+        self.ai = ai
+
+
 class Players:
-    def __init__(self, num_players: int):
-        self.players: List(PrivatePlayerState) = [
-            PrivatePlayerState() for _ in range(num_players)]
+    def __init__(self, num_players: int, num_ai: int):
+        self.players = []
+        self.players.extend([_Player(PrivatePlayerState()) for _ in range(num_players)])
+        self.players.extend(
+            [_Player(PrivatePlayerState(), ai=True) for _ in range(num_ai)]
+        )
+        random.shuffle(self.players)
 
     def reset_round(self, deck: Deck) -> Deck:
         # Deal cards to players
@@ -16,13 +27,11 @@ class Players:
 
             if not isinstance(first_card, Card):
                 raise TypeError(
-                    "first_card must be a Card, not {}".format(
-                        type(first_card))
+                    "first_card must be a Card, not {}".format(type(first_card))
                 )
             if not isinstance(second_card, Card):
                 raise TypeError(
-                    "second_card must be a Card, not {}".format(
-                        type(second_card))
+                    "second_card must be a Card, not {}".format(type(second_card))
                 )
 
             player.reset_round((first_card, second_card))
@@ -54,7 +63,9 @@ class Players:
         return sum(player.bust for player in self.players)
 
     def get_number_of_active_players(self) -> int:
-        return len(self.players) - self.get_number_of_folded() - self.get_number_of_bust()
+        return (
+            len(self.players) - self.get_number_of_folded() - self.get_number_of_bust()
+        )
 
     def has_folded(self, player: int) -> bool:
         return self.players[player].folded

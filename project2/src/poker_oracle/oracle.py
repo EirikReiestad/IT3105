@@ -23,6 +23,7 @@ class Card:
 
 
 class Oracle:
+
     @staticmethod
     def hand_classifier(cards: List[Card]) -> Tuple[Hands, List[Card]]:
         if not (5 < len(cards) < 7):
@@ -63,8 +64,10 @@ class Oracle:
             if not unique_vec1 and not unique_vec2:
                 return 0
             else:
-                max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
-                max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)
+                max_card_one = max(
+                    unique_vec1, key=lambda x: x.rank, default=None)
+                max_card_two = max(
+                    unique_vec2, key=lambda x: x.rank, default=None)
 
                 if max_card_one and max_card_two:
                     comparison_result = max_card_one.rank - max_card_two.rank
@@ -98,7 +101,8 @@ class Oracle:
             deck.reset_stack()
 
             cloned_public_cards = (
-                public_cards.copy() if public_cards else [deck.pop() for _ in range(5)]
+                public_cards.copy() if public_cards else [
+                    deck.pop() for _ in range(5)]
             )
 
             player_hole_pair = hole_pair + cloned_public_cards
@@ -140,17 +144,20 @@ class Oracle:
 
         for i, hole_pair_i in enumerate(hole_pairs):
             for j, hole_pair_j in enumerate(hole_pairs):
-                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
@@ -169,6 +176,10 @@ class Oracle:
         deck = Deck()
         deck.reset_stack()
         return list(combinations(deck.stack, 2))
+
+    @staticmethod
+    def get_number_of_all_hole_pairs():
+        return len(Oracle.generate_all_hole_pairs())
 
     @staticmethod
     def generate_all_hole_pairs_types() -> List[List[Card]]:

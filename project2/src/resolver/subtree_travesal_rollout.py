@@ -6,6 +6,7 @@ from .neural_network import NeuralNetwork
 
 from src.poker_oracle.oracle import Oracle
 from src.state_manager.manager import StateManager
+from .node import Node
 
 # TODO: Fix circular import by refactoring instead
 from . import resolver
@@ -16,7 +17,7 @@ from . import resolver
 class SubtreeTraversalRollout:
     @staticmethod
     def subtree_traversal_rollout(
-        state: PublicGameState,
+        node: Node,
         p_range: np.ndarray,
         o_range: np.ndarray,
         end_stage: GameStage,
@@ -42,24 +43,26 @@ class SubtreeTraversalRollout:
             o_values
                 Opponent action values
         """
-        if state.game_stage == GameStage.Showdown:
-            utility_matrix = Oracle.utility_matrix_generator(state.board.cards)
+        if node.game_stage == GameStage.Showdown:
+            utility_matrix = Oracle.utility_matrix_generator(node.board.cards)
             p_values = utility_matrix * o_range.T
             o_values = -p_values * utility_matrix
-        elif state.game_stage == end_stage and state.depth == end_depth:
+        elif node.game_stage == end_stage and node.depth == end_depth:
             p_values, o_values = NeuralNetwork.run(
-                state, state.game_stage, p_range, o_range
+                node, node.game_stage, p_range, o_range
             )
         # TODO: Check if chance event (consider adding the chance events to the game state)
-        elif SubtreeTraversalRollout.player_state(state):
+        elif SubtreeTraversalRollout.player_state(node):
             # Value vector is the range times the utility matrix (or the hole pairs)
             hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
-            state_manager = StateManager(state)
+            state_manager = StateManager(node)
+            strategy = node.strategy
+            res = resolver.Resolver()
             for action in state_manager.get_legal_actions():
                 p_range = resolver.Resolver.bayesian_range_update(
-                    p_range, state, action, state_manager.get_legal_actions(), o_range
+                    p_range, action, state_manager.get_legal_actions(), strategy
                 )
                 o_range = o_range
                 state = state_manager.generate_state(action)
@@ -72,9 +75,12 @@ class SubtreeTraversalRollout:
                 strategy_matrix = resolver.Resolver.generate_strategy_matrix()
                 for pair in hole_pairs:
                     # TODO: FIKSE INDEKS
-                    p_values[pair] += strategy_matrix[pair, action] * p_values_new[pair]
-                    o_values[pair] += strategy_matrix[pair, action] * o_values_new[pair]
+                    p_values[pair] += strategy_matrix[pair,
+                                                      action] * p_values_new[pair]
+                    o_values[pair] += strategy_matrix[pair,
+                                                      action] * o_values_new[pair]
         else:
+            print("Else")
             # TODO: Add chance event ?
             hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))
@@ -106,4 +112,4 @@ class SubtreeTraversalRollout:
         -------
         bool: The state of the player and whether they need to act
         """
-        return False
+        return True

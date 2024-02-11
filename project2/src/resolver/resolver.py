@@ -8,18 +8,16 @@ from src.game_manager.game_stage import GameStage
 from src.game_state.game_state import PublicGameState
 from src.state_manager.manager import StateManager
 from .subtree_travesal_rollout import SubtreeTraversalRollout
-
-
-class Node:
-    def __init__(self):
-        self.state: PublicGameState = None
+from .node import Node
 
 
 class Resolver:
     def __init__(self):
         amount_of_pairs = len(Oracle.generate_all_hole_pairs())
-        self.p_range: np.ndarray = np.full((amount_of_pairs,), 1 / amount_of_pairs)
-        self.o_range: np.ndarray = np.full((amount_of_pairs,), 1 / amount_of_pairs)
+        self.p_range: np.ndarray = np.full(
+            (amount_of_pairs,), 1 / amount_of_pairs)
+        self.o_range: np.ndarray = np.full(
+            (amount_of_pairs,), 1 / amount_of_pairs)
 
     def bayesian_range_update(
         self,
@@ -73,7 +71,7 @@ class Resolver:
     # def updateStrategy(self, node):
     def update_strategy(
         self,
-        node: SubTree,
+        node: Node,
         p_value: np.ndarray,
         # o_value: np.ndarray,
         # state: PublicGameState,  # NOTE: This is not used
@@ -109,14 +107,15 @@ class Resolver:
         node_state = node.root
         for c in node.nodes:
             # self.update_strategy(c, o_value, p_value)
-            self.update_strategy(c, p_value, p_range, o_range, end_stage, end_depth)
+            self.update_strategy(c.strategy, p_value, p_range,
+                                 o_range, end_stage, end_depth)
 
         # TODO: samme som subtreetraversal, remove true
         sigma_s = np.array([])
         if True:
             # P = s
             state_manager = StateManager(node_state)
-            all_hole_pairs = Oracle.generate_all_hole_pairs()
+            all_hole_pairs = Oracle.get_number_of_all_hole_pairs()
 
             all_actions = state_manager.get_legal_actions()
             sigma_s = np.zeros((len(all_hole_pairs), len(all_actions)))
@@ -130,11 +129,13 @@ class Resolver:
                     index_action = state_manager.get_legal_actions().index(action)
                     new_node_state = state_manager.generate_state(action)
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
+
                     new_p_value, new_o_value = (
                         SubtreeTraversalRollout.subtree_traversal_rollout(
                             new_node_state, p_range, o_range, end_stage, end_depth
                         )
                     )
+                    print("new_p_value", new_p_value)
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
                     R_s[index_pair][index_action] += (
                         new_p_value[index_pair] - p_value[index_pair]
@@ -147,7 +148,7 @@ class Resolver:
                     index_pair = all_hole_pairs.index(pair)
                     index_action = all_actions.index(action)
                     # TODO: Fix a_p parameter name
-                    sigma_s[index_pair][index_action] = R_s_plus[index_pair][
+                    node.strategy[index_pair][index_action] = R_s_plus[index_pair][
                         index_action
                     ] / sum(
                         [

@@ -18,7 +18,9 @@ class GameManager:
         # Initialization
         self.buy_in: int = 10
 
-        dealer: int = random.randint(0, num_players - 1)
+        total_players = num_players + num_ai
+
+        dealer: int = random.randint(0, total_players - 1)
         self.board: PrivateBoardState = PrivateBoardState(0, 0)
         deck = self.board.reset_round(deck, dealer)
         self.players: Players = Players(num_players, num_ai)
@@ -60,7 +62,16 @@ class GameManager:
         return get_input()
 
     def get_ai_action(self) -> Action:
-        return self.resolver.resolve()
+        # TODO: Environment file?
+        end_stage = self.game_stage.next_stage()
+        end_depth = 3
+        num_rollouts = 10
+        return self.resolver.resolve(
+            self.get_current_public_state(),
+            end_stage,
+            end_depth,
+            num_rollouts,
+        )
 
         # Handles generating the game state
 
@@ -189,7 +200,7 @@ class GameManager:
         self.check_count = 0
 
         while self.check_count != self.players.get_number_of_active_players():
-            game_over, value = self.player_game_stage_next()
+            game_over, value = self.game_stage_next()
             if game_over:
                 return value
             self.check_count = value

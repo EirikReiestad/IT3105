@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 import random
 from src.poker_oracle.deck import Deck
 from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
@@ -9,22 +9,22 @@ from .players import Players
 from .game_stage import GameStage
 from .game_action import Action
 from src.gui.display import Display
+from src.config import Config
+
+config = Config()
 
 
 class GameManager:
     def __init__(
-        self, num_players: int, deck: Deck, num_ai: int = 1, graphics: bool = True
-    ):
-        # Initialization
+            self, num_players: int, num_ai: int = 1, graphics: bool = True):
         self.buy_in: int = 10
 
         total_players = num_players + num_ai
 
         dealer: int = random.randint(0, total_players - 1)
         self.board: PrivateBoardState = PrivateBoardState(0, 0)
-        deck = self.board.reset_round(deck, dealer)
+        self.board.dealer = dealer
         self.players: Players = Players(num_players, num_ai)
-        deck = self.players.reset_round(deck)
 
         self.game_stage: GameStage = GameStage.PreFlop
         self.check_count: int = 0
@@ -76,7 +76,8 @@ class GameManager:
         # Handles generating the game state
 
     def get_current_public_state(self) -> PublicGameState:
-        player_states: List[PublicPlayerState] = self.players.get_public_player_states()
+        player_states: List[PublicPlayerState] = self.players.get_public_player_states(
+        )
         self.board.update_board_state(self.game_stage)
         board_state: PublicBoardState = self.board.to_public()
         game_stage: GameStage = self.game_stage
@@ -149,9 +150,8 @@ class GameManager:
         # TODO: Remove the generation of deck, it should ideally be passed in
         while True:
             deck = Deck()
-            deck.reset_stack()
-            self.run_round()
             self.reset_round(deck)
+            self.run_round()
 
     def run_round(self):
         """
@@ -303,7 +303,8 @@ class GameManager:
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
             # Big blind
             if not self.graphics:
-                print(f"Player {turn} is the big blind and must bet {self.buy_in}")
+                print(
+                    f"Player {turn} is the big blind and must bet {self.buy_in}")
             self.make_bet(turn, Action.Raise(self.buy_in))
             return 1
         else:

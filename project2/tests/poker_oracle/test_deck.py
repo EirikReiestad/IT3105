@@ -10,7 +10,7 @@ class TestDeck(unittest.TestCase):
     def test_generate_stack(self):
         deck = Deck()
         if config.data['simplify']:
-            assert len(deck.stack) == 5 * 4
+            assert len(deck.stack) == 6 * 4
         else:
             assert len(deck.stack) == 52
 

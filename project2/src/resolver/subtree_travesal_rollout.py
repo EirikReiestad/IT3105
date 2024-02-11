@@ -43,13 +43,14 @@ class SubtreeTraversalRollout:
             o_values
                 Opponent action values
         """
-        if node.game_stage == GameStage.Showdown:
-            utility_matrix = Oracle.utility_matrix_generator(node.board.cards)
+        if node.state.game_stage == GameStage.Showdown:
+            utility_matrix = Oracle.utility_matrix_generator(
+                node.state.board.cards)
             p_values = utility_matrix * o_range.T
             o_values = -p_values * utility_matrix
-        elif node.game_stage == end_stage and node.depth == end_depth:
+        elif node.state.game_stage == end_stage and node.depth == end_depth:
             p_values, o_values = NeuralNetwork.run(
-                node, node.game_stage, p_range, o_range
+                node, node.state.game_stage, p_range, o_range
             )
         # TODO: Check if chance event (consider adding the chance events to the game state)
         elif SubtreeTraversalRollout.player_state(node):
@@ -57,18 +58,18 @@ class SubtreeTraversalRollout:
             hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
-            state_manager = StateManager(node)
+            state_manager = StateManager(node.state)
             strategy = node.strategy
             res = resolver.Resolver()
             for action in state_manager.get_legal_actions():
                 p_range = resolver.Resolver.bayesian_range_update(
-                    p_range, action, state_manager.get_legal_actions(), strategy
-                )
+                    p_range, action, state_manager.get_legal_actions(), node.strategy)
                 o_range = o_range
                 state = state_manager.generate_state(action)
+                new_node = Node(state, end_stage, end_depth)
                 p_values_new, o_values_new = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
-                        state, p_range, o_range, end_stage, end_depth
+                        new_node, p_range, o_range, end_stage, end_depth
                     )
                 )
                 hole_pairs = Oracle.generate_all_hole_pairs()

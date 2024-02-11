@@ -16,8 +16,8 @@ class Resolver:
         self.o_range: np.ndarray = np.full(
             (amount_of_pairs,), 1 / amount_of_pairs)
 
+    @staticmethod
     def bayesian_range_update(
-        self,
         p_range: np.ndarray,
         action: Action,
         all_actions: list[Action],
@@ -125,11 +125,12 @@ class Resolver:
                     index_pair = all_hole_pairs.index(pair)
                     index_action = state_manager.get_legal_actions().index(action)
                     new_node_state = state_manager.generate_state(action)
+                    new_node = Node(new_node_state, end_stage, end_depth)
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
 
                     new_p_value, new_o_value = (
                         SubtreeTraversalRollout.subtree_traversal_rollout(
-                            new_node_state, p_range, o_range, end_stage, end_depth
+                            new_node, p_range, o_range, end_stage, end_depth
                         )
                     )
                     print("new_p_value", new_p_value)
@@ -177,17 +178,17 @@ class Resolver:
         """
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
-        subtree = Node(state, end_stage, end_depth)
+        node = Node(state, end_stage, end_depth)
         sigmas = []
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
             p_value, o_value = SubtreeTraversalRollout.subtree_traversal_rollout(
-                state, self.p_range, self.o_range, end_stage, end_depth
+                node, self.p_range, self.o_range, end_stage, end_depth
             )
             # S ← UpdateStrategy(Root) ▷ Returns current strategy matrix for the root
             sigma = self.update_strategy(
-                subtree, p_value, self.p_range, self.o_range, end_stage, end_depth
+                node, p_value, self.p_range, self.o_range, end_stage, end_depth
             )
             sigmas.append(sigma)
 
@@ -201,7 +202,7 @@ class Resolver:
         action = self.sample_action_average_strategy(sigma_flat, all_actions)
 
         # ▷ r1(a∗) is presumed normalized.
-        p_range_action = self.bayesian_range_update(
+        p_range_action = Resolver.bayesian_range_update(
             self.p_range, action, all_actions, sigma_flat
         )
 

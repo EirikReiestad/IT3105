@@ -8,12 +8,14 @@ import numpy as np
 class Node:
     def __init__(self, root: PublicGameState, end_stage: GameStage, end_depth: int):
         self.state: PublicGameState = root
-        self.strategy: np.ndarray = np.zeros((0, 0))
-        state_manager = StateManager(self.state)
+        self.state_manager = StateManager(self.state)
         oracle = Oracle()
         num_all_hole_pairs = Oracle.get_number_of_all_hole_pairs()
-        sigma_s = np.zeros((num_all_hole_pairs,
-                           state_manager.get_num_legal_actions()))
+        # NOTE: We have to switch the dimensions as we are indexing by action to get the whole pairs, not the other way around
+        self.strategy: np.ndarray = np.zeros(
+            (self.state_manager.get_num_legal_actions(), num_all_hole_pairs))
+        # sigma_s = np.zeros((num_all_hole_pairs,
+        # state_manager.get_num_legal_actions()))
         self.children: list(Node) = []
         self.end_stage: GameStage = end_stage
         self.end_depth: int = end_depth
@@ -36,8 +38,7 @@ class Node:
         return self.nodes
 
     def generate_child_node(self):
-        state_manager = StateManager(self.state)
-        public_game_states = state_manager.generate_possible_states()
+        public_game_states = self.state_manager.generate_possible_states()
         for public_game_state in public_game_states:
             new_sub_state = Node(
                 public_game_state, self.end_stage, self.end_depth - 1

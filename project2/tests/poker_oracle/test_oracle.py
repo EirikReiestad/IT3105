@@ -2,10 +2,18 @@ import unittest
 from src.poker_oracle.oracle import Oracle
 from src.poker_oracle.deck import Suit, Card
 from src.poker_oracle.hands import Hands
+from src.config import Config
+
+config = Config()
+
+
 class TestOracle(unittest.TestCase):
     def test_generate_all_hole_pairs(self):
         pairs = Oracle.generate_all_hole_pairs()
-        self.assertEqual(len(pairs), 1326)
+        if config['simplify']:
+            self.assertEqual(len(pairs), 276)
+        else:
+            self.assertEqual(len(pairs), 1326)
 
     def test_generate_all_hole_pairs_types(self):
         pairs = Oracle.generate_all_hole_pairs_types()

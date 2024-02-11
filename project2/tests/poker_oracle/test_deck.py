@@ -1,12 +1,18 @@
 import unittest
 from src.poker_oracle.deck import Deck
+from src.config import Config
+
+config = Config()
 
 
 # Unit Test
 class TestDeck(unittest.TestCase):
     def test_generate_stack(self):
         deck = Deck()
-        assert len(deck.stack) == 52
+        if config['simplify']:
+            assert len(deck.stack) == 5 * 4
+        else:
+            assert len(deck.stack) == 52
 
 
 # Run the test

@@ -43,12 +43,14 @@ class SubtreeTraversalRollout:
             o_values
                 Opponent action values
         """
+        print(node.state.game_stage, node.depth, end_stage, end_depth)
         if node.state.game_stage == GameStage.Showdown:
             utility_matrix = Oracle.utility_matrix_generator(
                 node.state.board.cards)
             p_values = utility_matrix * o_range.T
             o_values = -p_values * utility_matrix
-        elif node.state.game_stage == end_stage and node.depth == end_depth:
+        elif node.state.game_stage == end_stage or node.depth == end_depth:
+            # TODO: Just return some simple heuristic for now
             p_values, o_values = NeuralNetwork.run(
                 node, node.state.game_stage, p_range, o_range
             )
@@ -66,7 +68,7 @@ class SubtreeTraversalRollout:
                     p_range, action, state_manager.get_legal_actions(), node.strategy)
                 o_range = o_range
                 state = state_manager.generate_state(action)
-                new_node = Node(state, end_stage, end_depth)
+                new_node = Node(state, end_stage, end_depth, node.depth + 1)
                 p_values_new, o_values_new = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
                         new_node, p_range, o_range, end_stage, end_depth

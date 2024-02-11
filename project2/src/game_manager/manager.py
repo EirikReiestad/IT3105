@@ -62,7 +62,7 @@ class GameManager:
         return get_input()
 
     def get_ai_action(self) -> Action:
-        # TODO: Environment file?
+        # TODO: Config file?
         end_stage = self.game_stage.next_stage()
         end_depth = 3
         num_rollouts = 10
@@ -147,7 +147,6 @@ class GameManager:
         Runs the game, multiple rounds
         """
         print(self._rules())
-        # TODO: Remove the generation of deck, it should ideally be passed in
         while True:
             deck = Deck()
             self.reset_round(deck)
@@ -266,25 +265,17 @@ class GameManager:
                 break
         return False, self.check_count
 
-    def run_player(self):
-        """
-        Run the game with players turn
-        """
-        pass
-
-    def run_ai(self):
-        """
-        Run the game with AIs turn
-        """
-        # Add resolver
-        pass
-
         # Handles the small and big blind
         # Handles automatic betting for the small and big blind
         # Assuming they can not fold.
         # Returns 1 if the player is the big blind, 0 otherwise
 
     def preflop_bets(self, turn: int) -> int:
+        """
+        Returns
+        -------
+        int: 1 if the player is the big blind, 0 otherwise
+        """
         player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)

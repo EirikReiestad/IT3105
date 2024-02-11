@@ -9,7 +9,7 @@ config = Config()
 class TestDeck(unittest.TestCase):
     def test_generate_stack(self):
         deck = Deck()
-        if config['simplify']:
+        if config.data['simplify']:
             assert len(deck.stack) == 5 * 4
         else:
             assert len(deck.stack) == 52

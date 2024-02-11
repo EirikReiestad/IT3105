@@ -10,7 +10,7 @@ config = Config()
 class TestOracle(unittest.TestCase):
     def test_generate_all_hole_pairs(self):
         pairs = Oracle.generate_all_hole_pairs()
-        if config['simplify']:
+        if config.data['simplify']:
             self.assertEqual(len(pairs), 276)
         else:
             self.assertEqual(len(pairs), 1326)

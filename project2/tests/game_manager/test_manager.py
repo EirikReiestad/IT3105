@@ -8,7 +8,7 @@ class TestGameManager(unittest.TestCase):
         num_players = 2
         num_ai = 1
         deck = Deck()
-        game_manager = GameManager(num_players, deck, num_ai)
+        game_manager = GameManager(num_players, num_ai)
         self.assertEqual(len(game_manager.players), num_players + num_ai)
 
 

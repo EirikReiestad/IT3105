@@ -1,11 +1,8 @@
 import numpy as np
-from .subtree import SubTree
 from src.game_state.game_state import PublicGameState
-from src.game_state.player_state import PublicPlayerState, PublicPlayerState
 from src.poker_oracle.oracle import Oracle
 from src.game_manager.game_action import Action
 from src.game_manager.game_stage import GameStage
-from src.game_state.game_state import PublicGameState
 from src.state_manager.manager import StateManager
 from .subtree_travesal_rollout import SubtreeTraversalRollout
 from .node import Node
@@ -180,7 +177,7 @@ class Resolver:
         """
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
-        subtree = SubTree(state, end_stage, end_depth)
+        subtree = Node(state, end_stage, end_depth)
         sigmas = []
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):

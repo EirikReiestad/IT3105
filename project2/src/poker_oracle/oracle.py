@@ -178,7 +178,7 @@ class Oracle:
         return list(combinations(deck.stack, 2))
 
     @staticmethod
-    def get_number_of_all_hole_pairs():
+    def get_number_of_all_hole_pairs() -> int:
         return len(Oracle.generate_all_hole_pairs())
 
     @staticmethod

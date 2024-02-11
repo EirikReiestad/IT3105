@@ -40,6 +40,9 @@ class StateManager:
         # TODO: Add AllIn
         return actions
 
+    def get_num_legal_actions(self) -> int:
+        return len(self.get_legal_actions())
+
     def _can_fold(self) -> bool:
         """
         Can only fold if the player has not folded and the player has not matched the highest bet
@@ -56,7 +59,8 @@ class StateManager:
 
     def _can_call(self) -> (bool, float):
         call_sum = (
-            self.board.highest_bet - self.players[self.current_player_index].round_bet
+            self.board.highest_bet -
+            self.players[self.current_player_index].round_bet
         )
         if self.players[self.current_player_index].chips < call_sum:
             return False, 0
@@ -67,7 +71,8 @@ class StateManager:
         The amount assume the amount is the amount to raise with and not the total amount to raise to (i.e. the total bet)
         """
         call_sum = (
-            self.board.highest_bet - self.players[self.current_player_index].round_bet
+            self.board.highest_bet -
+            self.players[self.current_player_index].round_bet
         )
         raise_sum = amount + call_sum
         if self.players[self.current_player_index].chips < raise_sum:
@@ -94,7 +99,8 @@ class StateManager:
         Generate a new state based on the action
         """
         # Increment the current player index
-        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        self.current_player_index = (
+            self.current_player_index + 1) % len(self.players)
 
         # TODO: This is a bit of a mess. Need to clean this up.
         # The logic is not very clear as it already exists in the Player class

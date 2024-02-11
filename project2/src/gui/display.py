@@ -106,7 +106,6 @@ if __name__ == "__main__":
     from src.poker_oracle.deck import Deck
     display = Display()
     deck = Deck()
-    deck.reset_stack()
     num_players = 4
     game_manager = GameManager(num_players, deck)
     game_manager.reset_round(deck)

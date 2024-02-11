@@ -6,7 +6,6 @@ from src.poker_oracle.deck import Deck
 class TestDeck(unittest.TestCase):
     def test_generate_stack(self):
         deck = Deck()
-        deck.reset_stack()
         assert len(deck.stack) == 52
 
 

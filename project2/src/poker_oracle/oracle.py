@@ -83,7 +83,6 @@ class Oracle:
 
         for _ in range(rollout_count + 1):
             deck = Deck()
-            deck.reset_stack()
 
             cloned_public_cards = (
                 public_cards.copy() if public_cards else [

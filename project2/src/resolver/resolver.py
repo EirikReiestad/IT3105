@@ -39,12 +39,23 @@ class Resolver:
         -------
         np.ndarray: The updated range for the acting player
         """
+        print("Bayesian Range Update")
+        if np.isnan(np.min(p_range)):
+            raise ValueError("Player hand distribution is NaN")
+        if np.isnan(np.min(sigma_flat)):
+            raise ValueError("Opponent hand distribution is NaN")
+
         index = all_actions.index(action)
         prob_pair = p_range / np.sum(p_range)
+        if np.sum(sigma_flat) == 0:
+            raise ValueError("The sum of sigma_flat is 0")
         prob_act = np.sum(sigma_flat[index]) / np.sum(sigma_flat)
         prob_act_given_pair = sigma_flat[index] * prob_pair
 
         updated_prob = (prob_act_given_pair * prob_pair) / prob_act
+
+        if np.isnan(np.min(updated_prob)):
+            raise ValueError("Updated hand distribution is NaN")
 
         return updated_prob
 
@@ -103,8 +114,9 @@ class Resolver:
 
         Returns
         -------
-        np.ndarray: The current strategy matrix for the node 
+        np.ndarray: The current strategy matrix for the node
         """
+        print("Update Strategy")
         node_state = node.state
         for c in node.nodes:
             # self.update_strategy(c, o_value, p_value)
@@ -137,7 +149,7 @@ class Resolver:
                             new_node, p_range, o_range, end_stage, end_depth
                         )
                     )
-                    print("new_p_value", new_p_value)
+                    print("New P Value:", new_p_value)
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
                     R_s[index_pair][index_action] += (
                         new_p_value[index_pair] - p_value[index_pair]
@@ -183,13 +195,14 @@ class Resolver:
         action: Action
             The action sampled based on the average strategy
         """
+        print("Resolve")
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
         node = Node(state, end_stage, end_depth, 0)
         sigmas = []  # a list to hold the strategy matrix for each rollout
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
-            print(t)
+            print("Rollout:", t)
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
             p_value, o_value = SubtreeTraversalRollout.subtree_traversal_rollout(
                 node, self.p_range, self.o_range, end_stage, end_depth
@@ -210,6 +223,7 @@ class Resolver:
         action = self.sample_action_average_strategy(sigma_flat, all_actions)
 
         # ▷ r1(a∗) is presumed normalized.
+
         p_range_action = Resolver.bayesian_range_update(
             self.p_range, action, all_actions, sigma_flat
         )

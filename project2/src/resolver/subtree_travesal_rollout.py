@@ -43,7 +43,9 @@ class SubtreeTraversalRollout:
             o_values
                 Opponent action values
         """
-        print(node.state.game_stage, node.depth, end_stage, end_depth)
+        print("Subtree Traversal Rollout")
+        print("Game Stage:", node.state.game_stage, "Depth:", node.depth,
+              "End stage:", end_stage, "End depth", end_depth)
         if node.state.game_stage == GameStage.Showdown:
             utility_matrix = Oracle.utility_matrix_generator(
                 node.state.board.cards)
@@ -64,6 +66,7 @@ class SubtreeTraversalRollout:
             strategy = node.strategy
             res = resolver.Resolver()
             for action in state_manager.get_legal_actions():
+                print(state_manager.get_legal_actions())
                 p_range = resolver.Resolver.bayesian_range_update(
                     p_range, action, state_manager.get_legal_actions(), node.strategy)
                 o_range = o_range

@@ -18,7 +18,7 @@ class Node:
 
         num_all_hole_pairs = Oracle.get_number_of_all_hole_pairs()
         # NOTE: We have to switch the dimensions as we are indexing by action to get the whole pairs, not the other way around
-        self.strategy: np.ndarray = np.zeros(
+        self.strategy: np.ndarray = np.ones(
             (self.state_manager.get_num_legal_actions(), num_all_hole_pairs))
 
         # sigma_s = np.zeros((num_all_hole_pairs,

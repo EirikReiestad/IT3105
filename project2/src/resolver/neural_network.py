@@ -10,26 +10,27 @@ class NeuralNetwork:
     def run(
         state: PublicGameState,
         stage: GameStage,
-        player_hand_distribution: np.ndarray,
-        opponent_hand_distribution: np.ndarray,
+        p_range: np.ndarray,
+        o_range: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Parameters
         ----------
         state: GameState
         stage: GameStage
-        player_hand_distribution: np.ndarray
+        p_range: np.ndarray
             hand distribution of player
-        opponent_hand_distribution: np.ndarray
+        o_range: np.ndarray
             hand distribution of opponent
+
         Returns
         -------
         np.ndarray: The expected value of the game for the player
         """
-        if np.isnan(np.min(player_hand_distribution)):
-            print(player_hand_distribution)
+        if np.isnan(np.min(p_range)):
+            print(p_range)
             raise ValueError("Player hand distribution is NaN")
-        if np.isnan(np.min(opponent_hand_distribution)):
+        if np.isnan(np.min(o_range)):
+            print(o_range)
             raise ValueError("Opponent hand distribution is NaN")
-        print(opponent_hand_distribution)
-        pass
+        return p_range, o_range

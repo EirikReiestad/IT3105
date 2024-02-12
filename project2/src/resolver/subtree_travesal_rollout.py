@@ -63,10 +63,7 @@ class SubtreeTraversalRollout:
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
             state_manager = StateManager(node.state)
-            strategy = node.strategy
-            res = resolver.Resolver()
             for action in state_manager.get_legal_actions():
-                print(state_manager.get_legal_actions())
                 p_range = resolver.Resolver.bayesian_range_update(
                     p_range, action, state_manager.get_legal_actions(), node.strategy)
                 o_range = o_range
@@ -78,13 +75,12 @@ class SubtreeTraversalRollout:
                     )
                 )
                 hole_pairs = Oracle.generate_all_hole_pairs()
-                strategy_matrix = resolver.Resolver.generate_strategy_matrix()
                 for pair in hole_pairs:
                     # TODO: FIKSE INDEKS
-                    p_values[pair] += strategy_matrix[pair,
-                                                      action] * p_values_new[pair]
-                    o_values[pair] += strategy_matrix[pair,
-                                                      action] * o_values_new[pair]
+                    p_values[pair] += node.strategy[pair,
+                                                    action] * p_values_new[pair]
+                    o_values[pair] += node.strategy[pair,
+                                                    action] * o_values_new[pair]
         else:
             print("Else")
             # TODO: Add chance event ?

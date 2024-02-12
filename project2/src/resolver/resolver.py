@@ -22,7 +22,7 @@ class Resolver:
         action: Action,
         all_actions: list[Action],
         sigma_flat: np.ndarray,
-    ):
+    ) -> np.ndarray:
         """
         Parameters
         ----------
@@ -34,6 +34,10 @@ class Resolver:
             The action taken by the acting player
         sigma_flat: np.ndarray
             The average strategy over all rollouts
+
+        Returns
+        -------
+        np.ndarray: The updated range for the acting player
         """
         index = all_actions.index(action)
         prob_pair = p_range / np.sum(p_range)
@@ -99,16 +103,16 @@ class Resolver:
 
         Returns
         -------
-        np.ndarray: The current strategy matrix for the root
+        np.ndarray: The current strategy matrix for the node 
         """
-        node_state = node.root
+        node_state = node.state
         for c in node.nodes:
             # self.update_strategy(c, o_value, p_value)
             self.update_strategy(c.strategy, p_value, p_range,
                                  o_range, end_stage, end_depth)
 
-        # TODO: samme som subtreetraversal, remove true
         sigma_s = np.array([])
+        # TODO: samme som subtreetraversal, remove true
         if True:
             # P = s
             state_manager = StateManager(node_state)
@@ -123,11 +127,11 @@ class Resolver:
             for pair in all_hole_pairs:
                 for action in all_actions:
                     index_pair = all_hole_pairs.index(pair)
-                    index_action = state_manager.get_legal_actions().index(action)
+                    index_action = all_actions.index(action)
                     new_node_state = state_manager.generate_state(action)
+                    # NOTE: Calling Node will cause it to genereate children, which is expensive
                     new_node = Node(new_node_state, end_stage, end_depth)
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
-
                     new_p_value, new_o_value = (
                         SubtreeTraversalRollout.subtree_traversal_rollout(
                             new_node, p_range, o_range, end_stage, end_depth
@@ -145,7 +149,6 @@ class Resolver:
                 for action in all_actions:
                     index_pair = all_hole_pairs.index(pair)
                     index_action = all_actions.index(action)
-                    # TODO: Fix a_p parameter name
                     node.strategy[index_pair][index_action] = R_s_plus[index_pair][
                         index_action
                     ] / sum(
@@ -154,7 +157,6 @@ class Resolver:
                             for a_p in all_actions
                         ]
                     )
-
         return sigma_s
 
     def resolve(
@@ -175,22 +177,28 @@ class Resolver:
         end_stage: GameStage
         end_depth: int
         num_rollouts: int
+
+        Returns
+        -------
+        action: Action
+            The action sampled based on the average strategy
         """
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
-        node = Node(state, end_stage, end_depth)
-        sigmas = []
+        node = Node(state, end_stage, end_depth, 0)
+        sigmas = []  # a list to hold the strategy matrix for each rollout
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
+            print(t)
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
             p_value, o_value = SubtreeTraversalRollout.subtree_traversal_rollout(
                 node, self.p_range, self.o_range, end_stage, end_depth
             )
             # S ← UpdateStrategy(Root) ▷ Returns current strategy matrix for the root
-            sigma = self.update_strategy(
+            strategy = self.update_strategy(
                 node, p_value, self.p_range, self.o_range, end_stage, end_depth
             )
-            sigmas.append(sigma)
+            sigmas.append(strategy)
 
         state_manager = StateManager(state)
         all_actions = state_manager.get_legal_actions()

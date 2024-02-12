@@ -1,6 +1,10 @@
 import random
 from enum import Enum
 
+from src.config import Config
+
+config = Config()
+
 
 class Suit(Enum):
     Clubs = "♣"
@@ -59,8 +63,9 @@ class Card:
 class Deck:
     def __init__(self):
         self.stack = []
+        self._reset_stack()
 
-    def reset_stack(self, simplify=False):
+    def _reset_stack(self):
         self.stack = []
         for suit_idx in range(4):
             suit = None
@@ -73,7 +78,7 @@ class Deck:
             elif suit_idx == 3:
                 suit = Suit.Spades
 
-            if not simplify:
+            if not config.data['simplify']:
                 for rank in range(1, 14):
                     self.stack.append(Card(suit, rank))
             else:

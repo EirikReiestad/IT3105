@@ -4,22 +4,7 @@ from itertools import combinations
 import unittest
 from src.poker_oracle.deck import Deck
 from src.poker_oracle.hands import HandsCheck, Hands
-
-
-class Suit(Enum):
-    Clubs = 0
-    Spades = 1
-    Hearts = 2
-    Diamonds = 3
-
-
-class Card:
-    def __init__(self, suit: Suit, rank: int):
-        self.suit = suit
-        self.rank = rank
-
-    def __eq__(self, other):
-        return self.suit == other.suit and self.rank == other.rank
+from .deck import Card, Suit
 
 
 class Oracle:
@@ -98,7 +83,6 @@ class Oracle:
 
         for _ in range(rollout_count + 1):
             deck = Deck()
-            deck.reset_stack()
 
             cloned_public_cards = (
                 public_cards.copy() if public_cards else [
@@ -174,7 +158,6 @@ class Oracle:
     @staticmethod
     def generate_all_hole_pairs() -> List[List[Card]]:
         deck = Deck()
-        deck.reset_stack()
         return list(combinations(deck.stack, 2))
 
     @staticmethod

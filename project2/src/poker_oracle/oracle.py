@@ -156,7 +156,7 @@ class Oracle:
         return matrix
 
     @staticmethod
-    def generate_all_hole_pairs() -> List[List[Card]]:
+    def generate_all_hole_pairs() -> List[[Card, Card]]:
         deck = Deck()
         return list(combinations(deck.stack, 2))
 

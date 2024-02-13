@@ -75,12 +75,11 @@ class SubtreeTraversalRollout:
                     )
                 )
                 hole_pairs = Oracle.generate_all_hole_pairs()
-                for pair in hole_pairs:
-                    # TODO: FIKSE INDEKS
-                    p_values[pair] += node.strategy[pair,
-                                                    action] * p_values_new[pair]
-                    o_values[pair] += node.strategy[pair,
-                                                    action] * o_values_new[pair]
+                print(len(hole_pairs))
+                for (i, pair) in enumerate(hole_pairs):
+                    # NOTE: Assuming that the pair order is the same as the index
+                    p_values[i] += node.strategy[action, i] * p_values_new[i]
+                    o_values[i] += node.strategy[action, i] * o_values_new[i]
         else:
             print("Else")
             # TODO: Add chance event ?

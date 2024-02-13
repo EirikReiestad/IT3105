@@ -127,17 +127,21 @@ class StateManager:
             self.players[self.current_player_index].folded = True
         elif action == Action.Check():
             self.check_count += 1
-        elif action == Action.Call():
+        elif action == Action.Call(0):
             _, call_sum = self._can_call()
             self.players[self.current_player_index].chips -= call_sum
             self.players[self.current_player_index].round_bet += call_sum
             self.board.pot += call_sum
-        elif action == Action.Raise():
+        elif action == Action.Raise(0):
             _, raise_sum = self._can_raise(action.amount)
             self.players[self.current_player_index].chips -= raise_sum
             self.players[self.current_player_index].round_bet += raise_sum
             self.board.pot += raise_sum
             self.board.highest_bet += raise_sum
+        elif action == Action.AllIn(0):
+            raise NotImplementedError
+        else:
+            raise ValueError("Invalid action")
 
         return PublicGameState(
             self.players,

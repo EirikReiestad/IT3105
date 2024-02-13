@@ -2,9 +2,10 @@ from dataclasses import dataclass
 
 
 class _Action:
-    def __init__(self, action: str, amount: float = 0):
+    def __init__(self, action: str, index: int, amount: float = 0):
         self.action: str = action
         self.amount: float = amount
+        self.index: int = index  # Used to index the action in the action space
 
     def __repr__(self):
         return f"{self.action}({self.amount})"
@@ -14,28 +15,31 @@ class _Action:
             return self.action == other.action
         return False
 
+    def __index__(self):
+        return self.index
+
 
 class Action:
     @staticmethod
     def Fold(amount=0):
-        return _Action('Fold', amount)
+        return _Action('Fold', 0, amount)
 
     @staticmethod
-    def CallOrCheck(amount=0):
-        return _Action('CallOrCheck', amount)
-
-    @staticmethod
-    def Call(amount=0):
-        return _Action('Call', amount)
+    def Call(amount):
+        return _Action('Call', 1, amount)
 
     @staticmethod
     def Check(amount=0):
-        return _Action('Check', amount)
+        return _Action('Check', 2, amount)
 
     @staticmethod
-    def Raise(amount=0):
-        return _Action('Raise', amount)
+    def Raise(amount):
+        return _Action('Raise', 3,  amount)
 
     @staticmethod
-    def AllIn(amount=0):
-        return _Action('AllIn', amount)
+    def AllIn(amount):
+        return _Action('AllIn', 4, amount)
+
+    @staticmethod
+    def CallOrCheck(amount=0):
+        return _Action('CallOrCheck', 5, amount)

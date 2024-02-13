@@ -142,7 +142,8 @@ class Resolver:
 
             sigma_s = np.zeros((num_all_hole_pairs, num_all_actions))
 
-            R_s = np.zeros((num_all_hole_pairs, num_all_actions))
+            # NOTE: Was originally zeros, but that would cause a division by zero error
+            R_s = np.ones((num_all_hole_pairs, num_all_actions))
             R_s_plus = np.zeros((num_all_hole_pairs, num_all_actions))
 
             for pair in all_hole_pairs:
@@ -173,9 +174,13 @@ class Resolver:
                     # index_action = all_actions.index(action)
                     # NOTE: Same as in subtreetraversal, assuming that the pair order is the same as the index
                     # and that the action order is the same in every case
-                    node.strategy[pair_idx][action_idx] = R_s_plus[pair_idx][action_idx] / \
-                        sum([R_s_plus[pair_idx, i]
-                            for i in range(len(all_actions))])
+                    R_s_sum = sum([R_s_plus[pair_idx][i]
+                                  for i in range(len(all_actions))])
+                    if R_s_sum == 0:
+                        raise ValueError("The sum of R_s_plus is 0")
+                    node.strategy[pair_idx][action_idx] = R_s_plus[pair_idx][action_idx] / R_s_sum
+        if np.isnan(np.min(sigma_s)):
+            raise ValueError("The strategy matrix is NaN")
         return sigma_s
 
     def resolve(
@@ -209,8 +214,8 @@ class Resolver:
         sigmas = []  # a list to hold the strategy matrix for each rollout
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
-            logger.debug("Rollout:", t)
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
+            print("Rollout:", t)
             logger.debug("Place 2")
             p_value, o_value = SubtreeTraversalRollout.subtree_traversal_rollout(
                 node, self.p_range, self.o_range, end_stage, end_depth

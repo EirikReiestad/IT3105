@@ -67,7 +67,7 @@ class GameManager:
         # TODO: Config file?
         end_stage = self.game_stage.next_stage()
         end_depth = 3
-        num_rollouts = 10
+        num_rollouts = 2
         return self.resolver.resolve(
             self.get_current_public_state(),
             end_stage,

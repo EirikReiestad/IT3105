@@ -48,8 +48,6 @@ class SubtreeTraversalRollout:
                 Opponent action values
         """
         logger.debug("Subtree Traversal Rollout")
-        # print("Game Stage:", node.state.game_stage, "Depth:", node.depth,
-        #      "End stage:", end_stage, "End depth", end_depth)
         if node.state.game_stage == GameStage.Showdown:
             utility_matrix = Oracle.utility_matrix_generator(
                 node.state.board.cards)
@@ -100,6 +98,7 @@ class SubtreeTraversalRollout:
                 # TODO: This will not work, INDEKS
                 p_range[event] = p_range
                 o_range[event] = o_range
+                print("Place 4")
                 p_values[event], o_values[event] = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
                         state, p_range, o_range, end_stage, end_depth

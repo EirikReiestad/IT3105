@@ -156,7 +156,6 @@ class Resolver:
                             new_node, p_range, o_range, end_stage, end_depth
                         )
                     )
-                    print("New P Value:", new_p_value)
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
                     R_s[index_pair][index_action] += (
                         new_p_value[index_pair] - p_value[index_pair]

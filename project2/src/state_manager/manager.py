@@ -157,3 +157,19 @@ class StateManager:
         for action in self.get_legal_actions():
             possible_states.append(self.generate_sub_state(action))
         return possible_states
+
+    def __repr__(self):
+        return f"""
+        ===================================
+        Players: {self.players}, 
+        -----------------------------------
+        Board: {self.board}, 
+        -----------------------------------
+        Game Stage: {self.game_stage}, 
+        -----------------------------------
+        Current Player Index: {self.current_player_index}, 
+        -----------------------------------
+        Buy In: {self.buy_in}, 
+        -----------------------------------
+        Check Count: {self.check_count}
+        ==================================="""

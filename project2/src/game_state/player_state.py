@@ -12,9 +12,12 @@ class PublicPlayerState:
         self.chips: int = chips
         self.folded: bool = folded
         self.bust: bool = bust
-        self.round_bet: int = bet  # Betting for that round
+        self.round_bet: int = bet  # Betting for that round # TODO: Maybe change name to bet
         self.betting_history = list()
         self.action_history = list()
+
+    def __repr__(self):
+        return f"Chips: {self.chips} Folded: {self.folded} Round bet: {self.round_bet}"
 
 
 class PrivatePlayerState(PublicPlayerState):

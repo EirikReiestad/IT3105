@@ -224,6 +224,7 @@ class Resolver:
 
         # ▷ r1(a∗) is presumed normalized.
 
+        print("Action:", action, "All actions:", all_actions)
         p_range_action = Resolver.bayesian_range_update(
             self.p_range, action, all_actions, sigma_flat
         )

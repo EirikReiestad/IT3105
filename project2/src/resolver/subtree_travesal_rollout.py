@@ -64,8 +64,11 @@ class SubtreeTraversalRollout:
             o_values = np.zeros((len(hole_pairs),))
             state_manager = StateManager(node.state)
             for action in state_manager.get_legal_actions():
+                all_actions = state_manager.get_legal_actions()
+                print("Action:", action, "All actions:", all_actions)
+                print(state_manager)
                 p_range = resolver.Resolver.bayesian_range_update(
-                    p_range, action, state_manager.get_legal_actions(), node.strategy)
+                    p_range, action, all_actions, node.strategy)
                 o_range = o_range
                 state = state_manager.generate_state(action)
                 new_node = Node(state, end_stage, end_depth, node.depth + 1)

@@ -6,6 +6,9 @@ from src.game_manager.game_stage import GameStage
 from src.state_manager.manager import StateManager
 from .subtree_travesal_rollout import SubtreeTraversalRollout
 from .node import Node
+from src.setup_logger import setup_logger
+
+logger = setup_logger()
 
 
 class Resolver:
@@ -28,10 +31,10 @@ class Resolver:
         ----------
         p_range: np.ndarray
             Player's hand distribution
-        o_range: np.ndarray
-            Opponent's hand distribution
         action: Action
             The action taken by the acting player
+        all_actions: list[Action]
+            All possible actions
         sigma_flat: np.ndarray
             The average strategy over all rollouts
 
@@ -39,11 +42,11 @@ class Resolver:
         -------
         np.ndarray: The updated range for the acting player
         """
-        print("Bayesian Range Update")
+        logger.debug("Bayesian Range Update")
         if np.isnan(np.min(p_range)):
             raise ValueError("Player hand distribution is NaN")
         if np.isnan(np.min(sigma_flat)):
-            raise ValueError("Opponent hand distribution is NaN")
+            raise ValueError("Sigma flat distribution is NaN")
 
         index = all_actions.index(action)
         prob_pair = p_range / np.sum(p_range)
@@ -117,7 +120,7 @@ class Resolver:
         -------
         np.ndarray: The current strategy matrix for the node
         """
-        print("Update Strategy")
+        logger.debug("Update Strategy")
         if not isinstance(node, Node):
             raise ValueError("Node is not an instance of Node")
         node_state = node.state
@@ -151,6 +154,7 @@ class Resolver:
                     new_node = Node(new_node_state, end_stage,
                                     end_depth, node.depth + 1)
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
+                    logger.debug("Place 3")
                     new_p_value, new_o_value = (
                         SubtreeTraversalRollout.subtree_traversal_rollout(
                             new_node, p_range, o_range, end_stage, end_depth
@@ -198,15 +202,16 @@ class Resolver:
         action: Action
             The action sampled based on the average strategy
         """
-        print("Resolve")
+        logger.debug("Resolve")
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
         node = Node(state, end_stage, end_depth, 0)
         sigmas = []  # a list to hold the strategy matrix for each rollout
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
-            print("Rollout:", t)
+            logger.debug("Rollout:", t)
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
+            logger.debug("Place 2")
             p_value, o_value = SubtreeTraversalRollout.subtree_traversal_rollout(
                 node, self.p_range, self.o_range, end_stage, end_depth
             )
@@ -227,7 +232,6 @@ class Resolver:
 
         # ▷ r1(a∗) is presumed normalized.
 
-        print("Action:", action, "All actions:", all_actions)
         p_range_action = Resolver.bayesian_range_update(
             self.p_range, action, all_actions, sigma_flat
         )

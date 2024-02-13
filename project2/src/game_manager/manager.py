@@ -10,7 +10,9 @@ from .game_stage import GameStage
 from .game_action import Action
 from src.gui.display import Display
 from src.config import Config
+from src.setup_logger import setup_logger
 
+logger = setup_logger()
 config = Config()
 
 
@@ -56,7 +58,7 @@ class GameManager:
             elif user_input == "2":
                 return Action.Raise(10)  # TODO: Implement raise amount
             else:
-                print("Invalid input")
+                logger.debug(f"Invalid input: {user_input}")
                 return get_input()
 
         return get_input()

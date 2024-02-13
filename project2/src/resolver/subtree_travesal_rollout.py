@@ -11,6 +11,10 @@ from .node import Node
 # TODO: Fix circular import by refactoring instead
 from . import resolver
 
+from src.setup_logger import setup_logger
+
+logger = setup_logger()
+
 
 # NOTE: Important! This is for heads up only, for multiple opponents, we need to change the structure of the code
 # TODO: Fix that r2 (o_range) is not updated in the loop
@@ -43,9 +47,9 @@ class SubtreeTraversalRollout:
             o_values
                 Opponent action values
         """
-        print("Subtree Traversal Rollout")
-        print("Game Stage:", node.state.game_stage, "Depth:", node.depth,
-              "End stage:", end_stage, "End depth", end_depth)
+        logger.debug("Subtree Traversal Rollout")
+        # print("Game Stage:", node.state.game_stage, "Depth:", node.depth,
+        #      "End stage:", end_stage, "End depth", end_depth)
         if node.state.game_stage == GameStage.Showdown:
             utility_matrix = Oracle.utility_matrix_generator(
                 node.state.board.cards)
@@ -70,6 +74,7 @@ class SubtreeTraversalRollout:
                 o_range = o_range
                 state = state_manager.generate_state(action)
                 new_node = Node(state, end_stage, end_depth, node.depth + 1)
+                logger.debug("Place 1")
                 p_values_new, o_values_new = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
                         new_node, p_range, o_range, end_stage, end_depth
@@ -84,7 +89,6 @@ class SubtreeTraversalRollout:
                     o_values[pair_idx] += node.strategy[pair_idx, action_idx] * \
                         o_values_new[pair_idx]
         else:
-            print("Else")
             # TODO: Add chance event ?
             hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))

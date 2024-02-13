@@ -11,6 +11,7 @@ from .game_action import Action
 from src.gui.display import Display
 from src.config import Config
 from src.setup_logger import setup_logger
+from src.state_manager.manager import StateManager
 
 logger = setup_logger()
 config = Config()
@@ -44,22 +45,28 @@ class GameManager:
         -------
         Action: The action and the amount to bet if the action is raise
         """
+        state_manager = StateManager(self.state)
+        legal_actions = state_manager.get_legal_actions()
+        actions = {}
+        legal_action_count = 0
+
+        s = "Legal actions: "
+        for action in legal_actions:
+            s += "{}: {}".format(legal_action_count, action)
+            actions[legal_action_count] = action
+            legal_action_count += 1
+        print(s)
 
         def get_input() -> Action:
             if self.graphics:
                 user_input = self.display.get_input()
             else:
                 user_input = input()
+            action = actions.get(user_input)
 
-            if user_input == "0":
-                return Action.Fold()
-            elif user_input == "1":
-                return Action.CallOrCheck()
-            elif user_input == "2":
-                return Action.Raise(10)  # TODO: Implement raise amount
-            else:
-                logger.debug(f"Invalid input: {user_input}")
+            if not action:
                 return get_input()
+            get_input()
 
         return get_input()
 
@@ -240,15 +247,19 @@ class GameManager:
             else:
                 action: Action = self.get_player_action()
 
+            print(action)
+
             if action == Action.Fold():
                 self.players.fold(turn)
                 continue
-            elif action == Action.CallOrCheck():
+            elif action == Action.Check():
+                if not self.graphics:
+                    print("Checked")
+                self.check_count += 1
+            elif action == Action.Call():
                 player_bet = self.players.get_bet(turn)
                 bet = self.board.highest_bet - player_bet
                 if bet == 0:
-                    if not self.graphics:
-                        print("Checked")
                     self.make_bet(turn, Action.Check())
                 else:
                     if not self.graphics:

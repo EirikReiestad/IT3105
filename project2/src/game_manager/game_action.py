@@ -21,10 +21,6 @@ class Action:
         return _Action('Fold', amount)
 
     @staticmethod
-    def CallOrCheck(amount=0):
-        return _Action('CallOrCheck', amount)
-
-    @staticmethod
     def Call(amount=0):
         return _Action('Call', amount)
 

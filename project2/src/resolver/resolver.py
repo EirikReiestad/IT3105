@@ -82,6 +82,7 @@ class Resolver:
         # Find the maximum value in action_probabilities
         max_action = np.max(action_probabilities)
 
+        return all_actions[np.argmax(action_probabilities)]  # NOTE: Suggestion
         return all_actions[max_action]
 
     # def updateStrategy(self, node):
@@ -140,7 +141,7 @@ class Resolver:
             all_actions = state_manager.get_legal_actions()
             num_all_actions = len(all_actions)
 
-            sigma_s = np.zeros((num_all_hole_pairs, num_all_actions))
+            sigma_s = np.ones((num_all_hole_pairs, num_all_actions))
 
             # NOTE: Was originally zeros, but that would cause a division by zero error
             R_s = np.ones((num_all_hole_pairs, num_all_actions))

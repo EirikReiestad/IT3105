@@ -21,7 +21,7 @@ class StateManager:
         That includes:
         One can only raise
             - 2x big blind
-            - 1/2 pot
+            - 1/2 pot (wip)
         """
         actions = list()
         if self._can_fold():
@@ -29,14 +29,17 @@ class StateManager:
         if self._can_check():
             actions.append(Action.Check())
         if self._can_call():
-            _, call_sum = self._can_call()
-            actions.append(Action.Call(call_sum))
+            can_call, call_sum = self._can_call()
+            if can_call:
+                actions.append(Action.Call(call_sum))
         if self._can_raise(2 * self.buy_in):
-            _, raise_sum = self._can_raise(2 * self.buy_in)
-            actions.append(Action.Raise(raise_sum))
+            can_raise, raise_sum = self._can_raise(2 * self.buy_in)
+            if can_raise:
+                actions.append(Action.Raise(raise_sum))
         if self._can_raise(self.board.pot / 2):
-            _, raise_sum = self._can_raise(self.board.pot / 2)
-            actions.append(Action.Raise(raise_sum))
+            can_raise, raise_sum = self._can_raise(self.board.pot / 2)
+            if can_raise:
+                actions.append(Action.Raise(raise_sum))
         # TODO: Add AllIn
         return actions
 
@@ -58,6 +61,8 @@ class StateManager:
         )
 
     def _can_call(self) -> (bool, float):
+        if self._can_check():
+            return False, 0
         call_sum = (
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
@@ -75,6 +80,8 @@ class StateManager:
             self.players[self.current_player_index].round_bet
         )
         raise_sum = amount + call_sum
+        if raise_sum <= 0:
+            return False, 0
         if self.players[self.current_player_index].chips < raise_sum:
             return False, 0
         return True, raise_sum
@@ -120,17 +127,21 @@ class StateManager:
             self.players[self.current_player_index].folded = True
         elif action == Action.Check():
             self.check_count += 1
-        elif action == Action.Call():
+        elif action == Action.Call(0):
             _, call_sum = self._can_call()
             self.players[self.current_player_index].chips -= call_sum
             self.players[self.current_player_index].round_bet += call_sum
             self.board.pot += call_sum
-        elif action == Action.Raise():
+        elif action == Action.Raise(0):
             _, raise_sum = self._can_raise(action.amount)
             self.players[self.current_player_index].chips -= raise_sum
             self.players[self.current_player_index].round_bet += raise_sum
             self.board.pot += raise_sum
             self.board.highest_bet += raise_sum
+        elif action == Action.AllIn(0):
+            raise NotImplementedError
+        else:
+            raise ValueError("Invalid action")
 
         return PublicGameState(
             self.players,
@@ -146,3 +157,19 @@ class StateManager:
         for action in self.get_legal_actions():
             possible_states.append(self.generate_sub_state(action))
         return possible_states
+
+    def __repr__(self):
+        return f"""
+        ===================================
+        Players: {self.players}, 
+        -----------------------------------
+        Board: {self.board}, 
+        -----------------------------------
+        Game Stage: {self.game_stage}, 
+        -----------------------------------
+        Current Player Index: {self.current_player_index}, 
+        -----------------------------------
+        Buy In: {self.buy_in}, 
+        -----------------------------------
+        Check Count: {self.check_count}
+        ==================================="""

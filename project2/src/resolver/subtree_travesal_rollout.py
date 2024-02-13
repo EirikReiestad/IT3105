@@ -11,6 +11,10 @@ from .node import Node
 # TODO: Fix circular import by refactoring instead
 from . import resolver
 
+from src.setup_logger import setup_logger
+
+logger = setup_logger()
+
 
 # NOTE: Important! This is for heads up only, for multiple opponents, we need to change the structure of the code
 # TODO: Fix that r2 (o_range) is not updated in the loop
@@ -43,7 +47,7 @@ class SubtreeTraversalRollout:
             o_values
                 Opponent action values
         """
-        print(node.state.game_stage, node.depth, end_stage, end_depth)
+        logger.debug("Subtree Traversal Rollout")
         if node.state.game_stage == GameStage.Showdown:
             utility_matrix = Oracle.utility_matrix_generator(
                 node.state.board.cards)
@@ -61,29 +65,28 @@ class SubtreeTraversalRollout:
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
             state_manager = StateManager(node.state)
-            strategy = node.strategy
-            res = resolver.Resolver()
-            for action in state_manager.get_legal_actions():
+            all_actions = state_manager.get_legal_actions()
+            for (action_idx, action) in enumerate(all_actions):
                 p_range = resolver.Resolver.bayesian_range_update(
-                    p_range, action, state_manager.get_legal_actions(), node.strategy)
+                    p_range, action, all_actions, node.strategy)
                 o_range = o_range
                 state = state_manager.generate_state(action)
                 new_node = Node(state, end_stage, end_depth, node.depth + 1)
+                logger.debug("Place 1")
                 p_values_new, o_values_new = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
                         new_node, p_range, o_range, end_stage, end_depth
                     )
                 )
                 hole_pairs = Oracle.generate_all_hole_pairs()
-                strategy_matrix = resolver.Resolver.generate_strategy_matrix()
-                for pair in hole_pairs:
-                    # TODO: FIKSE INDEKS
-                    p_values[pair] += strategy_matrix[pair,
-                                                      action] * p_values_new[pair]
-                    o_values[pair] += strategy_matrix[pair,
-                                                      action] * o_values_new[pair]
+                for (pair_idx, pair) in enumerate(hole_pairs):
+                    # NOTE: Assuming that the pair order is the same as the index
+                    # NOTE: Assuming the action order is the same in every case
+                    p_values[pair_idx] += node.strategy[pair_idx, action_idx] * \
+                        p_values_new[pair_idx]
+                    o_values[pair_idx] += node.strategy[pair_idx, action_idx] * \
+                        o_values_new[pair_idx]
         else:
-            print("Else")
             # TODO: Add chance event ?
             hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))
@@ -95,6 +98,7 @@ class SubtreeTraversalRollout:
                 # TODO: This will not work, INDEKS
                 p_range[event] = p_range
                 o_range[event] = o_range
+                print("Place 4")
                 p_values[event], o_values[event] = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
                         state, p_range, o_range, end_stage, end_depth
@@ -105,7 +109,7 @@ class SubtreeTraversalRollout:
                     o_values[pair] += o_values[event][pair] / abs(events)
         return p_values, o_values
 
-    @staticmethod
+    @ staticmethod
     def player_state(state: PublicGameState) -> bool:
         """
         Parameters

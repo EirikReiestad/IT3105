@@ -23,6 +23,9 @@ class PublicBoardState:
         self.dealer: int = dealer
         self.game_stage: GameStage = game_stage  # An instance of GameStage
 
+    def __repr__(self):
+        return f"Pot: {self.pot} Highest bet: {self.highest_bet} Game stage: {self.game_stage} Cards: {self.cards}"
+
 
 @dataclass
 class PrivateBoardState(PublicBoardState):

@@ -17,9 +17,8 @@ class Node:
         self.state_manager = StateManager(self.state)
 
         num_all_hole_pairs = Oracle.get_number_of_all_hole_pairs()
-        # NOTE: We have to switch the dimensions as we are indexing by action to get the whole pairs, not the other way around
         self.strategy: np.ndarray = np.ones(
-            (self.state_manager.get_num_legal_actions(), num_all_hole_pairs))
+            (num_all_hole_pairs, self.state_manager.get_num_legal_actions()))
 
         # sigma_s = np.zeros((num_all_hole_pairs,
         # state_manager.get_num_legal_actions()))
@@ -28,7 +27,7 @@ class Node:
         self.end_stage: GameStage = end_stage
         self.end_depth: int = end_depth
         self.depth = depth
-        if end_depth > 0 and state.game_stage != end_stage:
+        if depth < end_depth and state.game_stage != end_stage:
             self.generate_child_node()
 
     def add_child(self, node):

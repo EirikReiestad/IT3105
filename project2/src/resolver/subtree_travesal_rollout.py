@@ -63,10 +63,8 @@ class SubtreeTraversalRollout:
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
             state_manager = StateManager(node.state)
-            for action in state_manager.get_legal_actions():
-                all_actions = state_manager.get_legal_actions()
-                print("Action:", action, "All actions:", all_actions)
-                print(state_manager)
+            all_actions = state_manager.get_legal_actions()
+            for (action_idx, action) in enumerate(all_actions):
                 p_range = resolver.Resolver.bayesian_range_update(
                     p_range, action, all_actions, node.strategy)
                 o_range = o_range
@@ -78,11 +76,13 @@ class SubtreeTraversalRollout:
                     )
                 )
                 hole_pairs = Oracle.generate_all_hole_pairs()
-                print(len(hole_pairs))
-                for (i, pair) in enumerate(hole_pairs):
+                for (pair_idx, pair) in enumerate(hole_pairs):
                     # NOTE: Assuming that the pair order is the same as the index
-                    p_values[i] += node.strategy[action, i] * p_values_new[i]
-                    o_values[i] += node.strategy[action, i] * o_values_new[i]
+                    # NOTE: Assuming the action order is the same in every case
+                    p_values[pair_idx] += node.strategy[pair_idx, action_idx] * \
+                        p_values_new[pair_idx]
+                    o_values[pair_idx] += node.strategy[pair_idx, action_idx] * \
+                        o_values_new[pair_idx]
         else:
             print("Else")
             # TODO: Add chance event ?
@@ -106,7 +106,7 @@ class SubtreeTraversalRollout:
                     o_values[pair] += o_values[event][pair] / abs(events)
         return p_values, o_values
 
-    @staticmethod
+    @ staticmethod
     def player_state(state: PublicGameState) -> bool:
         """
         Parameters

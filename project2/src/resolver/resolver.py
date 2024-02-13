@@ -50,7 +50,8 @@ class Resolver:
         if np.sum(sigma_flat) == 0:
             raise ValueError("The sum of sigma_flat is 0")
         prob_act = np.sum(sigma_flat[index]) / np.sum(sigma_flat)
-        prob_act_given_pair = sigma_flat[index] * prob_pair
+        # [:, index] gives the column
+        prob_act_given_pair = sigma_flat[:, index] * prob_pair
 
         updated_prob = (prob_act_given_pair * prob_pair) / prob_act
 
@@ -117,10 +118,12 @@ class Resolver:
         np.ndarray: The current strategy matrix for the node
         """
         print("Update Strategy")
+        if not isinstance(node, Node):
+            raise ValueError("Node is not an instance of Node")
         node_state = node.state
-        for c in node.nodes:
+        for c in node.children:
             # self.update_strategy(c, o_value, p_value)
-            self.update_strategy(c.strategy, p_value, p_range,
+            self.update_strategy(c, p_value, p_range,
                                  o_range, end_stage, end_depth)
 
         sigma_s = np.array([])
@@ -128,13 +131,16 @@ class Resolver:
         if True:
             # P = s
             state_manager = StateManager(node_state)
-            all_hole_pairs = Oracle.get_number_of_all_hole_pairs()
+            all_hole_pairs = Oracle.generate_all_hole_pairs()
+            num_all_hole_pairs = len(all_hole_pairs)
 
             all_actions = state_manager.get_legal_actions()
-            sigma_s = np.zeros((len(all_hole_pairs), len(all_actions)))
+            num_all_actions = len(all_actions)
 
-            R_s = np.zeros((len(all_hole_pairs), len(all_actions)))
-            R_s_plus = np.zeros((len(all_hole_pairs), len(all_actions)))
+            sigma_s = np.zeros((num_all_hole_pairs, num_all_actions))
+
+            R_s = np.zeros((num_all_hole_pairs, num_all_actions))
+            R_s_plus = np.zeros((num_all_hole_pairs, num_all_actions))
 
             for pair in all_hole_pairs:
                 for action in all_actions:
@@ -142,7 +148,8 @@ class Resolver:
                     index_action = all_actions.index(action)
                     new_node_state = state_manager.generate_state(action)
                     # NOTE: Calling Node will cause it to genereate children, which is expensive
-                    new_node = Node(new_node_state, end_stage, end_depth)
+                    new_node = Node(new_node_state, end_stage,
+                                    end_depth, node.depth + 1)
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     new_p_value, new_o_value = (
                         SubtreeTraversalRollout.subtree_traversal_rollout(
@@ -157,18 +164,15 @@ class Resolver:
                     R_s_plus[index_pair][index_action] = max(
                         0, R_s[index_pair][index_action]
                     )
-            for pair in all_hole_pairs:
-                for action in all_actions:
-                    index_pair = all_hole_pairs.index(pair)
-                    index_action = all_actions.index(action)
-                    node.strategy[index_pair][index_action] = R_s_plus[index_pair][
-                        index_action
-                    ] / sum(
-                        [
-                            R_s_plus[index_pair, all_actions.index(a_p)]
-                            for a_p in all_actions
-                        ]
-                    )
+            for (pair_idx, pair) in enumerate(all_hole_pairs):
+                for (action_idx, action) in enumerate(all_actions):
+                    # index_pair = all_hole_pairs.index(pair)
+                    # index_action = all_actions.index(action)
+                    # NOTE: Same as in subtreetraversal, assuming that the pair order is the same as the index
+                    # and that the action order is the same in every case
+                    node.strategy[pair_idx][action_idx] = R_s_plus[pair_idx][action_idx] / \
+                        sum([R_s_plus[pair_idx, i]
+                            for i in range(len(all_actions))])
         return sigma_s
 
     def resolve(

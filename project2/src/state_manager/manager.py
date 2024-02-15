@@ -150,16 +150,14 @@ class StateManager:
         elif action == Action.Check():
             self.check_count += 1
         elif action == Action.Call(0):
-            _, call_sum = self._can_call()
+            call_sum = action.amount
             self.players[self.current_player_index].chips -= call_sum
             self.players[self.current_player_index].round_bet += call_sum
             self.board.pot += call_sum
         elif action == Action.Raise(0):
             _, call_sum = self._can_call()
-            can_raise, raise_sum = self._can_raise(action.amount)
+            raise_sum = action.amount
             raise_sum -= call_sum
-            if not can_raise:
-                raise ValueError("Invalid raise")
             self.players[self.current_player_index].chips -= raise_sum
             self.players[self.current_player_index].round_bet += raise_sum
             self.board.pot += raise_sum

@@ -1,45 +1,84 @@
-15:14:40 - resolver.py - resolve - DEBUG - Resolve
-15:14:40 - resolver.py - resolve - DEBUG - Place 2
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 0)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 1)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 2)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 2)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 1)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 2)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
-15:14:40 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
-15:14:40 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - resolver.py - resolve - DEBUG - Resolve
+15:19:50 - resolver.py - resolve - DEBUG - Place 2
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 0)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 1)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 2)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 2)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 1)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 2)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 2)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - update_strategy - DEBUG - Update Strategy
+15:19:50 - resolver.py - update_strategy - DEBUG - Update Strategy
+15:19:50 - resolver.py - update_strategy - DEBUG - Update Strategy
+15:19:50 - resolver.py - update_strategy - DEBUG - Place 3
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - update_strategy - DEBUG - Place 3
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - update_strategy - DEBUG - Place 3
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - update_strategy - DEBUG - Place 3
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - update_strategy - DEBUG - Place 3
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - update_strategy - DEBUG - Place 3
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth
+15:19:50 - resolver.py - update_strategy - DEBUG - Place 3
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 3)
+15:19:50 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - End stage or depth

@@ -98,11 +98,8 @@ class StateManager:
         """
         The amount assume the amount is the amount to raise with and not the total amount to raise to (i.e. the total bet)
         """
-        call_sum = (
-            self.board.highest_bet -
-            self.players[self.current_player_index].round_bet
-        )
-        # print(self.players[self.current_player_index].round_bet)
+        _, call_sum = self._can_call()
+
         raise_sum = amount + call_sum
         if raise_sum <= 0:
             return False, 0
@@ -158,7 +155,9 @@ class StateManager:
             self.players[self.current_player_index].round_bet += call_sum
             self.board.pot += call_sum
         elif action == Action.Raise(0):
+            _, call_sum = self._can_call()
             can_raise, raise_sum = self._can_raise(action.amount)
+            raise_sum -= call_sum
             if not can_raise:
                 raise ValueError("Invalid raise")
             self.players[self.current_player_index].chips -= raise_sum

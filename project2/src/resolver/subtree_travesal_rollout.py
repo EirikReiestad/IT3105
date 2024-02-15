@@ -30,8 +30,7 @@ class SubtreeTraversalRollout:
         """
         Parameters
         ----------
-        state: GameState
-        p_range: np.ndarray
+        state: GameState p_range: np.ndarray
             Player's hand distribution
         o_range: np.ndarray
             Opponent's hand distribution
@@ -47,28 +46,37 @@ class SubtreeTraversalRollout:
             o_values
                 Opponent action values
         """
-        logger.debug("Subtree Traversal Rollout")
+        logger.debug(
+            "Subtree Traversal Rollout (depth = {})".format(node.depth))
         if node.state.game_stage == GameStage.Showdown:
+            logger.debug("Showdown")
             utility_matrix = Oracle.utility_matrix_generator(
                 node.state.board.cards)
             p_values = utility_matrix * o_range.T
             o_values = -p_values * utility_matrix
         elif node.state.game_stage == end_stage or node.depth == end_depth:
+            logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
             p_values, o_values = NeuralNetwork.run(
                 node, node.state.game_stage, p_range, o_range
             )
         # TODO: Check if chance event (consider adding the chance events to the game state)
         elif SubtreeTraversalRollout.player_state(node):
+            logger.debug("Player state")
             # Value vector is the range times the utility matrix (or the hole pairs)
             hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
             state_manager = StateManager(node.state)
-            all_actions = state_manager.get_legal_actions()
-            for (action_idx, action) in enumerate(all_actions):
+            all_actions = node.available_actions
+            for action_idx, action in enumerate(all_actions):
+                if len(all_actions) != node.strategy.shape[1]:
+                    raise ValueError(
+                        "The number of actions does not match the strategy matrix, {} != {}".format(
+                            len(all_actions), node.strategy.shape[1]))
                 p_range = resolver.Resolver.bayesian_range_update(
-                    p_range, action, all_actions, node.strategy)
+                    p_range, action, all_actions, node.strategy
+                )
                 o_range = o_range
                 state = state_manager.generate_state(action)
                 new_node = Node(state, end_stage, end_depth, node.depth + 1)
@@ -79,13 +87,17 @@ class SubtreeTraversalRollout:
                     )
                 )
                 hole_pairs = Oracle.generate_all_hole_pairs()
-                for (pair_idx, pair) in enumerate(hole_pairs):
+                for pair_idx, pair in enumerate(hole_pairs):
                     # NOTE: Assuming that the pair order is the same as the index
                     # NOTE: Assuming the action order is the same in every case
-                    p_values[pair_idx] += node.strategy[pair_idx, action_idx] * \
+                    p_values[pair_idx] += (
+                        node.strategy[pair_idx][action_idx] *
                         p_values_new[pair_idx]
-                    o_values[pair_idx] += node.strategy[pair_idx, action_idx] * \
+                    )
+                    o_values[pair_idx] += (
+                        node.strategy[pair_idx][action_idx] *
                         o_values_new[pair_idx]
+                    )
         else:
             # TODO: Add chance event ?
             hole_pairs = Oracle.generate_all_hole_pairs()

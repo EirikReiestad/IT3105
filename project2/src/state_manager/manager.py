@@ -23,24 +23,47 @@ class StateManager:
             - 2x big blind
             - 1/2 pot (wip)
         """
+        # print("==================================")
+        # print("Get legal actions")
+        # print(self.players[self.current_player_index])
+        # print(self.board.highest_bet)
         actions = list()
-        if self._can_fold():
-            actions.append(Action.Fold())
-        if self._can_check():
+        can_fold = self._can_fold()
+        can_check = self._can_check()
+        can_call, call_sum = self._can_call()
+        can_raise_1, raise_sum_1 = self._can_raise(1)
+        # can_raise2x, raise_sum2x = self._can_raise(2 * self.buy_in)
+        can_raise_half_pot, raise_sum_half_pot = self._can_raise(
+            self.board.pot / 2)
+
+        """
+        print("==================================")
+        print("Current Player Index", self.current_player_index)
+        print("Highest Bet", self.board.highest_bet)
+        print("Round Bet", self.players[self.current_player_index].round_bet)
+        print("Chips", self.players[self.current_player_index].chips)
+        print("Pot", self.board.pot)
+        """
+
+        if can_check:
             actions.append(Action.Check())
-        if self._can_call():
-            can_call, call_sum = self._can_call()
-            if can_call:
-                actions.append(Action.Call(call_sum))
-        if self._can_raise(2 * self.buy_in):
-            can_raise, raise_sum = self._can_raise(2 * self.buy_in)
-            if can_raise:
-                actions.append(Action.Raise(raise_sum))
-        if self._can_raise(self.board.pot / 2):
-            can_raise, raise_sum = self._can_raise(self.board.pot / 2)
-            if can_raise:
-                actions.append(Action.Raise(raise_sum))
+        if can_call:
+            actions.append(Action.Call(call_sum))
+        if can_raise_1:
+            actions.append(Action.Raise(raise_sum_1))
+        # Only allow fold if no other action is possible
+        if can_fold and len(actions) == 0:
+            actions.append(Action.Fold())
+        # TODO: Add the commented out actions
+
+        # if can_raise2x:
+        # print("Can raise 2x big blind, {}".format(raise_sum2x))
+        # actions.append(Action.Raise(raise_sum2x))
+        # if can_raise_half_pot:
+        # print("Can raise 1/2 pot, {}".format(raise_sum_half_pot))
+        # actions.append(Action.Raise(raise_sum_half_pot))
         # TODO: Add AllIn
+
         return actions
 
     def get_num_legal_actions(self) -> int:
@@ -79,9 +102,11 @@ class StateManager:
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
         )
+        # print(self.players[self.current_player_index].round_bet)
         raise_sum = amount + call_sum
         if raise_sum <= 0:
             return False, 0
+
         if self.players[self.current_player_index].chips < raise_sum:
             return False, 0
         return True, raise_sum
@@ -133,7 +158,9 @@ class StateManager:
             self.players[self.current_player_index].round_bet += call_sum
             self.board.pot += call_sum
         elif action == Action.Raise(0):
-            _, raise_sum = self._can_raise(action.amount)
+            can_raise, raise_sum = self._can_raise(action.amount)
+            if not can_raise:
+                raise ValueError("Invalid raise")
             self.players[self.current_player_index].chips -= raise_sum
             self.players[self.current_player_index].round_bet += raise_sum
             self.board.pot += raise_sum
@@ -161,15 +188,15 @@ class StateManager:
     def __repr__(self):
         return f"""
         ===================================
-        Players: {self.players}, 
+        Players: {self.players},
         -----------------------------------
-        Board: {self.board}, 
+        Board: {self.board},
         -----------------------------------
-        Game Stage: {self.game_stage}, 
+        Game Stage: {self.game_stage},
         -----------------------------------
-        Current Player Index: {self.current_player_index}, 
+        Current Player Index: {self.current_player_index},
         -----------------------------------
-        Buy In: {self.buy_in}, 
+        Buy In: {self.buy_in},
         -----------------------------------
         Check Count: {self.check_count}
         ==================================="""

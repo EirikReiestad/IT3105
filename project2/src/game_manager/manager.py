@@ -18,9 +18,8 @@ config = Config()
 
 
 class GameManager:
-    def __init__(
-            self, num_players: int, num_ai: int = 1, graphics: bool = True):
-        self.buy_in: int = 10
+    def __init__(self, num_players: int, num_ai: int = 1, graphics: bool = True):
+        self.buy_in: int = 1
 
         total_players = num_players + num_ai
 
@@ -170,26 +169,31 @@ class GameManager:
                 print(self)
             match self.game_stage:
                 case GameStage.PreFlop:
+                    print("PreFlop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.game_stage.next_stage()
                 case GameStage.Flop:
+                    print("Flop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.game_stage.next_stage()
                 case GameStage.Turn:
+                    print("Turn")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.game_stage.next_stage()
                 case GameStage.River:
+                    print("River")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.game_stage.next_stage()
                 case GameStage.Showdown:
+                    print("Showdown")
                     self.round_winner(winner)
                     break
 
@@ -247,16 +251,19 @@ class GameManager:
             else:
                 action: Action = self.get_player_action()
 
-            print(action)
+            print("Player choose to {}").format(action)
 
             if action == Action.Fold():
+                print(f"Player {turn} folded")
                 self.players.fold(turn)
                 continue
             elif action == Action.Check():
+                print(f"Player {turn} checked")
                 if not self.graphics:
                     print("Checked")
                 self.check_count += 1
             elif action == Action.Call():
+                print(f"Player {turn} called")
                 player_bet = self.players.get_bet(turn)
                 bet = self.board.highest_bet - player_bet
                 if bet == 0:
@@ -267,6 +274,7 @@ class GameManager:
                     self.make_bet(turn, Action.Call(bet))
                 self.check_count += 1
             elif action == Action.Raise():
+                print("Player raised")
                 player_bet = self.players.get_bet(turn)
                 raise_amount = self.board.highest_bet - player_bet + action.amount
                 self.make_bet(turn, Action.Raise(raise_amount))
@@ -289,6 +297,7 @@ class GameManager:
         -------
         int: 1 if the player is the big blind, 0 otherwise
         """
+        print("Preflop bets")
         player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
@@ -296,7 +305,11 @@ class GameManager:
         if not self.graphics:
             print(f"turn {turn} player_bet {player_bet}")
 
+        print(turn, big_blind, self.board.highest_bet,
+              self.buy_in / 2, self.buy_in)
+
         if turn == small_blind and self.board.highest_bet == 0:
+            print("Small bind")
             # Small blind
             if not self.graphics:
                 print(
@@ -305,6 +318,7 @@ class GameManager:
             self.make_bet(turn, Action.Raise(self.buy_in / 2))
             return 0
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
+            print("Big Blind")
             # Big blind
             if not self.graphics:
                 print(

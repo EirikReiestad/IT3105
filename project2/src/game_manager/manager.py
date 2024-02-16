@@ -251,7 +251,7 @@ class GameManager:
             else:
                 action: Action = self.get_player_action()
 
-            print("Player choose to {}").format(action)
+            print("Player choose to {}".format(action))
 
             if action == Action.Fold():
                 print(f"Player {turn} folded")

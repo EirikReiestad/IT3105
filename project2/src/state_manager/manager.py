@@ -98,7 +98,10 @@ class StateManager:
         """
         The amount assume the amount is the amount to raise with and not the total amount to raise to (i.e. the total bet)
         """
-        _, call_sum = self._can_call()
+        can_call, call_sum = self._can_call()
+
+        if not can_call:
+            return False, 0
 
         raise_sum = amount + call_sum
         if raise_sum <= 0:

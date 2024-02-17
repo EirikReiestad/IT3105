@@ -18,6 +18,7 @@ class Node:
 
         num_all_hole_pairs = Oracle.get_number_of_all_hole_pairs()
         self.available_actions = self.state_manager.get_legal_actions()
+        print(self.available_actions)
         self.strategy: np.ndarray = np.ones(
             (num_all_hole_pairs, len(self.available_actions)))
 

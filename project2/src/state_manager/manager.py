@@ -51,7 +51,7 @@ class StateManager:
             actions.append(Action.Call(call_sum))
         if can_raise_1:
             actions.append(Action.Raise(raise_sum_1))
-        # Only allow fold if no other action is possible
+        # Only allow fold if no other action is possible # TODO: Remove
         if can_fold and len(actions) == 0:
             actions.append(Action.Fold())
         # TODO: Add the commented out actions
@@ -90,6 +90,9 @@ class StateManager:
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
         )
+        if call_sum < 0:
+            raise ValueError("Call sum should never be less than 0. Current highest bet: {}. Current player bet: {}".format(
+                self.board.highest_bet, self.players[self.current_player_index].round_bet))
         if self.players[self.current_player_index].chips < call_sum:
             return False, 0
         return True, call_sum
@@ -161,10 +164,10 @@ class StateManager:
             _, call_sum = self._can_call()
             raise_sum = action.amount
             raise_sum -= call_sum
-            self.players[self.current_player_index].chips -= raise_sum
-            self.players[self.current_player_index].round_bet += raise_sum
+            self.players[self.current_player_index].chips -= action.amount
+            self.players[self.current_player_index].round_bet += action.amount
             self.board.pot += raise_sum
-            self.board.highest_bet += raise_sum
+            self.board.highest_bet += self.players[self.current_player_index].round_bet
         elif action == Action.AllIn(0):
             raise NotImplementedError
         else:

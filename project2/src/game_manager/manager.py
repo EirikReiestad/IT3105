@@ -267,14 +267,9 @@ class GameManager:
                 self.check_count += 1
             elif action == Action.Call():
                 print(f"Player {turn} called")
-                player_bet = self.players.get_bet(turn)
-                bet = self.board.highest_bet - player_bet
-                if bet == 0:
-                    self.make_bet(turn, Action.Check())
-                else:
-                    if not self.graphics:
-                        print(f"Called {bet}")
-                    self.make_bet(turn, Action.Call(bet))
+                if not self.graphics:
+                    print(f"Called {action.amount}")
+                self.make_bet(turn, Action.Call(action.amount))
                 self.check_count += 1
             elif action == Action.Raise():
                 print("Player raised")

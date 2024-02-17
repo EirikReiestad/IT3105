@@ -137,7 +137,7 @@ class Resolver:
         if True:
             # P = s
             state_manager = StateManager(node_state)
-            all_hole_pairs = Oracle.generate_all_hole_pairs()
+            all_hole_pairs = Oracle.generate_all_hole_pairs(shuffle=False)
             num_all_hole_pairs = len(all_hole_pairs)
 
             all_actions = state_manager.get_legal_actions()

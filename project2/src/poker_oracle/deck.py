@@ -61,11 +61,11 @@ class Card:
 
 
 class Deck:
-    def __init__(self):
+    def __init__(self, shuffle=True):
         self.stack = []
-        self._reset_stack()
+        self._reset_stack(shuffle)
 
-    def _reset_stack(self):
+    def _reset_stack(self, shuffle):
         self.stack = []
         for suit_idx in range(4):
             suit = None
@@ -85,8 +85,9 @@ class Deck:
                 for rank in range(9, 14):
                     self.stack.append(Card(suit, rank))
                 self.stack.append(Card(suit, 1))
-
-        random.shuffle(self.stack)
+                
+        if shuffle:
+            random.shuffle(self.stack)
 
     def remove(self, card):
         self.stack = [c for c in self.stack if c != card]

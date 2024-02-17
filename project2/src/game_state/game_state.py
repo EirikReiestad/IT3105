@@ -3,6 +3,7 @@ from typing import List
 from src.game_manager.game_stage import GameStage
 from .player_state import PublicPlayerState, PrivatePlayerState
 from .board_state import PublicBoardState, PrivateBoardState
+from ..poker_oracle.deck import Deck
 
 
 @dataclass
@@ -22,6 +23,19 @@ class PublicGameState:
         self.current_player_index = current_player_index
         self.buy_in = buy_in
         self.check_count = check_count
+
+    def get_events(self):
+        # TODO: where is the config for simplify
+        deck = Deck()
+        
+        for card in self.board_state.cards:
+            deck.remove(card)
+
+        events = []
+
+        while len(deck) > 0:
+            events.append(deck.pop())
+        return events
 
 
 @dataclass

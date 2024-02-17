@@ -157,7 +157,7 @@ class Oracle:
 
     @staticmethod
     def generate_all_hole_pairs() -> List[List[Card]]:
-        deck = Deck()
+        deck = Deck(shuffle=False)
         return list(combinations(deck.stack, 2))
 
     @staticmethod

@@ -78,7 +78,7 @@ class SubtreeTraversalRollout:
                     p_range, action, all_actions, node.strategy
                 )
                 o_range = o_range
-                state = state_manager.generate_state(action)
+                state: PublicGameState = state_manager.generate_state(action)
                 new_node = Node(state, end_stage, end_depth, node.depth + 1)
                 logger.debug("Place 1")
                 p_values_new, o_values_new = (
@@ -100,25 +100,30 @@ class SubtreeTraversalRollout:
                     )
         else:
             # TODO: Add chance event ?
-            hole_pairs = Oracle.generate_all_hole_pairs()
-            p_values = np.zeros((len(hole_pairs),))
-            o_values = np.zeros((len(hole_pairs),))
-            return p_values, o_values
-            # TODO: FIX events
+            pv_values = np.zeros((len(p_range),))
+            ov_values = np.zeros((len(o_range),))
+            
+            # Get all cards which are not on the board
             events = state.get_events()
+            hole_pairs = Oracle.generate_all_hole_pairs()
             for event in events:
-                # TODO: This will not work, INDEKS
-                p_range[event] = p_range
-                o_range[event] = o_range
-                print("Place 4")
-                p_values[event], o_values[event] = (
+                pr_range_event = p_range.copy()
+                or_range_event = o_range.copy()
+
+                # Setting the range of all hole pairs with this event card to 0
+                for pair_idx, pair in enumerate(hole_pairs):
+                    if event in pair:
+                        pr_range_event[pair_idx] = 0
+                        or_range_event[pair_idx] = 0
+
+                p_range_event, o_range_event = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
-                        state, p_range, o_range, end_stage, end_depth
+                        state, pr_range_event, or_range_event, end_stage, end_depth
                     )
                 )
-                for pair in hole_pairs:
-                    p_values[pair] += p_values[event][pair] / abs(events)
-                    o_values[pair] += o_values[event][pair] / abs(events)
+                for pair_idx in range(len(hole_pairs)):
+                    pv_values[pair_idx] += p_range_event[pair_idx] / len(events)
+                    ov_values[pair_idx] += o_range_event[pair_idx] / len(events)
         return p_values, o_values
 
     @ staticmethod

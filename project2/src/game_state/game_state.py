@@ -10,6 +10,7 @@ from src.config import Config
 
 config = Config()
 
+
 @dataclass
 class PublicGameState:
     def __init__(
@@ -20,6 +21,7 @@ class PublicGameState:
         current_player_index: int,
         buy_in: int,
         check_count: int,
+        chance_event: bool,
     ):
         self.player_states = player_states  # A list of PlayerState instances
         self.board_state = board_state  # An instance of BoardState
@@ -27,6 +29,7 @@ class PublicGameState:
         self.current_player_index = current_player_index
         self.buy_in = buy_in
         self.check_count = check_count
+        self.chance_event = chance_event
 
     def get_events(self):
         deck = Deck(shuffle=False)
@@ -53,6 +56,7 @@ class PrivateGameState:
         game_stage: GameStage,
         current_player_index: int,
         buy_in: int,
+        chance_event: bool,
     ):
         self.player_states = player_states
         self.board_state = board_state
@@ -60,3 +64,4 @@ class PrivateGameState:
         self.current_player_index = current_player_index
         self.buy_in = buy_in
         self.check_count = 0
+        self.chance_event = chance_event

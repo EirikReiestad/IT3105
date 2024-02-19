@@ -31,6 +31,7 @@ class GameManager:
 
         self.game_stage: GameStage = GameStage.PreFlop
         self.check_count: int = 0
+        self.chance_event: bool = False
         self.resolver = Resolver()
         self.graphics: bool = graphics
         if graphics:
@@ -98,6 +99,7 @@ class GameManager:
             self.current_player_index,
             self.buy_in,
             self.check_count,
+            self.chance_event,
         )
 
     def get_current_private_state(self) -> PrivateGameState:
@@ -112,6 +114,7 @@ class GameManager:
             self.current_player_index,
             self.buy_in,
             self.check_count,
+            self.chance_event,
         )
 
     # Implements the rules
@@ -168,31 +171,35 @@ class GameManager:
         while True:
             if not self.graphics:
                 print(self)
+            if self.chance_event:
+                # TODO: Should anything actually go here?
+                self.game_stage = self.game_stage.next_stage()
+                self.chance_event = False
             match self.game_stage:
                 case GameStage.PreFlop:
                     print("PreFlop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage.next_stage()
+                    self.chance_event = True
                 case GameStage.Flop:
                     print("Flop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage.next_stage()
+                    self.chance_event = True
                 case GameStage.Turn:
                     print("Turn")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage.next_stage()
+                    self.chance_event = True
                 case GameStage.River:
                     print("River")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage.next_stage()
+                    self.chance_event = True
                 case GameStage.Showdown:
                     print("Showdown")
                     self.round_winner(winner)

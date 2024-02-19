@@ -134,7 +134,7 @@ class Resolver:
             self.update_strategy(c, p_value, p_range,
                                  o_range, end_stage, end_depth)
 
-        if node.is_player:
+        if not node.state_manger.chance_event:
             # P = s
             state_manager = StateManager(copy.deepcopy(node_state))
             all_hole_pairs = Oracle.generate_all_hole_pairs(shuffle=False)

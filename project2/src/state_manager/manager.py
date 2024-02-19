@@ -14,8 +14,9 @@ class StateManager:
         self.game_stage: GameStage = public_game_state.game_stage
         self.current_player_index: int = public_game_state.current_player_index
         self.buy_in: int = public_game_state.buy_in
-        self.check_count: int = 0
-        self.chance_event: bool = False
+        # NOTE: Chanced this from 0 to public_game_state.check_count because it seemed correct, but not sure
+        self.check_count: int = public_game_state.check_count
+        self.chance_event: bool = public_game_state.chance_event
 
     def get_legal_actions(self) -> List[Action]:
         """

@@ -7,8 +7,6 @@ import copy
 
 
 class Node:
-    depth: int
-
     def __init__(
         self,
         state: PublicGameState,

@@ -127,15 +127,3 @@ class SubtreeTraversalRollout:
                     p_values[pair_idx] += p_range_event[pair_idx] / len(events)
                     o_values[pair_idx] += o_range_event[pair_idx] / len(events)
         return p_values, o_values
-
-    @ staticmethod
-    def player_state(state: PublicGameState) -> bool:
-        """
-        Parameters
-        ----------
-        state: GameState
-        Returns
-        -------
-        bool: The state of the player and whether they need to act
-        """
-        return True

@@ -154,7 +154,8 @@ class Resolver:
                     new_node_state = state_manager.generate_state(action)
                     # NOTE: Calling Node will cause it to genereate children, which is expensive
                     new_node = Node(
-                        copy.deepcopy(new_node_state), end_stage, end_depth, node.depth + 1, True 
+                        copy.deepcopy(
+                            new_node_state), end_stage, end_depth, node.depth + 1
                     )
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")
@@ -218,7 +219,7 @@ class Resolver:
         logger.debug("Resolve")
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
-        node = Node(copy.deepcopy(state), end_stage, end_depth, 0, True)
+        node = Node(copy.deepcopy(state), end_stage, end_depth, 0)
         sigmas = []  # a list to hold the strategy matrix for each rollout
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):

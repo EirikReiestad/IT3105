@@ -15,6 +15,7 @@ class StateManager:
         self.current_player_index: int = public_game_state.current_player_index
         self.buy_in: int = public_game_state.buy_in
         self.check_count: int = 0
+        self.chance_event: bool = False
 
     def get_legal_actions(self) -> List[Action]:
         """
@@ -145,6 +146,7 @@ class StateManager:
         ]
 
         if self.check_count == active_players:
+            self.chance_event = True
             self.game_stage = self.game_stage.next_stage()
             self.check_count = 0
 

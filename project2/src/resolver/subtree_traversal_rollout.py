@@ -62,7 +62,7 @@ class SubtreeTraversalRollout:
                 node, node.state.game_stage, p_range, o_range
             )
         # TODO: Check if chance event (consider adding the chance events to the game state)
-        elif node.is_player:
+        elif not node.state.chance_event:
             logger.debug("Player state")
             # Value vector is the range times the utility matrix (or the hole pairs)
             hole_pairs = Oracle.generate_all_hole_pairs()
@@ -81,7 +81,8 @@ class SubtreeTraversalRollout:
                 o_range = o_range
                 state: PublicGameState = state_manager.generate_state(action)
                 # TODO: is this correct
-                new_node = Node(copy.deepcopy(state), end_stage, end_depth, node.depth + 1, False)
+                new_node = Node(copy.deepcopy(state), end_stage,
+                                end_depth, node.depth + 1, False)
                 logger.debug("Place 1")
                 p_values_new, o_values_new = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
@@ -101,10 +102,11 @@ class SubtreeTraversalRollout:
                         o_values_new[pair_idx]
                     )
         else:
+            node.state.chance_event = False
             # TODO: Add chance event ?
             p_values = np.zeros((len(p_range),))
             o_values = np.zeros((len(o_range),))
-            
+
             # Get all cards which are not on the board
             # TODO: is this correct
             events = node.state.get_events()

@@ -15,7 +15,6 @@ class Node:
         end_stage: GameStage,
         end_depth: int,
         depth: int,
-        is_player: bool,
     ):
         self.state: PublicGameState = state
         self.state_manager = StateManager(copy.deepcopy(self.state))
@@ -32,11 +31,8 @@ class Node:
         self.end_depth: int = end_depth
         self.depth = depth
 
-        self.is_player = is_player
-
         if depth < end_depth and state.game_stage != end_stage:
             self.generate_child_node()
-
 
     def add_child(self, node):
         self.children.append(node)
@@ -68,7 +64,8 @@ class Node:
         else:
             # TODO: is this correct?
             new_sub_state = Node(
-                copy.deepcopy(self.state), self.end_stage, self.end_depth - 1, self.depth + 1, False
+                copy.deepcopy(
+                    self.state), self.end_stage, self.end_depth - 1, self.depth + 1, False
             )
             self.add_child(new_sub_state)
 

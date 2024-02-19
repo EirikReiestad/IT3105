@@ -217,7 +217,7 @@ class Resolver:
         logger.debug("Resolve")
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
-        node = Node(state, end_stage, end_depth, 0)
+        node = Node(state, end_stage, end_depth, 0, True)
         sigmas = []  # a list to hold the strategy matrix for each rollout
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):

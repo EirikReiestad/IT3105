@@ -79,7 +79,8 @@ class SubtreeTraversalRollout:
                 )
                 o_range = o_range
                 state: PublicGameState = state_manager.generate_state(action)
-                new_node = Node(state, end_stage, end_depth, node.depth + 1)
+                # TODO: is this correct
+                new_node = Node(state, end_stage, end_depth, node.depth + 1, False)
                 logger.debug("Place 1")
                 p_values_new, o_values_new = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(
@@ -100,11 +101,12 @@ class SubtreeTraversalRollout:
                     )
         else:
             # TODO: Add chance event ?
-            pv_values = np.zeros((len(p_range),))
-            ov_values = np.zeros((len(o_range),))
+            p_values = np.zeros((len(p_range),))
+            o_values = np.zeros((len(o_range),))
             
             # Get all cards which are not on the board
-            events = state.get_events()
+            # TODO: is this correct
+            events = node.state.get_events()
             hole_pairs = Oracle.generate_all_hole_pairs()
             for event in events:
                 pr_range_event = p_range.copy()
@@ -112,7 +114,7 @@ class SubtreeTraversalRollout:
 
                 # Setting the range of all hole pairs with this event card to 0
                 for pair_idx, pair in enumerate(hole_pairs):
-                    if event in pair:
+                    if pair in event:
                         pr_range_event[pair_idx] = 0
                         or_range_event[pair_idx] = 0
 
@@ -122,8 +124,8 @@ class SubtreeTraversalRollout:
                     )
                 )
                 for pair_idx in range(len(hole_pairs)):
-                    pv_values[pair_idx] += p_range_event[pair_idx] / len(events)
-                    ov_values[pair_idx] += o_range_event[pair_idx] / len(events)
+                    p_values[pair_idx] += p_range_event[pair_idx] / len(events)
+                    o_values[pair_idx] += o_range_event[pair_idx] / len(events)
         return p_values, o_values
 
     @ staticmethod

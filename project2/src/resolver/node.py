@@ -30,10 +30,12 @@ class Node:
         self.end_stage: GameStage = end_stage
         self.end_depth: int = end_depth
         self.depth = depth
+
+        self.is_player = is_player
+
         if depth < end_depth and state.game_stage != end_stage:
             self.generate_child_node()
 
-        self.is_player = is_player
 
     def add_child(self, node):
         self.children.append(node)
@@ -63,8 +65,9 @@ class Node:
                 )
                 self.add_child(new_sub_state)
         else:
+            # TODO: is this correct?
             new_sub_state = Node(
-                public_game_state, self.end_stage, self.end_depth - 1, self.depth + 1, False
+                self.state, self.end_stage, self.end_depth - 1, self.depth + 1, False
             )
             self.add_child(new_sub_state)
 

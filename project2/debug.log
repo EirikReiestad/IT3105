@@ -1,5 +1,8 @@
-22:01:57 - resolver.py - resolve - DEBUG - Resolve
-22:01:57 - resolver.py - resolve - DEBUG - Place 2
-22:01:57 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 0)
-22:01:57 - subtree_travesal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
-22:01:57 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+13:50:55 - resolver.py - resolve - DEBUG - Resolve
+13:50:55 - resolver.py - resolve - DEBUG - Place 2
+13:50:55 - subtree_traversal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 0)
+13:50:55 - subtree_traversal_rollout.py - subtree_traversal_rollout - DEBUG - Player state
+13:50:55 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update
+13:50:55 - subtree_traversal_rollout.py - subtree_traversal_rollout - DEBUG - Place 1
+13:50:55 - subtree_traversal_rollout.py - subtree_traversal_rollout - DEBUG - Subtree Traversal Rollout (depth = 1)
+13:50:55 - resolver.py - bayesian_range_update - DEBUG - Bayesian Range Update

@@ -31,6 +31,9 @@ class PublicGameState:
     def get_events(self):
         deck = Deck(shuffle=False)
 
+        for card in self.board_state.cards:
+            deck.remove(card)
+
         if self.game_stage == GameStage.Flop:
             events = combinations(deck.stack, 3)
         elif self.game_stage == GameStage.Turn or self.game_stage == GameStage.Flop:

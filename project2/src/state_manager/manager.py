@@ -130,6 +130,7 @@ class StateManager:
             self.current_player_index,
             self.buy_in,
             self.check_count,
+            self.chance_event,
         )
         state = StateManager(copy.deepcopy(public_game_state))
         return state.generate_state(action)
@@ -189,6 +190,7 @@ class StateManager:
             (self.current_player_index + 1) % len(self.players),
             self.buy_in,
             self.check_count,
+            self.chance_event,
         )
 
     def generate_possible_states(self) -> List[PublicGameState]:

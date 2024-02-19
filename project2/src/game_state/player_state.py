@@ -19,7 +19,6 @@ class PublicPlayerState:
     def __repr__(self):
         return f"Chips: {self.chips} Folded: {self.folded} Round bet: {self.round_bet}"
 
-
 class PrivatePlayerState(PublicPlayerState):
     def __init__(self):
         super().__init__(chips=100)

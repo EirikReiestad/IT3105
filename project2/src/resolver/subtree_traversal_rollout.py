@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 from typing import List, Tuple
 from src.game_state.game_state import PublicGameState
@@ -67,7 +68,7 @@ class SubtreeTraversalRollout:
             hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
-            state_manager = StateManager(node.state)
+            state_manager = StateManager(copy.deepcopy(node.state))
             all_actions = node.available_actions
             for action_idx, action in enumerate(all_actions):
                 if len(all_actions) != node.strategy.shape[1]:
@@ -80,7 +81,7 @@ class SubtreeTraversalRollout:
                 o_range = o_range
                 state: PublicGameState = state_manager.generate_state(action)
                 # TODO: is this correct
-                new_node = Node(state, end_stage, end_depth, node.depth + 1, False)
+                new_node = Node(copy.deepcopy(state), end_stage, end_depth, node.depth + 1, False)
                 logger.debug("Place 1")
                 p_values_new, o_values_new = (
                     SubtreeTraversalRollout.subtree_traversal_rollout(

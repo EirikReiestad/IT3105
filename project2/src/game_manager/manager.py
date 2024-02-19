@@ -1,4 +1,5 @@
 from typing import List, Tuple
+import copy
 import random
 from src.poker_oracle.deck import Deck
 from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
@@ -44,7 +45,7 @@ class GameManager:
         -------
         Action: The action and the amount to bet if the action is raise
         """
-        state_manager = StateManager(self.state)
+        state_manager = StateManager(copy.deepcopy(self.state))
         legal_actions = state_manager.get_legal_actions()
         actions = {}
         legal_action_count = 0
@@ -73,7 +74,7 @@ class GameManager:
         # TODO: Config file?
         end_stage = self.game_stage.next_stage()
         end_depth = 3
-        num_rollouts = 2
+        num_rollouts = 1
         return self.resolver.resolve(
             self.get_current_public_state(),
             end_stage,

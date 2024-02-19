@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from src.game_state.game_state import PublicGameState
 from src.poker_oracle.oracle import Oracle
 from src.game_manager.game_action import Action
@@ -135,7 +136,7 @@ class Resolver:
 
         if node.is_player:
             # P = s
-            state_manager = StateManager(node_state)
+            state_manager = StateManager(copy.deepcopy(node_state))
             all_hole_pairs = Oracle.generate_all_hole_pairs(shuffle=False)
             num_all_hole_pairs = len(all_hole_pairs)
 
@@ -153,7 +154,7 @@ class Resolver:
                     new_node_state = state_manager.generate_state(action)
                     # NOTE: Calling Node will cause it to genereate children, which is expensive
                     new_node = Node(
-                        new_node_state, end_stage, end_depth, node.depth + 1, True 
+                        copy.deepcopy(new_node_state), end_stage, end_depth, node.depth + 1, True 
                     )
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")
@@ -217,7 +218,7 @@ class Resolver:
         logger.debug("Resolve")
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
-        node = Node(state, end_stage, end_depth, 0, True)
+        node = Node(copy.deepcopy(state), end_stage, end_depth, 0, True)
         sigmas = []  # a list to hold the strategy matrix for each rollout
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
@@ -233,7 +234,7 @@ class Resolver:
             )
             sigmas.append(strategy)
 
-        state_manager = StateManager(state)
+        state_manager = StateManager(copy.deepcopy(state))
         all_actions = state_manager.get_legal_actions()
 
         # ▷ Generate the Average Strategy over all rollouts

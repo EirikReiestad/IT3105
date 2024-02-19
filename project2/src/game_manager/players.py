@@ -2,13 +2,12 @@ import random
 from typing import List
 from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
 from src.poker_oracle.deck import Deck, Card
-
+import copy
 
 class _Player(PrivatePlayerState):
     def __init__(self, ai: bool = False):
         super().__init__()
         self.ai = ai
-
 
 class Players:
     def __init__(self, num_players: int, num_ai: int):
@@ -82,3 +81,5 @@ class Players:
 
     def action(self, player, action) -> bool:
         return self.players[player].action(action, action.amount)
+
+    

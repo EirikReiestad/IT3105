@@ -3,6 +3,7 @@ from src.game_manager.game_stage import GameStage
 from src.state_manager.manager import StateManager
 from src.poker_oracle.oracle import Oracle
 import numpy as np
+import copy
 
 
 class Node:
@@ -17,7 +18,7 @@ class Node:
         is_player: bool,
     ):
         self.state: PublicGameState = state
-        self.state_manager = StateManager(self.state)
+        self.state_manager = StateManager(copy.deepcopy(self.state))
 
         num_all_hole_pairs = Oracle.get_number_of_all_hole_pairs()
         self.available_actions = self.state_manager.get_legal_actions()
@@ -57,7 +58,7 @@ class Node:
             public_game_states = self.state_manager.generate_possible_states()
             for public_game_state in public_game_states:
                 new_sub_state = Node(
-                    public_game_state,
+                    copy.deepcopy(public_game_state),
                     self.end_stage,
                     self.end_depth - 1,
                     self.depth + 1,
@@ -67,7 +68,7 @@ class Node:
         else:
             # TODO: is this correct?
             new_sub_state = Node(
-                self.state, self.end_stage, self.end_depth - 1, self.depth + 1, False
+                copy.deepcopy(self.state), self.end_stage, self.end_depth - 1, self.depth + 1, False
             )
             self.add_child(new_sub_state)
 

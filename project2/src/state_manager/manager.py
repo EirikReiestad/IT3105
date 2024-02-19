@@ -1,3 +1,4 @@
+import copy
 from typing import List
 from src.game_state.game_state import PublicGameState
 from src.game_state.board_state import PublicBoardState
@@ -25,6 +26,7 @@ class StateManager:
         """
         # print("==================================")
         # print("Get legal actions")
+        # print(f"Current player index {self.current_player_index}")
         # print(self.players[self.current_player_index])
         # print(self.board.highest_bet)
         actions = list()
@@ -86,6 +88,7 @@ class StateManager:
     def _can_call(self) -> (bool, float):
         if self._can_check():
             return False, 0
+        # print("HIGHEST BET", self.board.highest_bet, "ROUND_BET", self.players[self.current_player_index].round_bet)
         call_sum = (
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
@@ -126,17 +129,13 @@ class StateManager:
             self.buy_in,
             self.check_count,
         )
-        state = StateManager(public_game_state)
+        state = StateManager(copy.deepcopy(public_game_state))
         return state.generate_state(action)
 
     def generate_state(self, action: Action) -> PublicGameState:
         """
         Generate a new state based on the action
         """
-        # Increment the current player index
-        self.current_player_index = (
-            self.current_player_index + 1) % len(self.players)
-
         # TODO: This is a bit of a mess. Need to clean this up.
         # The logic is not very clear as it already exists in the Player class
         # Consider passing in the Player class instead of PublicPlayerState
@@ -157,6 +156,9 @@ class StateManager:
             self.check_count += 1
         elif action == Action.Call(0):
             call_sum = action.amount
+            # print("CALL SUM", action)
+            # print("highest bet", self.board.highest_bet)
+            # print("CALL ROUND BET", self.players[self.current_player_index].round_bet)
             self.players[self.current_player_index].chips -= call_sum
             self.players[self.current_player_index].round_bet += call_sum
             self.board.pot += call_sum
@@ -173,17 +175,22 @@ class StateManager:
         else:
             raise ValueError("Invalid action")
 
+        # Increment the current player index
+        # self.current_player_index = (
+        #     self.current_player_index + 1) % len(self.players)
+
         return PublicGameState(
             self.players,
             self.board,
             self.game_stage,
-            self.current_player_index,
+            (self.current_player_index + 1) % len(self.players),
             self.buy_in,
             self.check_count,
         )
 
     def generate_possible_states(self) -> List[PublicGameState]:
         possible_states = list()
+        # print("START")
         for action in self.get_legal_actions():
             possible_states.append(self.generate_sub_state(action))
         return possible_states

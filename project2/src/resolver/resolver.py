@@ -4,7 +4,7 @@ from src.poker_oracle.oracle import Oracle
 from src.game_manager.game_action import Action
 from src.game_manager.game_stage import GameStage
 from src.state_manager.manager import StateManager
-from .subtree_travesal_rollout import SubtreeTraversalRollout
+from .subtree_traversal_rollout import SubtreeTraversalRollout
 from .node import Node
 from src.setup_logger import setup_logger
 
@@ -133,8 +133,7 @@ class Resolver:
             self.update_strategy(c, p_value, p_range,
                                  o_range, end_stage, end_depth)
 
-        # TODO: samme som subtreetraversal, remove true
-        if True:
+        if node.is_player:
             # P = s
             state_manager = StateManager(node_state)
             all_hole_pairs = Oracle.generate_all_hole_pairs(shuffle=False)

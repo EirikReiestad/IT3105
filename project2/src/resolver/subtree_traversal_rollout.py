@@ -61,7 +61,7 @@ class SubtreeTraversalRollout:
                 node, node.state.game_stage, p_range, o_range
             )
         # TODO: Check if chance event (consider adding the chance events to the game state)
-        elif SubtreeTraversalRollout.player_state(node):
+        elif node.is_player:
             logger.debug("Player state")
             # Value vector is the range times the utility matrix (or the hole pairs)
             hole_pairs = Oracle.generate_all_hole_pairs()

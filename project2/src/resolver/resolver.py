@@ -153,7 +153,7 @@ class Resolver:
                     new_node_state = state_manager.generate_state(action)
                     # NOTE: Calling Node will cause it to genereate children, which is expensive
                     new_node = Node(
-                        new_node_state, end_stage, end_depth, node.depth + 1
+                        new_node_state, end_stage, end_depth, node.depth + 1, True 
                     )
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")

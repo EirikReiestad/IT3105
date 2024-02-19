@@ -50,22 +50,13 @@ class Node:
         return self.nodes
 
     def generate_child_node(self):
-        if not self.is_player:
-            public_game_states = self.state_manager.generate_possible_states()
-            for public_game_state in public_game_states:
-                new_sub_state = Node(
-                    copy.deepcopy(public_game_state),
-                    self.end_stage,
-                    self.end_depth - 1,
-                    self.depth + 1,
-                    True
-                )
-                self.add_child(new_sub_state)
-        else:
-            # TODO: is this correct?
+        public_game_states = self.state_manager.generate_possible_states()
+        for public_game_state in public_game_states:
             new_sub_state = Node(
-                copy.deepcopy(
-                    self.state), self.end_stage, self.end_depth - 1, self.depth + 1, False
+                copy.deepcopy(public_game_state),
+                self.end_stage,
+                self.end_depth - 1,
+                self.depth + 1,
             )
             self.add_child(new_sub_state)
 

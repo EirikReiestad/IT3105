@@ -106,10 +106,15 @@ class StateManager:
         """
         The amount assume the amount is the amount to raise with and not the total amount to raise to (i.e. the total bet)
         """
-        can_call, call_sum = self._can_call()
+        call_sum = (
+            self.board.highest_bet -
+            self.players[self.current_player_index].round_bet
+        )
 
-        if not can_call:
-            return False, 0
+        # NOTE: Can be deleted later, just nice to have for debugging
+        if call_sum < 0:
+            raise ValueError("Call sum should never be less than 0. Current highest bet: {}. Current player bet: {}".format(
+                self.board.highest_bet, self.players[self.current_player_index].round_bet))
 
         raise_sum = amount + call_sum
         if raise_sum <= 0:

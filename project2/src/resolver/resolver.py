@@ -81,7 +81,9 @@ class Resolver:
 
         # Normalize probabilities to ensure they sum up to 1
         action_probabilities /= np.sum(action_probabilities)
-
+        # print(all_actions)
+        # print(action_probabilities)
+        # print(action_probabilities.shape, np.argmax(action_probabilities))
         # Find the maximum value in action_probabilities
         return all_actions[np.argmax(action_probabilities)]
 
@@ -235,6 +237,7 @@ class Resolver:
         all_actions = state_manager.get_legal_actions()
         # ▷ Generate the Average Strategy over all rollouts
         sigmas = np.array(sigmas)
+        print(sigmas.shape)
         sigma_flat = np.mean(sigmas, axis=0)
         # ▷ Sample an action based on the average strategy
         action = self.sample_action_average_strategy(sigma_flat, all_actions)

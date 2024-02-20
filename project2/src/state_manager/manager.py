@@ -39,7 +39,7 @@ class StateManager:
         # can_raise2x, raise_sum2x = self._can_raise(2 * self.buy_in)
         can_raise_half_pot, raise_sum_half_pot = self._can_raise(
             self.board.pot / 2)
-
+        
         """
         print("==================================")
         print("Current Player Index", self.current_player_index)
@@ -106,12 +106,13 @@ class StateManager:
         """
         The amount assume the amount is the amount to raise with and not the total amount to raise to (i.e. the total bet)
         """
-        can_call, call_sum = self._can_call()
+        # can_call, call_sum = self._can_call()
 
-        if not can_call:
-            return False, 0
+        # if not can_call:
+        #     return False, 0
 
-        raise_sum = amount + call_sum
+        # raise_sum = amount + call_sum
+        raise_sum = amount
         if raise_sum <= 0:
             return False, 0
 

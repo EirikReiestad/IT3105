@@ -83,11 +83,7 @@ class Resolver:
         action_probabilities /= np.sum(action_probabilities)
 
         # Find the maximum value in action_probabilities
-        max_action = np.max(action_probabilities)
-
-        print(max_action, action_probabilities)
-        return all_actions[np.argmax(action_probabilities)]  # NOTE: Suggestion
-        return all_actions[max_action]
+        return all_actions[np.argmax(action_probabilities)]
 
     # def updateStrategy(self, node):
     def update_strategy(
@@ -237,7 +233,6 @@ class Resolver:
 
         state_manager = StateManager(copy.deepcopy(state))
         all_actions = state_manager.get_legal_actions()
-
         # ▷ Generate the Average Strategy over all rollouts
         sigmas = np.array(sigmas)
         sigma_flat = np.mean(sigmas, axis=0)

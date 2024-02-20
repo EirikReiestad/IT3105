@@ -49,7 +49,7 @@ class PrivatePlayerState(PublicPlayerState):
         return PublicPlayerState(
             chips=self.chips,
             folded=self.folded,
-            bet=self.bet,
+            bet=self.round_bet
         )
 
     def hand(self) -> Tuple[Card, Card]:
@@ -64,7 +64,7 @@ class PrivatePlayerState(PublicPlayerState):
         if self.bust is False:
             self.cards = cards
         self.folded = False
-        self.bet = 0
+        self.round_bet = 0
         self.betting_history = list()
         self.action_history = list()
 

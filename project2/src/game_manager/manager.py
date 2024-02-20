@@ -73,7 +73,8 @@ class GameManager:
 
     def get_ai_action(self) -> Action:
         # TODO: Config file?
-        end_stage = self.game_stage.next_stage()
+        game_stage = copy.deepcopy(self.game_stage)
+        end_stage = game_stage.next_stage()
         end_depth = 3
         num_rollouts = 1
         return self.resolver.resolve(
@@ -131,6 +132,7 @@ class GameManager:
         else:
             player_bet = self.players.get_bet(player)
             self.board.pot += action.amount
+            
             self.board.highest_bet = player_bet
             if not self.graphics:
                 print(f"Player bet: {player_bet}, bet {action.amount}")

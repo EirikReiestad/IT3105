@@ -1,3 +1,4 @@
+import sys
 import pygame as pg
 from src.game_state.game_state import PublicGameState
 from src.game_state.board_state import PrivateBoardState
@@ -31,6 +32,10 @@ class Display:
         pg.display.update()
         self.clock.tick(self.fps)
 
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                sys.exit()
+
     def draw(self, obj: pg.sprite.Sprite):
         self.display.blit(obj.image, obj.rect)
 
@@ -56,7 +61,7 @@ class Display:
                     return pg.key.name(event.key)
 
     def _update_title(self):
-        width = self.width//2 - 20
+        width = self.width // 2 - 20
         self.draw_text(self.game_stage.value, width, 20, (255, 255, 255))
         self.occupied_y += 60
 
@@ -65,7 +70,7 @@ class Display:
         width = player_width // 2.5
         height = width * 1.5
         margin = player_width // 15
-        for (i, player) in enumerate(self.player_states):
+        for i, player in enumerate(self.player_states):
             player_text = f"Player {i + 1}"
             color = (255, 255, 255)
             if self.board_state.dealer == i:
@@ -75,12 +80,14 @@ class Display:
             elif i == self.current_player_index:
                 color = (255, 0, 0)
 
-            self.draw_text(player_text, player_width *
-                           i, self.occupied_y + 30, color)
-            self.draw_text(f"Chips: {player.chips}",
-                           player_width * i, self.occupied_y, color)
-            for (j, card) in enumerate(player.cards):
-                x = player_width * i + (width + margin)*j
+            self.draw_text(player_text, player_width * i,
+                           self.occupied_y + 30, color)
+            self.draw_text(
+                f"Chips: {player.chips}", player_width *
+                i, self.occupied_y, color
+            )
+            for j, card in enumerate(player.cards):
+                x = player_width * i + (width + margin) * j
                 y = self.occupied_y + 70
                 card_sprite = CardSprite(card, x, y, width, height)
                 self.draw(card_sprite)
@@ -94,7 +101,7 @@ class Display:
 
         self.occupied_y += 225
         self.draw_text(f"Pot: {self.board_state.pot}", 20, self.occupied_y)
-        for (i, card) in enumerate(self.board_state.cards):
+        for i, card in enumerate(self.board_state.cards):
             x = (self.width - 5 * width) // 2 + i * (width + margin)
             y = self.occupied_y
             card_sprite = CardSprite(card, x, y, width, height)
@@ -104,6 +111,7 @@ class Display:
 if __name__ == "__main__":
     from src.game_manager.manager import GameManager
     from src.poker_oracle.deck import Deck
+
     display = Display()
     deck = Deck()
     num_players = 4

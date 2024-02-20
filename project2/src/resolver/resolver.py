@@ -1,10 +1,11 @@
 import numpy as np
+import copy
 from src.game_state.game_state import PublicGameState
 from src.poker_oracle.oracle import Oracle
 from src.game_manager.game_action import Action
 from src.game_manager.game_stage import GameStage
 from src.state_manager.manager import StateManager
-from .subtree_travesal_rollout import SubtreeTraversalRollout
+from .subtree_traversal_rollout import SubtreeTraversalRollout
 from .node import Node
 from src.setup_logger import setup_logger
 
@@ -63,7 +64,9 @@ class Resolver:
 
         return updated_prob
 
-    def sample_action_average_strategy(self, sigma_flat: np.ndarray, all_actions) -> Action:
+    def sample_action_average_strategy(
+        self, sigma_flat: np.ndarray, all_actions
+    ) -> Action:
         """
         Parameters
         ----------
@@ -82,6 +85,7 @@ class Resolver:
         # Find the maximum value in action_probabilities
         max_action = np.max(action_probabilities)
 
+        print(max_action, action_probabilities)
         return all_actions[np.argmax(action_probabilities)]  # NOTE: Suggestion
         return all_actions[max_action]
 
@@ -130,18 +134,14 @@ class Resolver:
             self.update_strategy(c, p_value, p_range,
                                  o_range, end_stage, end_depth)
 
-        sigma_s = np.array([])
-        # TODO: samme som subtreetraversal, remove true
-        if True:
+        if not node.state_manager.chance_event:
             # P = s
-            state_manager = StateManager(node_state)
-            all_hole_pairs = Oracle.generate_all_hole_pairs()
+            state_manager = StateManager(copy.deepcopy(node_state))
+            all_hole_pairs = Oracle.generate_all_hole_pairs(shuffle=False)
             num_all_hole_pairs = len(all_hole_pairs)
 
             all_actions = state_manager.get_legal_actions()
             num_all_actions = len(all_actions)
-
-            sigma_s = np.ones((num_all_hole_pairs, num_all_actions))
 
             # NOTE: Was originally zeros, but that would cause a division by zero error
             R_s = np.ones((num_all_hole_pairs, num_all_actions))
@@ -153,8 +153,10 @@ class Resolver:
                     index_action = all_actions.index(action)
                     new_node_state = state_manager.generate_state(action)
                     # NOTE: Calling Node will cause it to genereate children, which is expensive
-                    new_node = Node(new_node_state, end_stage,
-                                    end_depth, node.depth + 1)
+                    new_node = Node(
+                        copy.deepcopy(
+                            new_node_state), end_stage, end_depth, node.depth + 1
+                    )
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")
                     new_p_value, new_o_value = (
@@ -162,27 +164,33 @@ class Resolver:
                             new_node, p_range, o_range, end_stage, end_depth
                         )
                     )
+                    if np.min(p_value) < 0:
+                        raise ValueError("The p_value is negative")
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
                     R_s[index_pair][index_action] += (
                         new_p_value[index_pair] - p_value[index_pair]
                     )
+                    # print(R_s[index_pair][index_action])
                     R_s_plus[index_pair][index_action] = max(
-                        0, R_s[index_pair][index_action]
+                        0.0000000001,
+                        R_s[index_pair][index_action],  # TODO: This is a hack
                     )
-            for (pair_idx, pair) in enumerate(all_hole_pairs):
-                for (action_idx, action) in enumerate(all_actions):
+            for pair_idx, pair in enumerate(all_hole_pairs):
+                for action_idx, action in enumerate(all_actions):
                     # index_pair = all_hole_pairs.index(pair)
                     # index_action = all_actions.index(action)
                     # NOTE: Same as in subtreetraversal, assuming that the pair order is the same as the index
                     # and that the action order is the same in every case
-                    R_s_sum = sum([R_s_plus[pair_idx][i]
-                                  for i in range(len(all_actions))])
+                    R_s_sum = sum(
+                        [R_s_plus[pair_idx][i]
+                            for i in range(len(all_actions))]
+                    )
                     if R_s_sum == 0:
                         raise ValueError("The sum of R_s_plus is 0")
-                    node.strategy[pair_idx][action_idx] = R_s_plus[pair_idx][action_idx] / R_s_sum
-        if np.isnan(np.min(sigma_s)):
-            raise ValueError("The strategy matrix is NaN")
-        return sigma_s
+                    node.strategy[pair_idx][action_idx] = (
+                        R_s_plus[pair_idx][action_idx] / R_s_sum
+                    )
+        return node.strategy
 
     def resolve(
         self,
@@ -211,7 +219,7 @@ class Resolver:
         logger.debug("Resolve")
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
-        node = Node(state, end_stage, end_depth, 0)
+        node = Node(copy.deepcopy(state), end_stage, end_depth, 0)
         sigmas = []  # a list to hold the strategy matrix for each rollout
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
@@ -227,7 +235,7 @@ class Resolver:
             )
             sigmas.append(strategy)
 
-        state_manager = StateManager(state)
+        state_manager = StateManager(copy.deepcopy(state))
         all_actions = state_manager.get_legal_actions()
 
         # ▷ Generate the Average Strategy over all rollouts

@@ -1,4 +1,5 @@
 from typing import List, Tuple
+import copy
 import random
 from src.poker_oracle.deck import Deck
 from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
@@ -18,9 +19,8 @@ config = Config()
 
 
 class GameManager:
-    def __init__(
-            self, num_players: int, num_ai: int = 1, graphics: bool = True):
-        self.buy_in: int = 10
+    def __init__(self, num_players: int, num_ai: int = 1, graphics: bool = True):
+        self.buy_in: int = 1
 
         total_players = num_players + num_ai
 
@@ -31,6 +31,7 @@ class GameManager:
 
         self.game_stage: GameStage = GameStage.PreFlop
         self.check_count: int = 0
+        self.chance_event: bool = False
         self.resolver = Resolver()
         self.graphics: bool = graphics
         if graphics:
@@ -45,7 +46,7 @@ class GameManager:
         -------
         Action: The action and the amount to bet if the action is raise
         """
-        state_manager = StateManager(self.state)
+        state_manager = StateManager(copy.deepcopy(self.state))
         legal_actions = state_manager.get_legal_actions()
         actions = {}
         legal_action_count = 0
@@ -74,7 +75,7 @@ class GameManager:
         # TODO: Config file?
         end_stage = self.game_stage.next_stage()
         end_depth = 3
-        num_rollouts = 2
+        num_rollouts = 1
         return self.resolver.resolve(
             self.get_current_public_state(),
             end_stage,
@@ -98,6 +99,7 @@ class GameManager:
             self.current_player_index,
             self.buy_in,
             self.check_count,
+            self.chance_event,
         )
 
     def get_current_private_state(self) -> PrivateGameState:
@@ -112,6 +114,7 @@ class GameManager:
             self.current_player_index,
             self.buy_in,
             self.check_count,
+            self.chance_event,
         )
 
     # Implements the rules
@@ -168,28 +171,37 @@ class GameManager:
         while True:
             if not self.graphics:
                 print(self)
+            if self.chance_event:
+                # TODO: Should anything actually go here?
+                self.game_stage = self.game_stage.next_stage()
+                self.chance_event = False
             match self.game_stage:
                 case GameStage.PreFlop:
+                    print("PreFlop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage.next_stage()
+                    self.chance_event = True
                 case GameStage.Flop:
+                    print("Flop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage.next_stage()
+                    self.chance_event = True
                 case GameStage.Turn:
+                    print("Turn")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage.next_stage()
+                    self.chance_event = True
                 case GameStage.River:
+                    print("River")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
-                    self.game_stage.next_stage()
+                    self.chance_event = True
                 case GameStage.Showdown:
+                    print("Showdown")
                     self.round_winner(winner)
                     break
 
@@ -239,7 +251,10 @@ class GameManager:
                 print(self.players.players[turn])
 
             if self.game_stage == GameStage.PreFlop:
-                self.check_count += self.preflop_bets(turn)
+                is_preflop, check = self.preflop_bets(turn)
+                self.check_count += check
+                if is_preflop:
+                    continue
 
             # Check if the player is an AI
             if self.players.is_ai(turn):
@@ -247,29 +262,26 @@ class GameManager:
             else:
                 action: Action = self.get_player_action()
 
-            print(action)
+            print("Player choose to {}".format(action))
 
             if action == Action.Fold():
+                print(f"Player {turn} folded")
                 self.players.fold(turn)
                 continue
             elif action == Action.Check():
+                print(f"Player {turn} checked")
                 if not self.graphics:
                     print("Checked")
                 self.check_count += 1
             elif action == Action.Call():
-                player_bet = self.players.get_bet(turn)
-                bet = self.board.highest_bet - player_bet
-                if bet == 0:
-                    self.make_bet(turn, Action.Check())
-                else:
-                    if not self.graphics:
-                        print(f"Called {bet}")
-                    self.make_bet(turn, Action.Call(bet))
+                print(f"Player {turn} called")
+                if not self.graphics:
+                    print(f"Called {action.amount}")
+                self.make_bet(turn, Action.Call(action.amount))
                 self.check_count += 1
             elif action == Action.Raise():
-                player_bet = self.players.get_bet(turn)
-                raise_amount = self.board.highest_bet - player_bet + action.amount
-                self.make_bet(turn, Action.Raise(raise_amount))
+                print("Player raised")
+                self.make_bet(turn, Action.Raise(action.amount))
                 self.check_count = 1
             else:
                 raise ValueError("Invalid action")
@@ -283,12 +295,13 @@ class GameManager:
         # Assuming they can not fold.
         # Returns 1 if the player is the big blind, 0 otherwise
 
-    def preflop_bets(self, turn: int) -> int:
+    def preflop_bets(self, turn: int) -> (bool, int):
         """
         Returns
         -------
         int: 1 if the player is the big blind, 0 otherwise
         """
+        print("Preflop bets")
         player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
@@ -297,22 +310,24 @@ class GameManager:
             print(f"turn {turn} player_bet {player_bet}")
 
         if turn == small_blind and self.board.highest_bet == 0:
+            print("Small bind")
             # Small blind
             if not self.graphics:
                 print(
                     f"Player {turn} is the small blind and must bet {self.buy_in / 2}"
                 )
             self.make_bet(turn, Action.Raise(self.buy_in / 2))
-            return 0
+            return True, 0
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
+            print("Big Blind")
             # Big blind
             if not self.graphics:
                 print(
                     f"Player {turn} is the big blind and must bet {self.buy_in}")
             self.make_bet(turn, Action.Raise(self.buy_in))
-            return 1
+            return True, 1
         else:
-            return 0
+            return False, 0
 
     def get_new_dealer(self, dealer: int):
         dealer = (dealer + 1) % len(self.players)

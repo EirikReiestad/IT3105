@@ -33,4 +33,6 @@ class NeuralNetwork:
         if np.isnan(np.min(o_range)):
             print(o_range)
             raise ValueError("Opponent hand distribution is NaN")
-        return p_range, o_range
+        p_random = np.random.rand(*p_range.shape)
+        o_random = np.random.rand(*o_range.shape)
+        return p_random, o_random

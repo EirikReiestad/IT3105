@@ -8,13 +8,14 @@ from src.game_state.player_state import PublicPlayerState
 
 @dataclass
 class PublicBoardState:
-    def __init__(self,
-                 cards: List[Card],
-                 pot: int,
-                 highest_bet: int,
-                 dealer: int = 0,
-                 game_stage: GameStage = GameStage.PreFlop
-                 ):
+    def __init__(
+        self,
+        cards: List[Card],
+        pot: int,
+        highest_bet: int,
+        dealer: int = 0,
+        game_stage: GameStage = GameStage.PreFlop,
+    ):
         if not isinstance(cards, list):
             raise TypeError("cards must be a list")
         self.cards = cards  # A list of Card instances
@@ -38,10 +39,7 @@ class PrivateBoardState(PublicBoardState):
         pot: int,
         highest_bet: int,
     ):
-        super().__init__(
-            cards=list(),
-            pot=pot,
-            highest_bet=highest_bet)
+        super().__init__(cards=list(), pot=pot, highest_bet=highest_bet)
 
     def reset_round(self, deck: Deck, dealer: int) -> Deck:
         # Deal flop, turn, and river
@@ -66,12 +64,14 @@ class PrivateBoardState(PublicBoardState):
 
     def to_public(self) -> PublicBoardState:
         self._update_card_state()
+        print("cards", self.cards)
         return PublicBoardState(
             cards=self.cards,
             pot=self.pot,
             highest_bet=self.highest_bet,
             dealer=self.dealer,
-            game_stage=self.game_stage)
+            game_stage=self.game_stage,
+        )
 
     def update_board_state(self, game_stage: GameStage):
         self.game_stage = game_stage
@@ -82,7 +82,7 @@ class PrivateBoardState(PublicBoardState):
             pass  # Doesn't matter because already an empty list
         elif self.game_stage == GameStage.Flop:
             flop = self.flop
-            self.cards = flop
+            self.cards = [i for i in flop]
         elif self.game_stage == GameStage.Turn:
             flop = self.flop
             turn = self.turn

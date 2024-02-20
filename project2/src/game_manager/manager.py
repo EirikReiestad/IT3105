@@ -133,7 +133,7 @@ class GameManager:
         else:
             player_bet = self.players.get_bet(player)
             self.board.pot += action.amount
-            
+
             self.board.highest_bet = player_bet
             if not self.graphics:
                 print(f"Player bet: {player_bet}, bet {action.amount}")
@@ -254,8 +254,7 @@ class GameManager:
                 print(self.players.players[turn])
 
             if self.game_stage == GameStage.PreFlop:
-                is_preflop, check = self.preflop_bets(turn)
-                self.check_count += check
+                is_preflop = self.preflop_bets(turn)
                 if is_preflop:
                     continue
 
@@ -298,11 +297,11 @@ class GameManager:
         # Assuming they can not fold.
         # Returns 1 if the player is the big blind, 0 otherwise
 
-    def preflop_bets(self, turn: int) -> (bool, int):
+    def preflop_bets(self, turn: int) -> bool:
         """
         Returns
         -------
-        int: 1 if the player is the big blind, 0 otherwise
+        bool: True if this is a preflop bet, False otherwise
         """
         print("Preflop bets")
         player_bet: int = self.players.get_bet(turn)
@@ -320,7 +319,7 @@ class GameManager:
                     f"Player {turn} is the small blind and must bet {self.buy_in / 2}"
                 )
             self.make_bet(turn, Action.Raise(self.buy_in / 2))
-            return True, 0
+            return True
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
             print("Big Blind")
             # Big blind
@@ -328,9 +327,9 @@ class GameManager:
                 print(
                     f"Player {turn} is the big blind and must bet {self.buy_in}")
             self.make_bet(turn, Action.Raise(self.buy_in))
-            return True, 1
+            return True
         else:
-            return False, 0
+            return False
 
     def get_new_dealer(self, dealer: int):
         dealer = (dealer + 1) % len(self.players)

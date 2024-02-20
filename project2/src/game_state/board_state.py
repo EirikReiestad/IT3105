@@ -82,7 +82,7 @@ class PrivateBoardState(PublicBoardState):
             pass  # Doesn't matter because already an empty list
         elif self.game_stage == GameStage.Flop:
             flop = self.flop
-            self.cards = flop
+            self.cards = [i for i in flop]
         elif self.game_stage == GameStage.Turn:
             flop = self.flop
             turn = self.turn

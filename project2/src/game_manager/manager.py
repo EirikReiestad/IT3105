@@ -180,28 +180,34 @@ class GameManager:
                 self.chance_event = False
                 self.board.update_board_state(self.game_stage)
                 continue
+
             match self.game_stage:
                 case GameStage.PreFlop:
+                    print("PreFlop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Flop:
+                    print("Flop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Turn:
+                    print("Turn")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.River:
+                    print("River")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Showdown:
+                    print("Showdown")
                     self.round_winner(winner)
                     self.chance_event = False
                     break
@@ -253,6 +259,7 @@ class GameManager:
 
             if self.game_stage == GameStage.PreFlop:
                 is_preflop = self.preflop_bets(turn)
+
                 if is_preflop:
                     continue
 
@@ -301,6 +308,7 @@ class GameManager:
         -------
         bool: True if this is a preflop bet, False otherwise
         """
+        print("Preflop bets")
         player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
@@ -317,6 +325,7 @@ class GameManager:
                 )
             self.make_bet(turn, Action.Raise(self.buy_in / 2))
             return True
+
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
             print("Big Blind")
             # Big blind
@@ -327,6 +336,7 @@ class GameManager:
             return True
         else:
             return False
+
 
     def get_new_dealer(self, dealer: int):
         dealer = (dealer + 1) % len(self.players)

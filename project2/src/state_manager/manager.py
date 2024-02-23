@@ -40,8 +40,6 @@ class StateManager:
         can_raise_half_pot, raise_sum_half_pot = self._can_raise(
             self.board.pot / 2)
 
-        # can_raise_half_pot, raise_sum_half_pot = self._can_raise(
-        # self.board.pot / 2)
         """
         print("==================================")
         print("Current Player Index", self.current_player_index)
@@ -92,6 +90,7 @@ class StateManager:
     def _can_call(self) -> (bool, float):
         if self._can_check():
             return False, 0
+        # print("HIGHEST BET", self.board.highest_bet, "ROUND_BET", self.players[self.current_player_index].round_bet)
         call_sum = (
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
@@ -170,6 +169,7 @@ class StateManager:
         elif action == Action.Call(0):
             call_sum = action.amount
             self.check_count += 1
+
             self.players[self.current_player_index].chips -= call_sum
             self.players[self.current_player_index].round_bet += call_sum
             self.board.pot += call_sum
@@ -180,10 +180,15 @@ class StateManager:
             self.players[self.current_player_index].round_bet += action.amount
             self.board.pot += action.amount
             self.board.highest_bet = self.players[self.current_player_index].round_bet
+
         elif action == Action.AllIn(0):
             raise NotImplementedError
         else:
             raise ValueError("Invalid action")
+
+        # Increment the current player index
+        # self.current_player_index = (
+        #     self.current_player_index + 1) % len(self.players)
 
         return PublicGameState(
             self.players,
@@ -199,6 +204,7 @@ class StateManager:
         possible_states = list()
         # print("START")
         for action in actions:
+
             possible_states.append(self.generate_sub_state(action))
         return possible_states
 

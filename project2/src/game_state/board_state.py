@@ -64,6 +64,7 @@ class PrivateBoardState(PublicBoardState):
 
     def to_public(self) -> PublicBoardState:
         self._update_card_state()
+        print("cards", self.cards)
         return PublicBoardState(
             cards=self.cards,
             pot=self.pot,

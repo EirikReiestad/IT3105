@@ -152,6 +152,7 @@ class Resolver:
                     index_action = all_actions.index(action)
                     state_manager = StateManager(copy.deepcopy(node_state))
                     new_node_state = state_manager.generate_state(action)
+
                     new_node = Node(
                         copy.deepcopy(
                             new_node_state), end_stage, end_depth, node.depth + 1

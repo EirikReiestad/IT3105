@@ -131,6 +131,8 @@ class Resolver:
             # self.update_strategy(c, o_value, p_value)
             self.update_strategy(c, p_value, p_range,
                                  o_range, end_stage, end_depth)
+        if node.depth >= end_depth or node.state.game_stage == end_stage:
+            return node.strategy
 
         if not node.state_manager.chance_event:
             # P = s
@@ -223,7 +225,7 @@ class Resolver:
         for t in range(num_rollouts):
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
             print("Rollout:", t)
-            logger.debug("Place 2")
+            logger.debug("Place 2")  # TODO: Remove this line
             p_value, o_value = SubtreeTraversalRollout.subtree_traversal_rollout(
                 node, self.p_range, self.o_range, end_stage, end_depth
             )
@@ -237,7 +239,6 @@ class Resolver:
         all_actions = state_manager.get_legal_actions()
         # ▷ Generate the Average Strategy over all rollouts
         sigmas = np.array(sigmas)
-        print(sigmas.shape)
         sigma_flat = np.mean(sigmas, axis=0)
         # ▷ Sample an action based on the average strategy
         action = self.sample_action_average_strategy(sigma_flat, all_actions)

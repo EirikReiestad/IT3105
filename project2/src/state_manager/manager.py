@@ -69,8 +69,6 @@ class StateManager:
         # print("Can raise 1/2 pot, {}".format(raise_sum_half_pot))
         # actions.append(Action.Raise(raise_sum_half_pot))
         # TODO: Add AllIn
-        #
-        print(actions)
 
         return actions
 
@@ -94,8 +92,6 @@ class StateManager:
     def _can_call(self) -> (bool, float):
         if self._can_check():
             return False, 0
-        print("HIGHEST BET", self.board.highest_bet, "ROUND_BET",
-              self.players[self.current_player_index].round_bet)
         call_sum = (
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
@@ -115,8 +111,6 @@ class StateManager:
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
         )
-        # print("HIGHEST BET", self.board.highest_bet, "ROUND_BET",
-        # self.players[self.current_player_index].round_bet)
 
         if call_sum < 0:
             raise ValueError("Call sum should never be less than 0. Current highest bet: {}. Current player bet: {}".format(
@@ -146,11 +140,13 @@ class StateManager:
             self.chance_event,
         )
         state = StateManager(copy.deepcopy(public_game_state))
-        return state.generate_state(action)
+        public_game_state = state.generate_state(action)
+        return public_game_state
 
     def generate_state(self, action: Action) -> PublicGameState:
         """
-        Generate a new state based on the action
+        Generate a new state based on the action.
+        It also rotates the player index to the next player
         """
         # TODO: This is a bit of a mess. Need to clean this up.
         # The logic is not very clear as it already exists in the Player class
@@ -189,10 +185,6 @@ class StateManager:
         else:
             raise ValueError("Invalid action")
 
-        # Increment the current player index
-        # self.current_player_index = (
-        #     self.current_player_index + 1) % len(self.players)
-
         return PublicGameState(
             self.players,
             self.board,
@@ -203,10 +195,10 @@ class StateManager:
             self.chance_event,
         )
 
-    def generate_possible_states(self) -> List[PublicGameState]:
+    def generate_possible_states(self, actions: [Action]) -> List[PublicGameState]:
         possible_states = list()
         # print("START")
-        for action in self.get_legal_actions():
+        for action in actions:
             possible_states.append(self.generate_sub_state(action))
         return possible_states
 

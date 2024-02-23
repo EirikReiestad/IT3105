@@ -313,7 +313,6 @@ class GameManager:
         if not self.graphics:
             print(f"turn {turn}, player_bet {player_bet}")
 
-        print(turn, small_blind, self.board.highest_bet)
         if turn == small_blind and self.board.highest_bet == 0:
             print("Small bind")
             # Small blind

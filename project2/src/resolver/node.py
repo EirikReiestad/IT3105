@@ -29,7 +29,6 @@ class Node:
         self.end_depth: int = end_depth
         self.depth = depth
 
-        print("Depth: ", depth)
         if depth < end_depth and state.game_stage != end_stage:
             self.generate_child_node()
 

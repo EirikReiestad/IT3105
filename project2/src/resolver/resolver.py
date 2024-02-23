@@ -123,7 +123,6 @@ class Resolver:
         -------
         np.ndarray: The current strategy matrix for the node
         """
-        print("Update Strategy")
         logger.debug("Update Strategy")
         if not isinstance(node, Node):
             raise ValueError("Node is not an instance of Node")
@@ -153,7 +152,6 @@ class Resolver:
                     index_action = all_actions.index(action)
                     state_manager = StateManager(copy.deepcopy(node_state))
                     new_node_state = state_manager.generate_state(action)
-                    # NOTE: Calling Node will cause it to genereate children, which is expensive
                     new_node = Node(
                         copy.deepcopy(
                             new_node_state), end_stage, end_depth, node.depth + 1

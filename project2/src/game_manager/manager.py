@@ -134,7 +134,6 @@ class GameManager:
             player_bet = self.players.get_bet(player)
             self.board.pot += action.amount
 
-            print(f"Player bet: {player_bet}, bet {action.amount}")
             self.board.highest_bet = player_bet
             if not self.graphics:
                 print(f"Player bet: {player_bet}, bet {action.amount}")
@@ -176,38 +175,35 @@ class GameManager:
             if not self.graphics:
                 print(self)
             if self.chance_event:
-                print("Chance event")
                 # TODO: Should anything actually go here?
                 self.game_stage = self.game_stage.next_stage()
                 self.chance_event = False
+                self.board.update_board_state(self.game_stage)
+                continue
             match self.game_stage:
                 case GameStage.PreFlop:
-                    print("PreFlop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Flop:
-                    print("Flop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Turn:
-                    print("Turn")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.River:
-                    print("River")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Showdown:
-                    print("Showdown")
                     self.round_winner(winner)
+                    self.chance_event = False
                     break
 
     def round_winner(self, winner: int) -> bool:
@@ -305,7 +301,6 @@ class GameManager:
         -------
         bool: True if this is a preflop bet, False otherwise
         """
-        print("Preflop bets")
         player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
@@ -349,7 +344,10 @@ class GameManager:
         result = (
             "\n" + "=" * 75 + "\n" + " " * 25 + "GAME MANAGER" + "\n" + "=" * 75 + "\n"
         )
-        result += "===== {} =====\n".format(self.game_stage)
+        if self.chance_event:
+            result += "===== Chance event =====\n"
+        else:
+            result += "===== {} =====\n".format(self.game_stage)
         result += "Pot: {}\n".format(self.board.pot)
 
         if self.game_stage in ["Flop", "Turn", "River"]:
@@ -371,5 +369,9 @@ class GameManager:
                 result += "Player {} (Big Blind): {}\n".format(i, player)
             else:
                 result += "Player {}: {}\n".format(i, player)
+
+        result += "\n===== CARDS =====\n"
+        for card in self.board.cards:
+            result += str(card) + " "
 
         return result

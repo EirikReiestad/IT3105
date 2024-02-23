@@ -123,6 +123,7 @@ class Resolver:
         -------
         np.ndarray: The current strategy matrix for the node
         """
+        print("Update Strategy")
         logger.debug("Update Strategy")
         if not isinstance(node, Node):
             raise ValueError("Node is not an instance of Node")
@@ -136,11 +137,10 @@ class Resolver:
 
         if not node.state_manager.chance_event:
             # P = s
-            state_manager = StateManager(copy.deepcopy(node_state))
             all_hole_pairs = Oracle.generate_all_hole_pairs(shuffle=False)
             num_all_hole_pairs = len(all_hole_pairs)
 
-            all_actions = state_manager.get_legal_actions()
+            all_actions = node.available_actions
             num_all_actions = len(all_actions)
 
             # NOTE: Was originally zeros, but that would cause a division by zero error
@@ -151,6 +151,7 @@ class Resolver:
                 for action in all_actions:
                     index_pair = all_hole_pairs.index(pair)
                     index_action = all_actions.index(action)
+                    state_manager = StateManager(copy.deepcopy(node_state))
                     new_node_state = state_manager.generate_state(action)
                     # NOTE: Calling Node will cause it to genereate children, which is expensive
                     new_node = Node(

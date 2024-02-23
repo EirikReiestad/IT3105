@@ -70,6 +70,8 @@ class StateManager:
         # actions.append(Action.Raise(raise_sum_half_pot))
         # TODO: Add AllIn
 
+        print("Actions", actions)
+
         return actions
 
     def get_num_legal_actions(self) -> int:

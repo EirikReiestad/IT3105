@@ -35,7 +35,7 @@ class StateManager:
         can_fold = self._can_fold()
         can_check = self._can_check()
         can_call, call_sum = self._can_call()
-        can_raise_1, raise_sum_1 = self._can_raise(1)
+        can_raise_1, raise_sum_1 = self._can_raise(1.0)
         # can_raise2x, raise_sum2x = self._can_raise(2 * self.buy_in)
         can_raise_half_pot, raise_sum_half_pot = self._can_raise(
             self.board.pot / 2)
@@ -94,7 +94,8 @@ class StateManager:
     def _can_call(self) -> (bool, float):
         if self._can_check():
             return False, 0
-        # print("HIGHEST BET", self.board.highest_bet, "ROUND_BET", self.players[self.current_player_index].round_bet)
+        print("HIGHEST BET", self.board.highest_bet, "ROUND_BET",
+              self.players[self.current_player_index].round_bet)
         call_sum = (
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
@@ -114,10 +115,9 @@ class StateManager:
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
         )
-        print("HIGHEST BET", self.board.highest_bet, "ROUND_BET",
-              self.players[self.current_player_index].round_bet)
+        # print("HIGHEST BET", self.board.highest_bet, "ROUND_BET",
+        # self.players[self.current_player_index].round_bet)
 
-        # NOTE: Can be deleted later, just nice to have for debugging
         if call_sum < 0:
             raise ValueError("Call sum should never be less than 0. Current highest bet: {}. Current player bet: {}".format(
                 self.board.highest_bet, self.players[self.current_player_index].round_bet))
@@ -126,7 +126,7 @@ class StateManager:
             raise ValueError(
                 "Amount to raise with should be greater than 0. Amount: {}".format(amount))
 
-        raise_sum = call_sum + amount
+        raise_sum = float(call_sum + amount)
 
         if self.players[self.current_player_index].chips < raise_sum:
             return False, 0
@@ -183,7 +183,7 @@ class StateManager:
             self.players[self.current_player_index].chips -= action.amount
             self.players[self.current_player_index].round_bet += action.amount
             self.board.pot += action.amount
-            self.board.highest_bet == self.players[self.current_player_index].round_bet
+            self.board.highest_bet = self.players[self.current_player_index].round_bet
         elif action == Action.AllIn(0):
             raise NotImplementedError
         else:

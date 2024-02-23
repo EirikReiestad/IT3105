@@ -134,6 +134,7 @@ class GameManager:
             player_bet = self.players.get_bet(player)
             self.board.pot += action.amount
 
+            print(f"Player bet: {player_bet}, bet {action.amount}")
             self.board.highest_bet = player_bet
             if not self.graphics:
                 print(f"Player bet: {player_bet}, bet {action.amount}")
@@ -175,6 +176,7 @@ class GameManager:
             if not self.graphics:
                 print(self)
             if self.chance_event:
+                print("Chance event")
                 # TODO: Should anything actually go here?
                 self.game_stage = self.game_stage.next_stage()
                 self.chance_event = False
@@ -309,8 +311,9 @@ class GameManager:
         big_blind = (self.board.dealer + 2) % len(self.players)
 
         if not self.graphics:
-            print(f"turn {turn} player_bet {player_bet}")
+            print(f"turn {turn}, player_bet {player_bet}")
 
+        print(turn, small_blind, self.board.highest_bet)
         if turn == small_blind and self.board.highest_bet == 0:
             print("Small bind")
             # Small blind

@@ -39,7 +39,9 @@ class StateManager:
         # can_raise2x, raise_sum2x = self._can_raise(2 * self.buy_in)
         can_raise_half_pot, raise_sum_half_pot = self._can_raise(
             self.board.pot / 2)
-        
+
+        # can_raise_half_pot, raise_sum_half_pot = self._can_raise(
+        # self.board.pot / 2)
         """
         print("==================================")
         print("Current Player Index", self.current_player_index)
@@ -67,6 +69,8 @@ class StateManager:
         # print("Can raise 1/2 pot, {}".format(raise_sum_half_pot))
         # actions.append(Action.Raise(raise_sum_half_pot))
         # TODO: Add AllIn
+        #
+        print(actions)
 
         return actions
 
@@ -110,16 +114,19 @@ class StateManager:
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
         )
+        print("HIGHEST BET", self.board.highest_bet, "ROUND_BET",
+              self.players[self.current_player_index].round_bet)
 
         # NOTE: Can be deleted later, just nice to have for debugging
         if call_sum < 0:
             raise ValueError("Call sum should never be less than 0. Current highest bet: {}. Current player bet: {}".format(
                 self.board.highest_bet, self.players[self.current_player_index].round_bet))
 
-        # raise_sum = amount + call_sum
-        raise_sum = amount
-        if raise_sum <= 0:
-            return False, 0
+        if amount <= 0:
+            raise ValueError(
+                "Amount to raise with should be greater than 0. Amount: {}".format(amount))
+
+        raise_sum = call_sum + amount
 
         if self.players[self.current_player_index].chips < raise_sum:
             return False, 0
@@ -166,19 +173,16 @@ class StateManager:
             self.check_count += 1
         elif action == Action.Call(0):
             call_sum = action.amount
-            # print("CALL SUM", action)
-            # print("highest bet", self.board.highest_bet)
-            # print("CALL ROUND BET", self.players[self.current_player_index].round_bet)
+            self.check_count += 1
             self.players[self.current_player_index].chips -= call_sum
             self.players[self.current_player_index].round_bet += call_sum
             self.board.pot += call_sum
         elif action == Action.Raise(0):
-            _, call_sum = self._can_call()
-            raise_sum = action.amount
-            raise_sum -= call_sum
+            # action.amount should be the amount to raise with + the amount to call
+            self.check_count = 1
             self.players[self.current_player_index].chips -= action.amount
             self.players[self.current_player_index].round_bet += action.amount
-            self.board.pot += raise_sum
+            self.board.pot += action.amount
             self.board.highest_bet += self.players[self.current_player_index].round_bet
         elif action == Action.AllIn(0):
             raise NotImplementedError

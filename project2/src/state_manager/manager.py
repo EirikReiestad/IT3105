@@ -183,7 +183,7 @@ class StateManager:
             self.players[self.current_player_index].chips -= action.amount
             self.players[self.current_player_index].round_bet += action.amount
             self.board.pot += action.amount
-            self.board.highest_bet += self.players[self.current_player_index].round_bet
+            self.board.highest_bet == self.players[self.current_player_index].round_bet
         elif action == Action.AllIn(0):
             raise NotImplementedError
         else:

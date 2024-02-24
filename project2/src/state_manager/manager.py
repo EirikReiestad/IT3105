@@ -37,8 +37,8 @@ class StateManager:
         can_call, call_sum = self._can_call()
         can_raise_1, raise_sum_1 = self._can_raise(1.0)
         # can_raise2x, raise_sum2x = self._can_raise(2 * self.buy_in)
-        can_raise_half_pot, raise_sum_half_pot = self._can_raise(
-            self.board.pot / 2)
+        # can_raise_half_pot, raise_sum_half_pot = self._can_raise(
+        #     self.board.pot / 2)
 
         """
         print("==================================")

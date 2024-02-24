@@ -121,14 +121,6 @@ class StateManager:
 
         raise_sum = float(call_sum + amount)
 
-        if raise_sum > 2:
-            print("Players:", self.players)
-            print("Current player", self.current_player_index)
-            print("Highest bet:", self.board.highest_bet)
-            print(raise_sum, call_sum, amount)
-            # import time
-            # time.sleep(2)
-
         if self.players[self.current_player_index].chips < raise_sum:
             return False, 0
         return True, raise_sum

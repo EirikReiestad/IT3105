@@ -11,8 +11,8 @@ class Oracle:
 
     @staticmethod
     def hand_classifier(cards: List[Card]) -> Tuple[Hands, List[Card]]:
-        if not (5 < len(cards) < 7):
-            return None
+        if not (5 <= len(cards) <= 7):
+            raise ValueError("Invalid number of cards")
 
         hand_checks = [
             (HandsCheck.is_royal_flush, Hands.RoyalFlush),
@@ -35,6 +35,11 @@ class Oracle:
 
     @staticmethod
     def hand_evaluator(set_one: List[Card], set_two: List[Card]) -> int:
+        """
+        Return
+        ------
+        int: 1 if set_one wins, -1 if set_two wins, 0 if tie
+        """
         result_one, cards_one = Oracle.hand_classifier(set_one)
         result_two, cards_two = Oracle.hand_classifier(set_two)
 

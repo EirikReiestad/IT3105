@@ -68,9 +68,12 @@ class SubtreeTraversalRollout:
             hole_pairs = Oracle.generate_all_hole_pairs()
             p_values = np.zeros((len(hole_pairs),))
             o_values = np.zeros((len(hole_pairs),))
-            state_manager = StateManager(copy.deepcopy(node.state))
             all_actions = node.available_actions
+            # print(node.state_manager)
             for action_idx, action in enumerate(all_actions):
+                state_manager = StateManager(copy.deepcopy(node.state))
+                # print(state_manager)
+
                 if len(all_actions) != node.strategy.shape[1]:
                     raise ValueError(
                         "The number of actions does not match the strategy matrix, {} != {}".format(

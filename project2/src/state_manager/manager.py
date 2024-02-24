@@ -37,8 +37,8 @@ class StateManager:
         can_call, call_sum = self._can_call()
         can_raise_1, raise_sum_1 = self._can_raise(1.0)
         # can_raise2x, raise_sum2x = self._can_raise(2 * self.buy_in)
-        can_raise_half_pot, raise_sum_half_pot = self._can_raise(
-            self.board.pot / 2)
+        # can_raise_half_pot, raise_sum_half_pot = self._can_raise(
+        #     self.board.pot / 2)
 
         """
         print("==================================")
@@ -120,6 +120,14 @@ class StateManager:
                 "Amount to raise with should be greater than 0. Amount: {}".format(amount))
 
         raise_sum = float(call_sum + amount)
+
+        if raise_sum > 2:
+            print("Players:", self.players)
+            print("Current player", self.current_player_index)
+            print("Highest bet:", self.board.highest_bet)
+            print(raise_sum, call_sum, amount)
+            # import time
+            # time.sleep(2)
 
         if self.players[self.current_player_index].chips < raise_sum:
             return False, 0

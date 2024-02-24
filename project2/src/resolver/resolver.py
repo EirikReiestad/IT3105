@@ -81,13 +81,11 @@ class Resolver:
 
         # Normalize probabilities to ensure they sum up to 1
         action_probabilities /= np.sum(action_probabilities)
-
+        # print(all_actions)
+        # print(action_probabilities)
+        # print(action_probabilities.shape, np.argmax(action_probabilities))
         # Find the maximum value in action_probabilities
-        max_action = np.max(action_probabilities)
-
-        print(max_action, action_probabilities)
-        return all_actions[np.argmax(action_probabilities)]  # NOTE: Suggestion
-        return all_actions[max_action]
+        return all_actions[np.argmax(action_probabilities)]
 
     # def updateStrategy(self, node):
     def update_strategy(
@@ -133,14 +131,15 @@ class Resolver:
             # self.update_strategy(c, o_value, p_value)
             self.update_strategy(c, p_value, p_range,
                                  o_range, end_stage, end_depth)
+        if node.depth >= end_depth or node.state.game_stage == end_stage:
+            return node.strategy
 
         if not node.state_manager.chance_event:
             # P = s
-            state_manager = StateManager(copy.deepcopy(node_state))
             all_hole_pairs = Oracle.generate_all_hole_pairs(shuffle=False)
             num_all_hole_pairs = len(all_hole_pairs)
 
-            all_actions = state_manager.get_legal_actions()
+            all_actions = node.available_actions
             num_all_actions = len(all_actions)
 
             # NOTE: Was originally zeros, but that would cause a division by zero error
@@ -151,8 +150,9 @@ class Resolver:
                 for action in all_actions:
                     index_pair = all_hole_pairs.index(pair)
                     index_action = all_actions.index(action)
+                    state_manager = StateManager(copy.deepcopy(node_state))
                     new_node_state = state_manager.generate_state(action)
-                    # NOTE: Calling Node will cause it to genereate children, which is expensive
+
                     new_node = Node(
                         copy.deepcopy(
                             new_node_state), end_stage, end_depth, node.depth + 1
@@ -225,7 +225,7 @@ class Resolver:
         for t in range(num_rollouts):
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
             print("Rollout:", t)
-            logger.debug("Place 2")
+            logger.debug("Place 2")  # TODO: Remove this line
             p_value, o_value = SubtreeTraversalRollout.subtree_traversal_rollout(
                 node, self.p_range, self.o_range, end_stage, end_depth
             )
@@ -237,7 +237,6 @@ class Resolver:
 
         state_manager = StateManager(copy.deepcopy(state))
         all_actions = state_manager.get_legal_actions()
-
         # ▷ Generate the Average Strategy over all rollouts
         sigmas = np.array(sigmas)
         sigma_flat = np.mean(sigmas, axis=0)

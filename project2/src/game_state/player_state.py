@@ -4,7 +4,6 @@ from src.poker_oracle.deck import Card
 from src.game_manager.game_action import Action
 
 
-@dataclass
 class PublicPlayerState:
     def __init__(
         self, chips: int, folded: bool = False, bust: bool = False, bet: int = 0
@@ -15,14 +14,6 @@ class PublicPlayerState:
         self.round_bet: int = bet  # Betting for that round # TODO: Maybe change name to bet
         self.betting_history = list()
         self.action_history = list()
-
-    def __repr__(self):
-        return f"Chips: {self.chips} Folded: {self.folded} Round bet: {self.round_bet}"
-
-class PrivatePlayerState(PublicPlayerState):
-    def __init__(self):
-        super().__init__(chips=100)
-        self.cards: Tuple[Card, Card] = (None, None)
 
     def _bet(self, amount) -> bool:
         if self.chips < amount:
@@ -40,16 +31,25 @@ class PrivatePlayerState(PublicPlayerState):
             self.betting_history.append(0)
             return False
         self.action_history.append(action)
-        self.betting_history.append(0)
+        self.betting_history.append(action.amount)
         if action == Action.Fold:
             self.folded = True
         return True
+
+    def __repr__(self):
+        return f"Chips: {self.chips} Folded: {self.folded} Round bet: {self.round_bet}"
+
+
+class PrivatePlayerState(PublicPlayerState):
+    def __init__(self):
+        super().__init__(chips=100)
+        self.cards: Tuple[Card, Card] = (None, None)
 
     def to_public(self) -> PublicPlayerState:
         return PublicPlayerState(
             chips=self.chips,
             folded=self.folded,
-            bet=self.bet,
+            bet=self.round_bet
         )
 
     def hand(self) -> Tuple[Card, Card]:
@@ -64,7 +64,7 @@ class PrivatePlayerState(PublicPlayerState):
         if self.bust is False:
             self.cards = cards
         self.folded = False
-        self.bet = 0
+        self.round_bet = 0
         self.betting_history = list()
         self.action_history = list()
 

@@ -41,25 +41,22 @@ class Node:
                 return node
         return None
 
-    def get_root(self):
-        return self.root
-
     def get_nodes(self):
         return self.nodes
 
     def generate_child_node(self):
-        public_game_states = self.state_manager.generate_possible_states()
+        public_game_states = self.state_manager.generate_possible_states(
+            self.available_actions)
         for public_game_state in public_game_states:
             new_sub_state = Node(
                 copy.deepcopy(public_game_state),
                 self.end_stage,
-                self.end_depth - 1,
+                self.end_depth,
                 self.depth + 1,
             )
             self.add_child(new_sub_state)
 
-    def __str__(self):
-        return self.root
-
     def __repr__(self):
-        return self.root
+        s = f"Node: {self.state.game_stage}, Depth: {self.depth}"
+        s += "Number of children: " + str(len(self.children))
+        return s

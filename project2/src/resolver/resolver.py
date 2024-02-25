@@ -19,6 +19,7 @@ class Resolver:
             (amount_of_pairs,), 1 / amount_of_pairs)
         self.o_range: np.ndarray = np.full(
             (amount_of_pairs,), 1 / amount_of_pairs)
+        self.str = SubtreeTraversalRollout()
 
     @staticmethod
     def bayesian_range_update(
@@ -160,7 +161,7 @@ class Resolver:
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")
                     new_p_value, new_o_value = (
-                        SubtreeTraversalRollout.subtree_traversal_rollout(
+                        self.str.subtree_traversal_rollout(
                             new_node, p_range, o_range, end_stage, end_depth
                         )
                     )
@@ -226,7 +227,7 @@ class Resolver:
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
             print("Rollout:", t)
             logger.debug("Place 2")  # TODO: Remove this line
-            p_value, o_value = SubtreeTraversalRollout.subtree_traversal_rollout(
+            p_value, o_value = self.str.subtree_traversal_rollout(
                 node, self.p_range, self.o_range, end_stage, end_depth
             )
             # S ← UpdateStrategy(Root) ▷ Returns current strategy matrix for the root

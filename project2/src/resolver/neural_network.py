@@ -215,8 +215,6 @@ class NeuralNetwork:
 
             predicted_p_values = predicted_p_values[0]
             predicted_o_values = predicted_o_values[0]
-            self.count += 1
-            print(self.count)
             # if predicted_addition_layer != 0:
             #     print("Addition", predicted_addition_layer)
             #     print("P values", predicted_p_values)

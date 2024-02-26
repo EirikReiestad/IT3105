@@ -24,9 +24,11 @@ class SubtreeTraversalRollout:
     def __init__(self):
         # TODO: one neural network for each stage?
         self.networks = {
+            GameStage.PreFlop: NeuralNetwork(0),
             GameStage.Flop: NeuralNetwork(3),
             GameStage.Turn: NeuralNetwork(4),
-            GameStage.River: NeuralNetwork(5)
+            GameStage.River: NeuralNetwork(5),
+            GameStage.Showdown: NeuralNetwork(0),
         }
 
     def subtree_traversal_rollout(
@@ -68,7 +70,7 @@ class SubtreeTraversalRollout:
             logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
             p_values, o_values = self.networks[node.state.game_stage].run(
-                node, node.state.game_stage, p_range, o_range
+                node.state, node.state.game_stage, p_range, o_range
             )
         # TODO: Check if chance event (consider adding the chance events to the game state)
         elif not node.state_manager.chance_event:

@@ -1,4 +1,3 @@
 numpy==1.26.3
 pygame==2.5.2
-keras
-tensorflow
+tensorflow==2.16.0

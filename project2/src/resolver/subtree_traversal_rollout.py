@@ -22,7 +22,7 @@ logger = setup_logger()
 class SubtreeTraversalRollout:
 
     def __init__(self):
-        # TODO: one neural network for each stage?
+        # TODO: CHEAP VERSION
         self.networks = {
             GameStage.PreFlop: NeuralNetwork(0),
             GameStage.Flop: NeuralNetwork(3),

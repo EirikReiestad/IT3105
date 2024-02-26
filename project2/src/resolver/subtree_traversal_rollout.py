@@ -20,8 +20,19 @@ logger = setup_logger()
 # NOTE: Important! This is for heads up only, for multiple opponents, we need to change the structure of the code
 # TODO: Fix that r2 (o_range) is not updated in the loop
 class SubtreeTraversalRollout:
-    @staticmethod
+
+    def __init__(self):
+        # TODO: CHEAP VERSION
+        self.networks = {
+            GameStage.PreFlop: NeuralNetwork(0),
+            GameStage.Flop: NeuralNetwork(3),
+            GameStage.Turn: NeuralNetwork(4),
+            GameStage.River: NeuralNetwork(5),
+            GameStage.Showdown: NeuralNetwork(0),
+        }
+
     def subtree_traversal_rollout(
+        self,
         node: Node,
         p_range: np.ndarray,
         o_range: np.ndarray,
@@ -58,8 +69,8 @@ class SubtreeTraversalRollout:
         elif node.state.game_stage == end_stage or node.depth == end_depth:
             logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
-            p_values, o_values = NeuralNetwork.run(
-                node, node.state.game_stage, p_range, o_range
+            p_values, o_values = self.networks[node.state.game_stage].run(
+                node.state, node.state.game_stage, p_range, o_range
             )
         # TODO: Check if chance event (consider adding the chance events to the game state)
         elif not node.state_manager.chance_event:
@@ -88,7 +99,7 @@ class SubtreeTraversalRollout:
                                 end_depth, node.depth + 1)
                 logger.debug("Place 1")
                 p_values_new, o_values_new = (
-                    SubtreeTraversalRollout.subtree_traversal_rollout(
+                    self.subtree_traversal_rollout(
                         new_node, p_range, o_range, end_stage, end_depth
                     )
                 )
@@ -125,7 +136,7 @@ class SubtreeTraversalRollout:
                         or_range_event[pair_idx] = 0
 
                 p_range_event, o_range_event = (
-                    SubtreeTraversalRollout.subtree_traversal_rollout(
+                    self.subtree_traversal_rollout(
                         state, pr_range_event, or_range_event, end_stage, end_depth
                     )
                 )

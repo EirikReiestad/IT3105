@@ -5,6 +5,7 @@ import unittest
 from src.poker_oracle.deck import Deck
 from src.poker_oracle.hands import HandsCheck, Hands
 from .deck import Card, Suit
+import numpy as np
 
 
 class Oracle:
@@ -127,9 +128,9 @@ class Oracle:
             )
 
     @staticmethod
-    def utility_matrix_generator(public_cards: List[Card]) -> List[List[int]]:
+    def utility_matrix_generator(public_cards: List[Card]) -> np.ndarray:
         hole_pairs = Oracle.generate_all_hole_pairs()
-        matrix = [[0] * len(hole_pairs) for _ in range(len(hole_pairs))]
+        matrix = np.zeros((len(hole_pairs), len(hole_pairs)))
 
         for i, hole_pair_i in enumerate(hole_pairs):
             for j, hole_pair_j in enumerate(hole_pairs):
@@ -151,8 +152,8 @@ class Oracle:
                     matrix[i][j] = 0
                     continue
 
-                player_j_hole_pair = hole_pair_i + public_cards
-                player_k_hole_pair = hole_pair_j + public_cards
+                player_j_hole_pair = list(hole_pair_i) + public_cards
+                player_k_hole_pair = list(hole_pair_j) + public_cards
 
                 matrix[i][j] = Oracle.hand_evaluator(
                     player_j_hole_pair, player_k_hole_pair

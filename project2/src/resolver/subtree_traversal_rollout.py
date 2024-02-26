@@ -1,6 +1,6 @@
 import copy
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from src.game_state.game_state import PublicGameState
 from src.game_manager.game_stage import GameStage
 from .neural_network import NeuralNetwork
@@ -21,15 +21,16 @@ logger = setup_logger()
 # TODO: Fix that r2 (o_range) is not updated in the loop
 class SubtreeTraversalRollout:
 
-    def __init__(self):
-        # TODO: CHEAP VERSION
-        self.networks = {
-            GameStage.PreFlop: NeuralNetwork(0),
-            GameStage.Flop: NeuralNetwork(3),
-            GameStage.Turn: NeuralNetwork(4),
-            GameStage.River: NeuralNetwork(5),
-            GameStage.Showdown: NeuralNetwork(0),
-        }
+    def __init__(self, total_players:int, networks:Dict=None):
+        if not networks:
+            self.networks = {}
+            self.networks[GameStage.Showdown] = NeuralNetwork(total_players, GameStage.Showdown, 0)
+            self.networks[GameStage.River] = NeuralNetwork(total_players, GameStage.River, 5, self.networks[GameStage.Showdown])
+            self.networks[GameStage.Turn] = NeuralNetwork(total_players, GameStage.Turn, 5, self.networks[GameStage.River])
+            self.networks[GameStage.Flop] = NeuralNetwork(total_players, GameStage.Flop, 5, self.networks[GameStage.Turn])
+            self.networks[GameStage.PreFlop] = NeuralNetwork(total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop])
+        else:
+            self.networks = networks
 
     def subtree_traversal_rollout(
         self,

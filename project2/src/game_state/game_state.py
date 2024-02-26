@@ -21,6 +21,7 @@ class PublicGameState:
         current_player_index: int,
         buy_in: int,
         check_count: int,
+        raise_count: int,
         chance_event: bool,
     ):
         self.player_states = player_states  # A list of PlayerState instances
@@ -29,6 +30,7 @@ class PublicGameState:
         self.current_player_index = current_player_index
         self.buy_in = buy_in
         self.check_count = check_count
+        self.raise_count = raise_count
         self.chance_event = chance_event
 
     def get_events(self):

@@ -86,7 +86,7 @@ class PrivateBoardState(PublicBoardState):
             flop = self.flop
             turn = self.turn
             self.cards = [flop[0], flop[1], flop[2], turn]
-        elif self.game_stage == GameStage.River:
+        elif self.game_stage == GameStage.River or self.game_stage == GameStage.Showdown:
             flop = self.flop
             turn = self.turn
             river = self.river

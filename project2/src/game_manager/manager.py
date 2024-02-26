@@ -6,6 +6,7 @@ from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
 from src.game_state.board_state import PublicBoardState, PrivateBoardState
 from src.game_state.game_state import PublicGameState, PrivateGameState
 from src.resolver.resolver import Resolver
+from src.poker_oracle.oracle import Oracle
 from .players import Players
 from .game_stage import GameStage
 from .game_action import Action
@@ -46,7 +47,8 @@ class GameManager:
         -------
         Action: The action and the amount to bet if the action is raise
         """
-        state_manager = StateManager(copy.deepcopy(self.state))
+        public_state = self.get_current_public_state()
+        state_manager = StateManager(copy.deepcopy(public_state))
         legal_actions = state_manager.get_legal_actions()
         actions = {}
         legal_action_count = 0
@@ -146,6 +148,7 @@ class GameManager:
         deck = self.players.reset_round(deck)
         dealer = self.get_new_dealer(self.board.dealer)
         deck = self.board.reset_round(deck, dealer)
+        self.chance_event = False
 
     # Implements the game logic
 
@@ -183,43 +186,44 @@ class GameManager:
 
             match self.game_stage:
                 case GameStage.PreFlop:
-                    print("PreFlop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Flop:
-                    print("Flop")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Turn:
-                    print("Turn")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.River:
-                    print("River")
                     winner = self.run_game_stage()
                     if self.round_winner(winner):
                         return
                     self.chance_event = True
                 case GameStage.Showdown:
-                    print("Showdown")
-                    self.round_winner(winner)
+                    winners = self.showdown()
+                    print("winners", winners)
+                    winner = self.round_winner(winners)
+                    if winner is False:
+                        raise ValueError("No winner found")
                     self.chance_event = False
                     break
 
-    def round_winner(self, winner: int) -> bool:
+    def round_winner(self, winners: [int]) -> bool:
         """
         Handles the winner of the round
         """
-        if winner is None:
+        if winners is None or len(winners) == 0:
             return False
-        self.players.winner(winner, self.board.pot)
-        print(f"Player {winner} won {self.board.pot} units!")
+        winner_pot = self.board.pot / len(winners)
+        for w in winners:
+            self.players.winner(w, winner_pot)
+            print(f"Player {w} won {self.board.pot} units!")
         return True
 
     # Runs a game stage
@@ -337,6 +341,34 @@ class GameManager:
         else:
             return False
 
+    def showdown(self) -> int:
+        """
+        Returns
+        -------
+        int: The winner of the round
+        """
+        self.board.update_board_state(GameStage.Showdown)
+        winners = []
+        for i, player in enumerate(self.players):
+            if self.players.is_active(i):
+                if winners is None or len(winners) == 0:
+                    winners = [i]
+                else:
+                    public_board_state = self.board.to_public()
+                    board_cards = public_board_state.cards
+                    p1 = list(self.players.get_cards(winners[0]))
+                    p1.extend(board_cards)
+                    p2 = list(self.players.get_cards(i))
+                    p2.extend(board_cards)
+                    winner = Oracle.hand_evaluator(p1, p2)
+                    if winner == -1:
+                        winners = [i]
+                    if winner == 0:
+                        winners.append(i)
+
+        if len(winners) == 0:
+            raise ValueError("No winner found")
+        return winners
 
     def get_new_dealer(self, dealer: int):
         dealer = (dealer + 1) % len(self.players)

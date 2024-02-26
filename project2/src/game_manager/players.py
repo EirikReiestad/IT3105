@@ -4,10 +4,12 @@ from src.game_state.player_state import PublicPlayerState, PrivatePlayerState
 from src.poker_oracle.deck import Deck, Card
 import copy
 
+
 class _Player(PrivatePlayerState):
     def __init__(self, ai: bool = False):
         super().__init__()
         self.ai = ai
+
 
 class Players:
     def __init__(self, num_players: int, num_ai: int):
@@ -24,11 +26,13 @@ class Players:
 
             if not isinstance(first_card, Card):
                 raise TypeError(
-                    "first_card must be a Card, not {}".format(type(first_card))
+                    "first_card must be a Card, not {}".format(
+                        type(first_card))
                 )
             if not isinstance(second_card, Card):
                 raise TypeError(
-                    "second_card must be a Card, not {}".format(type(second_card))
+                    "second_card must be a Card, not {}".format(
+                        type(second_card))
                 )
 
             player.reset_round((first_card, second_card))
@@ -64,7 +68,8 @@ class Players:
 
     def get_number_of_active_players(self) -> int:
         return (
-            len(self.players) - self.get_number_of_folded() - self.get_number_of_bust()
+            len(self.players) - self.get_number_of_folded() -
+            self.get_number_of_bust()
         )
 
     def has_folded(self, player: int) -> bool:
@@ -82,4 +87,8 @@ class Players:
     def action(self, player, action) -> bool:
         return self.players[player].action(action, action.amount)
 
-    
+    def is_active(self, player: int) -> bool:
+        return not self.players[player].folded and not self.players[player].bust
+
+    def get_cards(self, player: int) -> List[Card]:
+        return self.players[player].cards

@@ -33,7 +33,7 @@ class GameManager:
         self.game_stage: GameStage = GameStage.PreFlop
         self.check_count: int = 0
         self.chance_event: bool = False
-        self.resolver = Resolver()
+        self.resolver = Resolver(total_players)
         self.graphics: bool = graphics
         if graphics:
             self._init_graphics()

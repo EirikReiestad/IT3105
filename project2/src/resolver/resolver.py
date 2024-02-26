@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+from typing import Dict
 from src.game_state.game_state import PublicGameState
 from src.poker_oracle.oracle import Oracle
 from src.game_manager.game_action import Action
@@ -13,13 +14,13 @@ logger = setup_logger()
 
 
 class Resolver:
-    def __init__(self):
+    def __init__(self, total_players:int, networks:Dict=None):
         amount_of_pairs = len(Oracle.generate_all_hole_pairs())
         self.p_range: np.ndarray = np.full(
             (amount_of_pairs,), 1 / amount_of_pairs)
         self.o_range: np.ndarray = np.full(
             (amount_of_pairs,), 1 / amount_of_pairs)
-        self.str = SubtreeTraversalRollout()
+        self.str = SubtreeTraversalRollout(total_players, networks)
 
     @staticmethod
     def bayesian_range_update(

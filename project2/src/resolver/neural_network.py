@@ -5,13 +5,15 @@ from src.game_manager.game_stage import GameStage
 from src.poker_oracle.deck import Card, Deck
 from src.poker_oracle.oracle import Oracle
 from . import resolver
+from src.config import Config
 
 from keras.models import Model
 from keras.layers import Input, Dense, Dot, Add, Concatenate, Reshape, Permute
 
+config = Config()
+
 # TODO!! EIRIKKKKKKKKKKKKKKKKOSELIG
 class NeuralNetwork:
-    # TODO: each stage has a neural network since different public card sizes
     def __init__(self, total_players:int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork']=None):
         self.game_stage = game_stage
         self.count = 0
@@ -27,8 +29,7 @@ class NeuralNetwork:
             }
             self.resolver = resolver.Resolver(total_players, networks)
 
-            # CONFIG? here 10000 training cases
-            training_data = self.create_training_data(2, total_players, public_cards_size)
+            training_data = self.create_training_data(config.data['training_cases'], total_players, public_cards_size)
             self.model = self.create_model(len(training_data["train_p_ranges"][0]))
             training_data["train_relative_pot"] = training_data[
                 "train_relative_pot"
@@ -46,9 +47,8 @@ class NeuralNetwork:
                 training_data["train_relative_pot"],
                 training_data["target_value_vector_p"],
                 training_data["target_value_vector_o"],
-                ## TODO: add in config?
-                10,
-                32,
+                config.data['epochs'],
+                config.data['batch_size'],
             )
         
 
@@ -102,6 +102,7 @@ class NeuralNetwork:
                 current_player_index=np.random.choice([0,1]),
                 buy_in=0,
                 check_count=0,
+                raise_count=0,
                 chance_event=False
             )
 

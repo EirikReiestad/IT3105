@@ -200,6 +200,7 @@ class Resolver:
         end_stage: GameStage,
         end_depth: int,
         num_rollouts: int,
+        verbose: bool=False
     ):
         """
         Parameters
@@ -226,7 +227,8 @@ class Resolver:
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
-            print("Rollout:", t)
+            if verbose:
+                print("Rollout:", t)
             logger.debug("Place 2")  # TODO: Remove this line
             p_value, o_value = self.str.subtree_traversal_rollout(
                 node, self.p_range, self.o_range, end_stage, end_depth

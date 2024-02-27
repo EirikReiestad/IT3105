@@ -16,7 +16,6 @@ config = Config()
 class NeuralNetwork:
     def __init__(self, total_players:int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork']=None):
         self.game_stage = game_stage
-        self.count = 0
         self.parent_nn = parent_nn
         self.oracle = Oracle()
         self.deck = Deck(shuffle=False)
@@ -24,8 +23,7 @@ class NeuralNetwork:
         if public_cards_size == 0:
             self.random = True
         else:
-            self.random = True
-            return
+
             self.random = False
 
             networks = {
@@ -44,7 +42,7 @@ class NeuralNetwork:
                 training_data["train_o_ranges"],
                 np.array(
                     [
-                        NeuralNetwork.ohe_cards(public_cards)
+                        self.ohe_cards(public_cards)
                         for public_cards in training_data["train_public_cards"]
                     ]
                 ),
@@ -238,8 +236,7 @@ class NeuralNetwork:
             raise ValueError("Player hand distribution is NaN")
         if np.isnan(np.min(o_range)):
             raise ValueError("Opponent hand distribution is NaN")
-        self.count+= 1
-        print(self.count)
+        
         ### RANDOM VERSION
         if self.random:
             p_random = np.random.rand(*p_range.shape)

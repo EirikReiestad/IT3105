@@ -16,12 +16,12 @@ class Node:
     ):
         self.state: PublicGameState = state
         self.state_manager = StateManager(copy.deepcopy(self.state))
+        self.oracle = Oracle()
 
-        num_all_hole_pairs = Oracle.get_number_of_all_hole_pairs()
         self.available_actions = self.state_manager.get_legal_actions()
 
         self.strategy: np.ndarray = np.ones(
-            (num_all_hole_pairs, len(self.available_actions))
+            (self.oracle.get_number_of_all_hole_pairs(), len(self.available_actions))
         )
 
         self.children: list(Node) = []

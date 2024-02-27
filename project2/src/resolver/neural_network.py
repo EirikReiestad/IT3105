@@ -16,12 +16,14 @@ config = Config()
 class NeuralNetwork:
     def __init__(self, total_players:int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork']=None):
         self.game_stage = game_stage
-        self.count = 0
         self.parent_nn = parent_nn
+        self.oracle = Oracle()
+        self.deck = Deck(shuffle=False)
 
         if public_cards_size == 0:
             self.random = True
         else:
+
             self.random = False
 
             networks = {
@@ -40,7 +42,7 @@ class NeuralNetwork:
                 training_data["train_o_ranges"],
                 np.array(
                     [
-                        NeuralNetwork.ohe_cards(public_cards)
+                        self.ohe_cards(public_cards)
                         for public_cards in training_data["train_public_cards"]
                     ]
                 ),
@@ -53,7 +55,6 @@ class NeuralNetwork:
         
 
     def create_training_data(self, n: int, total_players:int, public_cards_size: int):
-        hole_pairs = Oracle.generate_all_hole_pairs()
         train_p_ranges = []
         train_o_ranges = []
         train_public_cards = []
@@ -63,8 +64,8 @@ class NeuralNetwork:
         for _ in range(n):
             deck_shuffled = Deck()
             public_cards = [deck_shuffled.pop() for _ in range(public_cards_size)]
-            p_range = NeuralNetwork.create_ranges(hole_pairs, public_cards)
-            o_range = NeuralNetwork.create_ranges(hole_pairs, public_cards)
+            p_range = self.create_ranges(public_cards)
+            o_range = self.create_ranges(public_cards)
             # Random current bet og pot size idk om det e riktig
             pot_size = np.random.randint(10, 101)
             current_bet = np.random.randint(1, 11)
@@ -72,7 +73,7 @@ class NeuralNetwork:
 
 
             ### CHEAP METHOD
-            # utility_matrix = Oracle.utility_matrix_generator(public_cards)
+            # utility_matrix = self.oracle.utility_matrix_generator(public_cards)
             # value_vector_p = utility_matrix * p_range
             # value_vector_o = utility_matrix * o_range
 
@@ -127,35 +128,30 @@ class NeuralNetwork:
             "target_value_vector_o": np.array(target_value_vector_o),
         }
 
-    @staticmethod
-    def create_ranges(all_pairs: List[Card], public_cards: List[Card]):
-        new_range = np.random.rand(len(all_pairs))
+    def create_ranges(self, public_cards: List[Card]):
+        new_range = np.random.rand(self.oracle.get_number_of_all_hole_pairs())
         new_range /= new_range.sum()
-        for i, pair in enumerate(all_pairs):
+        for i, pair in enumerate(self.oracle.hole_pairs):
             for card in public_cards:
                 if card in pair:
                     new_range[i] = 0
         return new_range
 
-    @staticmethod
-    def ohe_cards(cards: List[Card]):
-        deck = Deck(shuffle=False)
-        val = np.zeros(len(deck.stack))
+    def ohe_cards(self, cards: List[Card]):
+        val = np.zeros(len(self.deck.stack))
         for card in cards:
             try:
-                idx = deck.stack.index(card)
+                idx = self.deck.stack.index(card)
                 val[idx] = 1
             except ValueError:
                 print(f"Card {card} is not in the list.")
         return val
 
-    @staticmethod
-    def create_model(range_size: Tuple):
+    def create_model(self, range_size: Tuple):
 
-        deck = Deck(shuffle=False)
         input_p_range = Input(shape=(range_size, 1))
         input_o_range = Input(shape=(range_size, 1))
-        input_public_cards = Input(shape=(len(deck.stack), 1))
+        input_public_cards = Input(shape=(len(self.deck.stack), 1))
         input_pot_size = Input(shape=(1, 1))
 
         merged_layer = Concatenate(axis=1)(
@@ -240,7 +236,7 @@ class NeuralNetwork:
             raise ValueError("Player hand distribution is NaN")
         if np.isnan(np.min(o_range)):
             raise ValueError("Opponent hand distribution is NaN")
-
+        
         ### RANDOM VERSION
         if self.random:
             p_random = np.random.rand(*p_range.shape)
@@ -248,7 +244,7 @@ class NeuralNetwork:
             return p_random, o_random
         else:
             #### Cheap/Hard method
-            public_cards_ohe = NeuralNetwork.ohe_cards(state.board_state.cards)
+            public_cards_ohe = self.ohe_cards(state.board_state.cards)
             predicted_p_values, predicted_o_values, predicted_addition_layer = (
                 self.model.predict(
                     [

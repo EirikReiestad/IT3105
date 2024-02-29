@@ -1,6 +1,6 @@
 import copy
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from src.game_state.game_state import PublicGameState
 from src.game_manager.game_stage import GameStage
 from .neural_network import NeuralNetwork
@@ -21,15 +21,17 @@ logger = setup_logger()
 # TODO: Fix that r2 (o_range) is not updated in the loop
 class SubtreeTraversalRollout:
 
-    def __init__(self):
-        # TODO: CHEAP VERSION
-        self.networks = {
-            GameStage.PreFlop: NeuralNetwork(0),
-            GameStage.Flop: NeuralNetwork(3),
-            GameStage.Turn: NeuralNetwork(4),
-            GameStage.River: NeuralNetwork(5),
-            GameStage.Showdown: NeuralNetwork(0),
-        }
+    def __init__(self, total_players:int, networks:Dict=None):
+        if not networks:
+            self.networks = {}
+            self.networks[GameStage.Showdown] = NeuralNetwork(total_players, GameStage.Showdown, 0)
+            self.networks[GameStage.River] = NeuralNetwork(total_players, GameStage.River, 5, self.networks[GameStage.Showdown])
+            self.networks[GameStage.Turn] = NeuralNetwork(total_players, GameStage.Turn, 5, self.networks[GameStage.River])
+            self.networks[GameStage.Flop] = NeuralNetwork(total_players, GameStage.Flop, 5, self.networks[GameStage.Turn])
+            self.networks[GameStage.PreFlop] = NeuralNetwork(total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop])
+        else:
+            self.networks = networks
+        self.oracle = Oracle()
 
     def subtree_traversal_rollout(
         self,
@@ -64,7 +66,7 @@ class SubtreeTraversalRollout:
             "Subtree Traversal Rollout (depth = {})".format(node.depth))
         if node.state.game_stage == GameStage.Showdown:
             logger.debug("Showdown")
-            utility_matrix = Oracle.utility_matrix_generator(
+            utility_matrix = self.oracle.utility_matrix_generator(
                 node.state.board.cards)
             p_values = utility_matrix * o_range.T
             o_values = -p_values * utility_matrix
@@ -78,9 +80,8 @@ class SubtreeTraversalRollout:
         elif not node.state_manager.chance_event:
             logger.debug("Player state")
             # Value vector is the range times the utility matrix (or the hole pairs)
-            hole_pairs = Oracle.generate_all_hole_pairs()
-            p_values = np.zeros((len(hole_pairs),))
-            o_values = np.zeros((len(hole_pairs),))
+            p_values = np.zeros((len(self.oracle.hole_pairs),))
+            o_values = np.zeros((len(self.oracle.hole_pairs),))
             all_actions = node.available_actions
             # print(node.state_manager)
             for action_idx, action in enumerate(all_actions):
@@ -109,8 +110,7 @@ class SubtreeTraversalRollout:
                 p_values_for_all_act.append(p_values_new)
                 o_values_for_all_act.append(o_values_new)
 
-                hole_pairs = Oracle.generate_all_hole_pairs()
-                for pair_idx, pair in enumerate(hole_pairs):
+                for pair_idx, pair in enumerate(self.oracle.hole_pairs):
                     # NOTE: Assuming that the pair order is the same as the index
                     # NOTE: Assuming the action order is the same in every case
                     p_values[pair_idx] += (
@@ -130,13 +130,12 @@ class SubtreeTraversalRollout:
             # Get all cards which are not on the board
             # TODO: is this correct
             events = node.state.get_events()
-            hole_pairs = Oracle.generate_all_hole_pairs()
             for event in events:
                 pr_range_event = p_range.copy()
                 or_range_event = o_range.copy()
 
                 # Setting the range of all hole pairs with this event card to 0
-                for pair_idx, pair in enumerate(hole_pairs):
+                for pair_idx, pair in enumerate(self.oracle.hole_pairs):
                     if pair in event:
                         pr_range_event[pair_idx] = 0
                         or_range_event[pair_idx] = 0
@@ -146,7 +145,7 @@ class SubtreeTraversalRollout:
                         state, pr_range_event, or_range_event, end_stage, end_depth
                     )
                 )
-                for pair_idx in range(len(hole_pairs)):
+                for pair_idx in range(len(self.oracle.hole_pairs)):
                     p_values[pair_idx] += p_range_event[pair_idx] / len(events)
                     o_values[pair_idx] += o_range_event[pair_idx] / len(events)
         return p_values, o_values, p_values_for_all_act, o_values_for_all_act

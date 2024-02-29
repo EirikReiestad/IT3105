@@ -32,8 +32,9 @@ class GameManager:
 
         self.game_stage: GameStage = GameStage.PreFlop
         self.check_count: int = 0
+        self.raise_count: int = 0
         self.chance_event: bool = False
-        self.resolver = Resolver()
+        self.resolver = Resolver(total_players)
         self.graphics: bool = graphics
         if graphics:
             self._init_graphics()
@@ -103,6 +104,7 @@ class GameManager:
             self.current_player_index,
             self.buy_in,
             self.check_count,
+            self.raise_count,
             self.chance_event,
         )
 
@@ -118,6 +120,7 @@ class GameManager:
             self.current_player_index,
             self.buy_in,
             self.check_count,
+            self.raise_count,
             self.chance_event,
         )
 
@@ -229,6 +232,7 @@ class GameManager:
     # Runs a game stage
     def run_game_stage(self) -> int:
         self.check_count = 0
+        self.raise_count = 0
 
         while self.check_count != self.players.get_number_of_active_players():
             game_over, value = self.game_stage_next()
@@ -294,6 +298,7 @@ class GameManager:
                 print("Player raised")
                 self.make_bet(turn, Action.Raise(action.amount))
                 self.check_count = 1
+                self.raise_count += 1
             else:
                 raise ValueError("Invalid action")
 

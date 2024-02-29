@@ -1,6 +1,7 @@
 from typing import List
 import numpy as np
 import copy
+from typing import Dict
 from src.game_state.game_state import PublicGameState
 from src.poker_oracle.oracle import Oracle
 from src.game_manager.game_action import Action
@@ -14,11 +15,21 @@ logger = setup_logger()
 
 
 class Resolver:
-    def __init__(self):
+    def __init__(self, total_players:int, networks:Dict=None):
         amount_of_pairs = len(Oracle.generate_all_hole_pairs())
+<<<<<<< HEAD
         self.p_range: np.ndarray = np.full((amount_of_pairs,), 1 / amount_of_pairs)
         self.o_range: np.ndarray = np.full((amount_of_pairs,), 1 / amount_of_pairs)
         self.str = SubtreeTraversalRollout()
+=======
+        self.p_range: np.ndarray = np.full(
+            (amount_of_pairs,), 1 / amount_of_pairs)
+        self.o_range: np.ndarray = np.full(
+            (amount_of_pairs,), 1 / amount_of_pairs)
+        self.str = SubtreeTraversalRollout(total_players, networks)
+        self.count = 0
+
+>>>>>>> c87e0d939b45f619fe673406c32847c7ebd3ec3d
 
     @staticmethod
     def bayesian_range_update(
@@ -170,9 +181,18 @@ class Resolver:
                     )
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")
+<<<<<<< HEAD
                     new_p_value = p_values_all_act[i]
                     new_o_value = o_values_all_act[i]
 
+=======
+                    
+                    new_p_value, new_o_value = (
+                        self.str.subtree_traversal_rollout(
+                            new_node, p_range, o_range, end_stage, end_depth
+                        )
+                    )
+>>>>>>> c87e0d939b45f619fe673406c32847c7ebd3ec3d
                     if np.min(p_value) < 0:
                         raise ValueError("The p_value is negative")
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
@@ -206,6 +226,7 @@ class Resolver:
         end_stage: GameStage,
         end_depth: int,
         num_rollouts: int,
+        verbose: bool=False
     ):
         """
         Parameters
@@ -232,12 +253,19 @@ class Resolver:
         # for t = 1 to T do ▷ T = number of rollouts
         for t in range(num_rollouts):
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
-            print("Rollout:", t)
+            if verbose:
+                print("Rollout:", t)
             logger.debug("Place 2")  # TODO: Remove this line
+<<<<<<< HEAD
             p_value, o_value, p_values_all_act, o_values_all_act = (
                 self.str.subtree_traversal_rollout(
                     node, self.p_range, self.o_range, end_stage, end_depth
                 )
+=======
+            
+            p_value, o_value = self.str.subtree_traversal_rollout(
+                node, self.p_range, self.o_range, end_stage, end_depth
+>>>>>>> c87e0d939b45f619fe673406c32847c7ebd3ec3d
             )
             # S ← UpdateStrategy(Root) ▷ Returns current strategy matrix for the root
             strategy = self.update_strategy(

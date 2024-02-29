@@ -9,6 +9,9 @@ import numpy as np
 
 
 class Oracle:
+    def __init__(self):
+        self.hole_pair_types = Oracle.generate_all_hole_pairs_types()
+        self.hole_pairs = Oracle.generate_all_hole_pairs()
 
     @staticmethod
     def hand_classifier(cards: List[Card]) -> Tuple[Hands, List[Card]]:
@@ -55,10 +58,8 @@ class Oracle:
             if not unique_vec1 and not unique_vec2:
                 return 0
             else:
-                max_card_one = max(
-                    unique_vec1, key=lambda x: x.rank, default=None)
-                max_card_two = max(
-                    unique_vec2, key=lambda x: x.rank, default=None)
+                max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
+                max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)
 
                 if max_card_one and max_card_two:
                     comparison_result = max_card_one.rank - max_card_two.rank
@@ -77,7 +78,6 @@ class Oracle:
 
     @staticmethod
     def hole_pair_evaluator(
-        self,
         hole_pair: List[Card],
         public_cards: List[Card],
         num_opponents: int,
@@ -91,8 +91,7 @@ class Oracle:
             deck = Deck()
 
             cloned_public_cards = (
-                public_cards.copy() if public_cards else [
-                    deck.pop() for _ in range(5)]
+                public_cards.copy() if public_cards else [deck.pop() for _ in range(5)]
             )
 
             player_hole_pair = hole_pair + cloned_public_cards
@@ -114,40 +113,32 @@ class Oracle:
         probability = win_count / rollout_count
         return probability
 
-    @staticmethod
     def cheat_sheet_generator(self, num_opponents: int, rollout_count: int) -> None:
-        hole_pair_types = Oracle.generate_all_hole_pairs_types()
-
         table = []
         public_cards = []
-        for i in range(len(hole_pair_types)):
+        for _, hole_pair_type in enumerate(self.hole_pair_types):
             table.append(
                 self.hole_pair_evaluator(
-                    hole_pair_types[i], public_cards, num_opponents, rollout_count
+                    hole_pair_type, public_cards, num_opponents, rollout_count
                 )
             )
 
-    @staticmethod
-    def utility_matrix_generator(public_cards: List[Card]) -> np.ndarray:
-        hole_pairs = Oracle.generate_all_hole_pairs()
-        matrix = np.zeros((len(hole_pairs), len(hole_pairs)))
+    def utility_matrix_generator(self, public_cards: List[Card]) -> np.ndarray:
+        matrix = np.zeros((len(self.hole_pairs), len(self.hole_pairs)))
 
-        for i, hole_pair_i in enumerate(hole_pairs):
-            for j, hole_pair_j in enumerate(hole_pairs):
-                overlap = any(
-                    c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
+        for i, hole_pair_i in enumerate(self.hole_pairs):
+            for j, hole_pair_j in enumerate(self.hole_pairs):
+                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(
-                    c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
+                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(
-                    c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
+                overlap = any(c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
@@ -166,9 +157,8 @@ class Oracle:
         deck = Deck(shuffle=shuffle)
         return list(combinations(deck.stack, 2))
 
-    @staticmethod
-    def get_number_of_all_hole_pairs() -> int:
-        return len(Oracle.generate_all_hole_pairs())
+    def get_number_of_all_hole_pairs(self) -> int:
+        return len(self.hole_pairs)
 
     @staticmethod
     def generate_all_hole_pairs_types() -> List[List[Card]]:

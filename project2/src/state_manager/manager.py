@@ -16,6 +16,7 @@ class StateManager:
         self.buy_in: int = public_game_state.buy_in
         # NOTE: Chanced this from 0 to public_game_state.check_count because it seemed correct, but not sure
         self.check_count: int = public_game_state.check_count
+        self.raise_count: int = public_game_state.raise_count
         self.chance_event: bool = public_game_state.chance_event
 
     def get_legal_actions(self) -> List[Action]:
@@ -106,6 +107,10 @@ class StateManager:
         """
         The amount assume the amount is the amount to raise with and not the total amount to raise to (i.e. the total bet)
         """
+
+        if self.raise_count == 4:
+            return False, 0
+
         call_sum = (
             self.board.highest_bet -
             self.players[self.current_player_index].round_bet
@@ -136,6 +141,7 @@ class StateManager:
             self.current_player_index,
             self.buy_in,
             self.check_count,
+            self.raise_count,
             self.chance_event,
         )
         state = StateManager(copy.deepcopy(public_game_state))
@@ -155,7 +161,7 @@ class StateManager:
             player for player in self.players if not player.folded and not player.bust
         ]
 
-        if self.check_count == active_players:
+        if self.check_count == active_players :
             self.chance_event = True
             self.game_stage = self.game_stage.next_stage()
             self.check_count = 0
@@ -176,6 +182,7 @@ class StateManager:
         elif action == Action.Raise(0):
             # action.amount should be the amount to raise with + the amount to call
             self.check_count = 1
+            self.raise_count += 1
             self.players[self.current_player_index].chips -= action.amount
             self.players[self.current_player_index].round_bet += action.amount
             self.board.pot += action.amount
@@ -197,6 +204,7 @@ class StateManager:
             (self.current_player_index + 1) % len(self.players),
             self.buy_in,
             self.check_count,
+            self.raise_count,
             self.chance_event,
         )
 

@@ -60,6 +60,8 @@ class SubtreeTraversalRollout:
             o_values
                 Opponent action values
         """
+        p_values_for_all_act = []
+        o_values_for_all_act = []
         logger.debug(
             "Subtree Traversal Rollout (depth = {})".format(node.depth))
         if node.state.game_stage == GameStage.Showdown:
@@ -99,11 +101,15 @@ class SubtreeTraversalRollout:
                 new_node = Node(copy.deepcopy(state), end_stage,
                                 end_depth, node.depth + 1)
                 logger.debug("Place 1")
-                p_values_new, o_values_new = (
+                p_values_new, o_values_new, _, _ = (
                     self.subtree_traversal_rollout(
                         new_node, p_range, o_range, end_stage, end_depth
                     )
                 )
+
+                p_values_for_all_act.append(p_values_new)
+                o_values_for_all_act.append(o_values_new)
+
                 for pair_idx, pair in enumerate(self.oracle.hole_pairs):
                     # NOTE: Assuming that the pair order is the same as the index
                     # NOTE: Assuming the action order is the same in every case
@@ -134,7 +140,7 @@ class SubtreeTraversalRollout:
                         pr_range_event[pair_idx] = 0
                         or_range_event[pair_idx] = 0
 
-                p_range_event, o_range_event = (
+                p_range_event, o_range_event, _, _ = (
                     self.subtree_traversal_rollout(
                         state, pr_range_event, or_range_event, end_stage, end_depth
                     )
@@ -142,4 +148,4 @@ class SubtreeTraversalRollout:
                 for pair_idx in range(len(self.oracle.hole_pairs)):
                     p_values[pair_idx] += p_range_event[pair_idx] / len(events)
                     o_values[pair_idx] += o_range_event[pair_idx] / len(events)
-        return p_values, o_values
+        return p_values, o_values, p_values_for_all_act, o_values_for_all_act

@@ -1,3 +1,4 @@
+from typing import List
 import numpy as np
 import copy
 from typing import Dict
@@ -98,6 +99,8 @@ class Resolver:
         p_value: np.ndarray,
         # o_value: np.ndarray,
         # state: PublicGameState,  # NOTE: This is not used
+        p_values_all_act: List[np.ndarray],
+        o_values_all_act: List[np.ndarray],
         p_range: np.ndarray,
         o_range: np.ndarray,
         end_stage: GameStage,
@@ -132,9 +135,16 @@ class Resolver:
             raise ValueError("Node is not an instance of Node")
         node_state = node.state
         for c in node.children:
-            # self.update_strategy(c, o_value, p_value)
-            self.update_strategy(c, p_value, p_range,
-                                 o_range, end_stage, end_depth)
+            self.update_strategy(
+                c,
+                p_value,
+                p_values_all_act,
+                o_values_all_act,
+                p_range,
+                o_range,
+                end_stage,
+                end_depth,
+            )
         if node.depth >= end_depth or node.state.game_stage == end_stage:
             return node.strategy
 
@@ -151,24 +161,23 @@ class Resolver:
             R_s_plus = np.zeros((num_all_hole_pairs, num_all_actions))
 
             for pair in all_hole_pairs:
-                for action in all_actions:
+                for i, action in enumerate(all_actions):
                     index_pair = all_hole_pairs.index(pair)
                     index_action = all_actions.index(action)
                     state_manager = StateManager(copy.deepcopy(node_state))
                     new_node_state = state_manager.generate_state(action)
 
                     new_node = Node(
-                        copy.deepcopy(
-                            new_node_state), end_stage, end_depth, node.depth + 1
+                        copy.deepcopy(new_node_state),
+                        end_stage,
+                        end_depth,
+                        node.depth + 1,
                     )
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")
-                    
-                    new_p_value, new_o_value = (
-                        self.str.subtree_traversal_rollout(
-                            new_node, p_range, o_range, end_stage, end_depth
-                        )
-                    )
+                    new_p_value = p_values_all_act[i]
+                    new_o_value = o_values_all_act[i]
+
                     if np.min(p_value) < 0:
                         raise ValueError("The p_value is negative")
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
@@ -187,8 +196,7 @@ class Resolver:
                     # NOTE: Same as in subtreetraversal, assuming that the pair order is the same as the index
                     # and that the action order is the same in every case
                     R_s_sum = sum(
-                        [R_s_plus[pair_idx][i]
-                            for i in range(len(all_actions))]
+                        [R_s_plus[pair_idx][i] for i in range(len(all_actions))]
                     )
                     if R_s_sum == 0:
                         raise ValueError("The sum of R_s_plus is 0")
@@ -233,13 +241,21 @@ class Resolver:
             if verbose:
                 print("Rollout:", t)
             logger.debug("Place 2")  # TODO: Remove this line
-            
-            p_value, o_value = self.str.subtree_traversal_rollout(
-                node, self.p_range, self.o_range, end_stage, end_depth
+            p_value, o_value, p_values_all_act, o_values_all_act = (
+                self.str.subtree_traversal_rollout(
+                    node, self.p_range, self.o_range, end_stage, end_depth
+                )
             )
             # S ← UpdateStrategy(Root) ▷ Returns current strategy matrix for the root
             strategy = self.update_strategy(
-                node, p_value, self.p_range, self.o_range, end_stage, end_depth
+                node,
+                p_value,
+                p_values_all_act,
+                o_values_all_act,
+                self.p_range,
+                self.o_range,
+                end_stage,
+                end_depth,
             )
             sigmas.append(strategy)
 

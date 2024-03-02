@@ -1,0 +1,4 @@
+simplify: true
+training_cases: 1000
+epochs: 100
+batch_size: 32

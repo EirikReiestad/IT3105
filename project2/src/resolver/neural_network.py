@@ -7,8 +7,8 @@ from src.poker_oracle.oracle import Oracle
 from . import resolver
 from src.config import Config
 
-from keras.models import Model
-from keras.layers import Input, Dense, Dot, Add, Concatenate, Reshape, Permute
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Dense, Dot, Add, Concatenate, Reshape, Permute
 
 config = Config()
 

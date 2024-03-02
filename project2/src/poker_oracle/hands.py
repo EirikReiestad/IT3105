@@ -1,3 +1,11 @@
+import os
+import sys
+import pandas as pd
+
+module_path = os.path.abspath(os.path.join("./"))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
 from itertools import combinations
 from typing import List, Tuple
 from enum import Enum
@@ -254,3 +262,22 @@ class HandsCheck:
                     ]
                     return (True, new_cards)
         return (False, [])
+
+
+if __name__ == "__main__":
+    cards_one = [
+            Card(Suit.Spades, 13),
+            Card(Suit.Spades, 12),
+            Card(Suit.Spades, 1),
+            Card(Suit.Spades, 2),
+            Card(Suit.Spades, 11),
+            Card(Suit.Spades, 10),
+        ]
+
+
+    ues, cards_back = HandsCheck.is_two_pairs(cards_one)
+
+    for card in cards_back:
+        print(card)
+
+    

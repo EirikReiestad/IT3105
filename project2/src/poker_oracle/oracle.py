@@ -1,3 +1,11 @@
+import os
+import sys
+import pandas as pd
+
+module_path = os.path.abspath(os.path.join("./"))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
 from typing import List, Tuple, Optional
 from enum import Enum
 from itertools import combinations
@@ -52,16 +60,23 @@ class Oracle:
         elif result_one < result_two:
             return 1
         else:
-            unique_vec1 = [x for x in set_one if x not in cards_one]
-            unique_vec2 = [x for x in set_two if x not in cards_two]
 
-            if not unique_vec1 and not unique_vec2:
-                return 0
-            else:
-                max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
-                max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)
+            max_card_one = max(cards_one, key=lambda x: x.rank, default=None)
+            max_card_two = max(cards_two, key=lambda x: x.rank, default=None)
 
-                if max_card_one and max_card_two:
+            if max_card_one and max_card_two:
+                comparison_result = max_card_one.rank - max_card_two.rank
+                if comparison_result > 0:
+                    return 1
+                elif comparison_result < 0:
+                    return -1
+                else:
+                    unique_vec1 = [x for x in set_one if x not in cards_one]
+                    unique_vec2 = [x for x in set_two if x not in cards_two]
+
+                    max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
+                    max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)
+
                     comparison_result = max_card_one.rank - max_card_two.rank
                     if comparison_result > 0:
                         return 1
@@ -69,12 +84,12 @@ class Oracle:
                         return -1
                     else:
                         return 0
-                elif max_card_one:
-                    return 1
-                elif max_card_two:
-                    return -1
-                else:
-                    return 0
+            elif max_card_one:
+                return 1
+            elif max_card_two:
+                return -1
+            else:
+                return 0
 
     @staticmethod
     def hole_pair_evaluator(
@@ -184,3 +199,41 @@ class Oracle:
         pair_of_ranks.extend(suited_pairs)
         pair_of_ranks.extend(unsuited_pairs)
         return pair_of_ranks
+
+
+if __name__ == "__main__":
+    cards_one = [
+        Card(Suit.Spades, 10),
+        Card(Suit.Diamonds, 9),
+        Card(Suit.Spades, 1),
+        Card(Suit.Clubs, 9),
+        Card(Suit.Diamonds, 12),
+        Card(Suit.Clubs, 13),
+        Card(Suit.Clubs, 1),
+    ]
+
+    cards_two = [
+        Card(Suit.Clubs, 12),
+        Card(Suit.Diamonds, 13),
+        Card(Suit.Spades, 1),
+        Card(Suit.Clubs, 9),
+        Card(Suit.Diamonds, 12),
+        Card(Suit.Clubs, 13),
+        Card(Suit.Clubs, 1),
+    ]
+
+    result = Oracle.hand_evaluator(cards_one, cards_two)
+
+    print(result)
+
+    cards_one = [
+        Card(Suit.Spades, 13),
+        Card(Suit.Spades, 12),
+        Card(Suit.Spades, 1),
+        Card(Suit.Spades, 2),
+        Card(Suit.Spades, 11),
+        Card(Suit.Spades, 10),
+    ]
+    a, b = Oracle.hand_classifier(cards_one)
+    print(a)
+    print(len(b))

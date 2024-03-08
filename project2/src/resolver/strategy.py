@@ -36,9 +36,8 @@ Call a Re-Raise - Call a person who has re-raised
 Raise a Re-Raise - Re-raise a person who has re-raised your original raise
 Call the Big Blind - Call the big blind
 
-However, for this project, to make it simpler, we will only implement the opening raise and the call the big blind for the unraised in preflop.
-If there are cases where we want to re-raise, we refer to the other charts.
-In addition, there is a blinds charts that we should follow if we are in the small or big blind positions. 
+We will disregard the Call a Re-Raise and Raise a Re-Raise in the Unraised chart, and just use another chart for simplicity.
+There is a blinds charts that we should follow if we are in the small or big blind positions. 
 We will disregard this for simplicity.
 
 To decide what action to take in the other stages, we will use statistics. 
@@ -61,7 +60,9 @@ Fold if - Probability of hitting an Out < Break Even Percentage
 """
 
 from src.poker_oracle.deck import Card, Suit
-from src.poker_oracle.game import PublicGameState, GameStage
+from src.game_state.game_state import PublicGameState
+from src.game_manager.game_stage import GameStage
+from src.game_manager.game_action import Action
 
 # Starting Hand Cards, SHC for short because it will be used a lot
 
@@ -131,4 +132,81 @@ class Strategy:
         num_rollouts: int,
         verbose: bool = False
     ):
-        pass
+        self.state = state
+        self.end_stage = end_stage
+        self.end_depth = end_depth
+        self.verbose = verbose
+
+        if state.game_stage == GameStage.PreFlop:
+            self.preflop_bet()
+
+    def preflop_bet(self):
+        # Find the position of the player (early, middle, late)
+        relative_position = self.get_relative_position()
+
+        group = self.get_preflop_bet_group()
+        current_player = self.state.player_states[self.state.current_player_index]
+        call_sum = current_player.round_bet - \
+            self.state.board_state.highest_bet
+
+        if group is None:
+            return Action.Fold()
+
+        if current_player.round_bet == 0 and self.state.board_state.highest_bet == self.state.buy_in:
+            if group in PREFLOP_UNRAISED['raise'][relative_position]:
+                # TODO: Maybe vary some values but ok for now:)
+                raise_amount = call_sum + self.state.buy_in
+                return Action.Raise(raise_amount)
+            if group in PREFLOP_UNRAISED['call'][relative_position]:
+                return Action.Raise(call_sum)
+        if group in PREFLOP_RAISED['raise'][relative_position]:
+            raise_amount = call_sum + self.state.buy_in
+            return Action.Raise(raise_amount)
+        if group in PREFLOP_RAISED['call'][relative_position]:
+            return Action.Raise(call_sum)
+        return Action.Fold()
+
+    def get_preflop_bet_group(self) -> str:
+        cards = self.state.player_states[self.state.current_player_index].cards
+        cards = sorted(cards, key=lambda x: x.rank, reverse=True)
+        if cards[1].rank == 1:
+            cards = [cards[1], cards[0]]
+
+        for group in STARTING_HAND_GROUPS:
+            for i in range(len(STARTING_HAND_GROUPS[group])):
+                if cards[i].rank == STARTING_HAND_GROUPS[group][i].card_one.rank and cards[1].rank == STARTING_HAND_GROUPS[group][i].card_two.rank:
+                    if STARTING_HAND_GROUPS[group][i].suited and cards[0].suit == cards[1].suit:
+                        return group
+                    elif not STARTING_HAND_GROUPS[group][i].suited:
+                        return group
+        return None
+
+    def get_relative_position(self) -> str:
+        """
+        return the position of the player (early, middle, late)
+        """
+
+        number_of_players = len(self.state.player_states)
+        player_index = self.state.current_player_index
+        dealer = self.state.board_state.dealer
+
+        player_relative_index = (player_index - dealer) % number_of_players
+
+        if number_of_players == 2:
+            if player_index == dealer:
+                return "late"
+            else:
+                return "early"
+
+        # If there are only two players, it is always late if the player_index is the dealer
+        # Else, we say that the first 25% of the players are early, 50% are middle, and 25% are late
+        # This is just arbitrary, but it is a good starting point
+        early = number_of_players // 4
+        middle = early * 2
+
+        if player_relative_index < early:
+            return "early"
+        elif player_relative_index < middle:
+            return "middle"
+        else:
+            return "late"

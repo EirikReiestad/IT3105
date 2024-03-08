@@ -11,6 +11,7 @@ class Suit(Enum):
     Diamonds = "♦"
     Hearts = "♥"
     Spades = "♠"
+    None_ = ""  # For the strategy
 
 
 class Card:
@@ -85,7 +86,7 @@ class Deck:
                 for rank in range(9, 14):
                     self.stack.append(Card(suit, rank))
                 self.stack.append(Card(suit, 1))
-                
+
         if shuffle:
             random.shuffle(self.stack)
 

@@ -1,18 +1,15 @@
+import numpy as np
+from .deck import Card, Suit
+from src.poker_oracle.hands import HandsCheck, Hands
+from src.poker_oracle.deck import Deck
+from itertools import combinations
+from typing import List, Tuple
 import os
 import sys
 
 module_path = os.path.abspath(os.path.join("./"))
 if module_path not in sys.path:
     sys.path.append(module_path)
-
-from typing import List, Tuple, Optional
-from enum import Enum
-from itertools import combinations
-import unittest
-from src.poker_oracle.deck import Deck
-from src.poker_oracle.hands import HandsCheck, Hands
-from .deck import Card, Suit
-import numpy as np
 
 
 class Oracle:
@@ -73,8 +70,10 @@ class Oracle:
                     unique_vec1 = [x for x in set_one if x not in cards_one]
                     unique_vec2 = [x for x in set_two if x not in cards_two]
 
-                    max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
-                    max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)
+                    max_card_one = max(
+                        unique_vec1, key=lambda x: x.rank, default=None)
+                    max_card_two = max(
+                        unique_vec2, key=lambda x: x.rank, default=None)
 
                     comparison_result = max_card_one.rank - max_card_two.rank
                     if comparison_result > 0:
@@ -105,7 +104,8 @@ class Oracle:
             deck = Deck()
 
             cloned_public_cards = (
-                public_cards.copy() if public_cards else [deck.pop() for _ in range(5)]
+                public_cards.copy() if public_cards else [
+                    deck.pop() for _ in range(5)]
             )
 
             player_hole_pair = hole_pair + cloned_public_cards
@@ -142,17 +142,20 @@ class Oracle:
 
         for i, hole_pair_i in enumerate(self.hole_pairs):
             for j, hole_pair_j in enumerate(self.hole_pairs):
-                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue

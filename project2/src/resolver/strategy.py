@@ -139,8 +139,25 @@ class Strategy:
 
         if state.game_stage == GameStage.PreFlop:
             self.preflop_bet()
+        else:
+            self.other_bet()
 
-    def preflop_bet(self):
+    def other_bet(self) -> Action:
+        """
+        Including every stage after preflop
+        """
+        # Find number of outs
+        # This will be simple, so we will just go through every card that is not visible to us
+        # Then if that hand beats, lets say two pairs for now, then we increase the number of outs
+
+        # Calculate pot odds
+
+        # Calculate break even percentage
+
+        # Act
+        pass
+
+    def preflop_bet(self) -> Action:
         # Find the position of the player (early, middle, late)
         relative_position = self.get_relative_position()
 

@@ -59,10 +59,11 @@ Call if - Probability of hitting an Out > Break Even Percentage
 Fold if - Probability of hitting an Out < Break Even Percentage
 """
 
-from src.poker_oracle.deck import Card, Suit
+from src.poker_oracle.deck import Deck, Card, Suit
 from src.game_state.game_state import PublicGameState
 from src.game_manager.game_stage import GameStage
 from src.game_manager.game_action import Action
+from src.poker_oracle.oracle import Oracle
 
 # Starting Hand Cards, SHC for short because it will be used a lot
 
@@ -149,13 +150,45 @@ class Strategy:
         # Find number of outs
         # This will be simple, so we will just go through every card that is not visible to us
         # Then if that hand beats, lets say two pairs for now, then we increase the number of outs
+        cards = self.state.player_states[self.state.current_player_index].cards + \
+            self.state.board_state.cards
+        current_hand = Oracle.hand_evaluator(cards)
+
+        deck = Deck()
+
+        for card in current_hand:
+            deck.remove(card)
+
+        outs = 0
+        for card in deck.stack:
+            if Oracle.hand_evaluator(cards + [card]) > current_hand:
+                outs += 1
 
         # Calculate pot odds
+        pot = self.state.board_state.pot
+        call_sum = self.state.player_states[self.state.current_player_index].round_bet - \
+            self.state.board_state.highest_bet
+        pot_odds = pot / call_sum
 
         # Calculate break even percentage
+        break_even_percentage = 100 / (pot_odds + 1)
 
-        # Act
-        pass
+        # Decide if we should call
+        # Chance of hitting an out > break even percentage
+        if GameStage == GameStage.Turn:
+            cards_left = 2
+        elif GameStage == GameStage.River:
+            cards_left = 1
+        else:
+            raise ValueError("GameStage must be Turn or River")
+
+        probability = 1 - (1 - (outs / len(deck))) ** cards_left
+
+        if probability > break_even_percentage:
+            # This could also potentially be a raise, but for now we will just call
+            return Action.Call()
+        else:
+            return Action.Fold()
 
     def preflop_bet(self) -> Action:
         # Find the position of the player (early, middle, late)

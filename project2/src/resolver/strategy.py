@@ -130,7 +130,6 @@ class Strategy:
         state: PublicGameState,
         end_stage: GameStage,
         end_depth: int,
-        num_rollouts: int,
         verbose: bool = False
     ):
         self.state = state

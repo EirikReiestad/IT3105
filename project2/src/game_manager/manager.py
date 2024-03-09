@@ -14,6 +14,7 @@ from src.gui.display import Display
 from src.config import Config
 from src.setup_logger import setup_logger
 from src.state_manager.manager import StateManager
+from src.resolver.strategy import Strategy
 
 logger = setup_logger()
 config = Config()
@@ -81,12 +82,17 @@ class GameManager:
         end_stage = self.game_stage.next_stage()
         end_depth = 3
         num_rollouts = 1
-        return self.resolver.resolve(
-            self.get_current_public_state(),
-            end_stage,
-            end_depth,
-            num_rollouts,
-        )
+
+        # Only run the resolve x amount of times
+        threshold = 0.2
+        if random.random() < threshold:
+            return self.resolver.resolve(
+                self.get_current_public_state(),
+                end_stage,
+                end_depth,
+                num_rollouts,
+            )
+        return Strategy().resolve(self.get_current_public_state(), end_stage, end_depth)
 
         # Handles generating the game state
 

@@ -92,9 +92,14 @@ class GameManager:
                 end_depth,
                 num_rollouts,
             )
-        return Strategy().resolve(self.get_current_public_state(), end_stage, end_depth)
+        return Strategy().resolve(
+            self.get_private_player_state(self.current_player_index),
+            self.get_current_private_state(),
+            end_stage,
+            end_depth)
 
-        # Handles generating the game state
+    def get_private_player_state(self, index: int) -> PrivatePlayerState:
+        return self.players[index]
 
     def get_current_public_state(self) -> PublicGameState:
         player_states: List[PublicPlayerState] = self.players.get_public_player_states(

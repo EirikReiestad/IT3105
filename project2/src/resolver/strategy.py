@@ -61,6 +61,7 @@ Fold if - Probability of hitting an Out < Break Even Percentage
 
 from src.poker_oracle.deck import Deck, Card, Suit
 from src.game_state.game_state import PublicGameState
+from src.game_state.player_state import PrivatePlayerState
 from src.game_manager.game_stage import GameStage
 from src.game_manager.game_action import Action
 from src.poker_oracle.oracle import Oracle
@@ -127,11 +128,13 @@ PREFLOP_RAISED = {
 class Strategy:
     def resolve(
         self,
+        player: PrivatePlayerState,
         state: PublicGameState,
         end_stage: GameStage,
         end_depth: int,
         verbose: bool = False
     ):
+        self.player = player
         self.state = state
         self.end_stage = end_stage
         self.end_depth = end_depth
@@ -149,8 +152,7 @@ class Strategy:
         # Find number of outs
         # This will be simple, so we will just go through every card that is not visible to us
         # Then if that hand beats, lets say two pairs for now, then we increase the number of outs
-        cards = self.state.player_states[self.state.current_player_index].cards + \
-            self.state.board_state.cards
+        cards = self.player.cards + self.state.board_state.cards
         current_hand = Oracle.hand_evaluator(cards)
 
         deck = Deck()

@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 import copy
 import random
 from src.poker_oracle.deck import Deck
@@ -15,6 +15,8 @@ from src.config import Config
 from src.setup_logger import setup_logger
 from src.state_manager.manager import StateManager
 from src.resolver.strategy import Strategy
+
+import time
 
 logger = setup_logger()
 config = Config()
@@ -84,7 +86,7 @@ class GameManager:
         num_rollouts = 1
 
         # Only run the resolve x amount of times
-        threshold = 0.2
+        threshold = 0.0  # TODO: Should be 0.2 or other value > 0.0
         if random.random() < threshold:
             return self.resolver.resolve(
                 self.get_current_public_state(),
@@ -92,14 +94,12 @@ class GameManager:
                 end_depth,
                 num_rollouts,
             )
+
         return Strategy().resolve(
-            self.get_private_player_state(self.current_player_index),
+            self.players.get(self.current_player_index),
             self.get_current_private_state(),
             end_stage,
             end_depth)
-
-    def get_private_player_state(self, index: int) -> PrivatePlayerState:
-        return self.players[index]
 
     def get_current_public_state(self) -> PublicGameState:
         player_states: List[PublicPlayerState] = self.players.get_public_player_states(
@@ -182,6 +182,7 @@ class GameManager:
         while True:
             deck = Deck()
             self.reset_round(deck)
+            time.sleep(1)
             self.run_round()
 
     def run_round(self):
@@ -201,27 +202,27 @@ class GameManager:
             match self.game_stage:
                 case GameStage.PreFlop:
                     winner = self.run_game_stage()
-                    if self.round_winner(winner):
+                    if self.round_winner([winner]):
                         return
                     self.chance_event = True
                 case GameStage.Flop:
                     winner = self.run_game_stage()
-                    if self.round_winner(winner):
+                    if self.round_winner([winner]):
                         return
                     self.chance_event = True
                 case GameStage.Turn:
                     winner = self.run_game_stage()
-                    if self.round_winner(winner):
+                    if self.round_winner([winner]):
                         return
                     self.chance_event = True
                 case GameStage.River:
                     winner = self.run_game_stage()
-                    if self.round_winner(winner):
+                    if self.round_winner([winner]):
                         return
                     self.chance_event = True
                 case GameStage.Showdown:
                     winners = self.showdown()
-                    print("winners", winners)
+                    print("winners:", winners)
                     winner = self.round_winner(winners)
                     if winner is False:
                         raise ValueError("No winner found")
@@ -232,8 +233,9 @@ class GameManager:
         """
         Handles the winner of the round
         """
-        if winners is None or len(winners) == 0:
+        if winners is None or len(winners) == 0 or winners[0] is None:
             return False
+
         winner_pot = self.board.pot / len(winners)
         for w in winners:
             self.players.winner(w, winner_pot)

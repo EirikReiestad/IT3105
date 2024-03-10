@@ -18,6 +18,9 @@ class Players:
         self.players.extend([_Player(ai=True) for _ in range(num_ai)])
         random.shuffle(self.players)
 
+    def get(self, index):
+        return self.players[index]
+
     def reset_round(self, deck: Deck) -> Deck:
         # Deal cards to players
         for player in self.players:

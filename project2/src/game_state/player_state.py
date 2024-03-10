@@ -28,6 +28,7 @@ class PublicPlayerState:
             # TODO: Do not need to fold. Can go all-in or check if possible
             print("Not enough money. Folded.")
             self.action_history.append(Action.Fold)
+            self.folded = True
             self.betting_history.append(0)
             return False
         self.action_history.append(action)

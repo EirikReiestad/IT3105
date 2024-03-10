@@ -37,10 +37,10 @@ Raise a Re-Raise - Re-raise a person who has re-raised your original raise
 Call the Big Blind - Call the big blind
 
 We will disregard the Call a Re-Raise and Raise a Re-Raise in the Unraised chart, and just use another chart for simplicity.
-There is a blinds charts that we should follow if we are in the small or big blind positions. 
+There is a blinds charts that we should follow if we are in the small or big blind positions.
 We will disregard this for simplicity.
 
-To decide what action to take in the other stages, we will use statistics. 
+To decide what action to take in the other stages, we will use statistics.
 We consider two elements:
 1. How many "Outs" we have (Card that will make us a winning hand) and how likely it is that an Out will be dealt
 2. What are our "Pot Odds" - How much money will we win in return for us taking the gamble that our Out will be dealt
@@ -59,6 +59,7 @@ Call if - Probability of hitting an Out > Break Even Percentage
 Fold if - Probability of hitting an Out < Break Even Percentage
 """
 
+import random
 from src.poker_oracle.deck import Deck, Card, Suit
 from src.game_state.game_state import PublicGameState
 from src.game_state.player_state import PrivatePlayerState
@@ -133,7 +134,7 @@ class Strategy:
         end_stage: GameStage,
         end_depth: int,
         verbose: bool = False
-    ):
+    ) -> Action:
         self.player = player
         self.state = state
         self.end_stage = end_stage
@@ -141,9 +142,9 @@ class Strategy:
         self.verbose = verbose
 
         if state.game_stage == GameStage.PreFlop:
-            self.preflop_bet()
+            return self.preflop_bet()
         else:
-            self.other_bet()
+            return self.other_bet()
 
     def other_bet(self) -> Action:
         """
@@ -152,8 +153,9 @@ class Strategy:
         # Find number of outs
         # This will be simple, so we will just go through every card that is not visible to us
         # Then if that hand beats, lets say two pairs for now, then we increase the number of outs
-        cards = self.player.cards + self.state.board_state.cards
-        current_hand = Oracle.hand_evaluator(cards)
+        cards = [i for i in self.player.cards].extend(
+            self.state.board_state.cards)
+        current_hand = Oracle.hand_classifier(cards)
 
         deck = Deck()
 
@@ -162,7 +164,8 @@ class Strategy:
 
         outs = 0
         for card in deck.stack:
-            if Oracle.hand_evaluator(cards + [card]) > current_hand:
+            hand = cards.extends(card)
+            if Oracle.hand_classifier(hand):
                 outs += 1
 
         # Calculate pot odds
@@ -196,25 +199,43 @@ class Strategy:
         relative_position = self.get_relative_position()
 
         group = self.get_preflop_bet_group()
-        current_player = self.state.player_states[self.state.current_player_index]
-        call_sum = current_player.round_bet - \
-            self.state.board_state.highest_bet
+        call_sum = self.state.board_state.highest_bet - self.player.round_bet
+
+        if call_sum < 0:
+            raise ValueError("Call sum can not be < 0")
+
+        print("Call sum", call_sum)
 
         if group is None:
             return Action.Fold()
 
-        if current_player.round_bet == 0 and self.state.board_state.highest_bet == self.state.buy_in:
+        if self.player.round_bet == 0 and self.state.board_state.highest_bet == self.state.buy_in:
             if group in PREFLOP_UNRAISED['raise'][relative_position]:
                 # TODO: Maybe vary some values but ok for now:)
                 raise_amount = call_sum + self.state.buy_in
+                # Add some random chance of calling instead of raising because of infinite loop :)
+                if random.uniform(0, 1) > 0.5:
+                    return Action.Call(call_sum)
                 return Action.Raise(raise_amount)
             if group in PREFLOP_UNRAISED['call'][relative_position]:
-                return Action.Raise(call_sum)
+                if call_sum == 0:
+                    return Action.Check()
+                return Action.Call(call_sum)
         if group in PREFLOP_RAISED['raise'][relative_position]:
             raise_amount = call_sum + self.state.buy_in
+            if random.uniform(0, 1) > 0.5:
+                return Action.Call(call_sum)
             return Action.Raise(raise_amount)
         if group in PREFLOP_RAISED['call'][relative_position]:
-            return Action.Raise(call_sum)
+            if call_sum == 0:
+                return Action.Check()
+            return Action.Call(call_sum)
+        # Because we do not want the AI to fold all the time because that is boring:)
+        # We will fold only 50% of the times it should have folded:)
+        if random.uniform(0, 1) > 0.5:
+            if call_sum == 0:
+                return Action.Check()
+            return Action.Call(call_sum)
         return Action.Fold()
 
     def get_preflop_bet_group(self) -> str:
@@ -225,7 +246,7 @@ class Strategy:
 
         for group in STARTING_HAND_GROUPS:
             for i in range(len(STARTING_HAND_GROUPS[group])):
-                if cards[i].rank == STARTING_HAND_GROUPS[group][i].card_one.rank and cards[1].rank == STARTING_HAND_GROUPS[group][i].card_two.rank:
+                if cards[0].rank == STARTING_HAND_GROUPS[group][i].card_one.rank and cards[1].rank == STARTING_HAND_GROUPS[group][i].card_two.rank:
                     if STARTING_HAND_GROUPS[group][i].suited and cards[0].suit == cards[1].suit:
                         return group
                     elif not STARTING_HAND_GROUPS[group][i].suited:

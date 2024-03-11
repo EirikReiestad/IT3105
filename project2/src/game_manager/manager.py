@@ -295,6 +295,8 @@ class GameManager:
             if action == Action.Fold():
                 print(f"Player {turn} folded")
                 self.players.fold(turn)
+                if self.players.get_number_of_active_players() == 1:
+                    return True, self.players.get_active_player()
                 continue
             elif action == Action.Check():
                 print(f"Player {turn} checked")

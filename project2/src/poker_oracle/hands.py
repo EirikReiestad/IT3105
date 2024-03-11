@@ -24,6 +24,17 @@ class Hands(Enum):
     OnePair = 9
     HighCard = 10
 
+    @staticmethod
+    def get_max_hand_value() -> int:
+        return Hands.RoyalFlush
+
+    @staticmethod
+    def get_min_hand_value() -> int:
+        return Hands.HighCard
+
+    def __int__(self):
+        return self.value
+
     def __lt__(self, other):
         return self.value < other.value
 

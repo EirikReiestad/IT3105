@@ -75,6 +75,13 @@ class Players:
             self.get_number_of_bust()
         )
 
+    def get_active_players(self) -> List[int]:
+        return [i for i, player in enumerate(self.players) if self.is_active(i)]
+
+    def get_active_player(self) -> int:
+        assert len(self.get_active_players()) == 1
+        return self.get_active_players()[0]
+
     def has_folded(self, player: int) -> bool:
         return self.players[player].folded
 

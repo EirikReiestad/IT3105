@@ -66,6 +66,8 @@ from src.game_state.player_state import PrivatePlayerState
 from src.game_manager.game_stage import GameStage
 from src.game_manager.game_action import Action
 from src.poker_oracle.oracle import Oracle
+from src.poker_oracle.hands import Hands
+
 
 # Starting Hand Cards, SHC for short because it will be used a lot
 
@@ -142,59 +144,86 @@ class Strategy:
         self.verbose = verbose
 
         if state.game_stage == GameStage.PreFlop:
-            return self.preflop_bet()
-        else:
-            return self.other_bet()
+            action = self.preflop_bet()
+        elif state.game_stage == GameStage.Flop or state.game_stage == GameStage.Turn:
+            action = self.flop_turn_bet()
+        elif state.game_stage == GameStage.River:
+            action = self.river_bet()
 
-    def other_bet(self) -> Action:
+        return action
+
+    def river_bet(self) -> Action:
+        call_sum = self.state.board_state.highest_bet - self.player.round_bet
+
+        cards = [i for i in self.player.cards]
+        cards.extend(self.state.board_state.cards)
+
+        if call_sum == 0:
+            if self.should_raise(cards):
+                return Action.Raise(self.state.buy_in)
+            return Action.Check()
+        if self.should_fold(cards):
+            return Action.Fold()
+        return Action.Call(call_sum)
+
+    def flop_turn_bet(self) -> Action:
         """
-        Including every stage after preflop
+        Including the flop and turn stages
         """
+        # Decide if we should call
+        # Chance of hitting an out > break even percentage
+        if self.state.game_stage == GameStage.Flop:
+            cards_left = 2
+        elif self.state.game_stage == GameStage.Turn:
+            cards_left = 1
+        else:
+            raise ValueError(
+                "GameStage must be Flop or Turn, not: {}".format(self.state.game_stage))
+
+        call_sum = self.state.board_state.highest_bet - self.player.round_bet
+
         # Find number of outs
         # This will be simple, so we will just go through every card that is not visible to us
         # Then if that hand beats, lets say two pairs for now, then we increase the number of outs
-        cards = [i for i in self.player.cards].extend(
-            self.state.board_state.cards)
-        current_hand = Oracle.hand_classifier(cards)
+        cards = [i for i in self.player.cards]
+        cards.extend(self.state.board_state.cards)
+
+        if call_sum == 0:
+            if self.should_raise(cards):
+                return Action.Raise(self.state.buy_in)
+            return Action.Check()
 
         deck = Deck()
 
-        for card in current_hand:
+        for card in cards:
             deck.remove(card)
 
         outs = 0
         for card in deck.stack:
-            hand = cards.extends(card)
-            if Oracle.hand_classifier(hand):
+            hand = cards.copy()
+            hand.append(card)
+            if Oracle.hand_evaluator(cards, hand) == -1:
                 outs += 1
 
         # Calculate pot odds
         pot = self.state.board_state.pot
-        call_sum = self.state.player_states[self.state.current_player_index].round_bet - \
-            self.state.board_state.highest_bet
         pot_odds = pot / call_sum
 
         # Calculate break even percentage
+        print(pot, pot_odds, call_sum)
         break_even_percentage = 100 / (pot_odds + 1)
-
-        # Decide if we should call
-        # Chance of hitting an out > break even percentage
-        if GameStage == GameStage.Turn:
-            cards_left = 2
-        elif GameStage == GameStage.River:
-            cards_left = 1
-        else:
-            raise ValueError("GameStage must be Turn or River")
 
         probability = 1 - (1 - (outs / len(deck))) ** cards_left
 
-        if probability > break_even_percentage:
+        if probability > break_even_percentage or not self.should_fold(cards):
             # This could also potentially be a raise, but for now we will just call
-            return Action.Call()
+            return Action.Call(call_sum)
         else:
             return Action.Fold()
 
     def preflop_bet(self) -> Action:
+        fold_threshold = 0.2
+        raise_threshold = 0.8
         # Find the position of the player (early, middle, late)
         relative_position = self.get_relative_position()
 
@@ -207,36 +236,35 @@ class Strategy:
         print("Call sum", call_sum)
 
         if group is None:
+            if call_sum == 0 and random.random() < fold_threshold:
+                return Action.Check()
             return Action.Fold()
 
         if self.player.round_bet == 0 and self.state.board_state.highest_bet == self.state.buy_in:
             if group in PREFLOP_UNRAISED['raise'][relative_position]:
                 # TODO: Maybe vary some values but ok for now:)
                 raise_amount = call_sum + self.state.buy_in
-                # Add some random chance of calling instead of raising because of infinite loop :)
-                if random.uniform(0, 1) > 0.5:
-                    return Action.Call(call_sum)
-                return Action.Raise(raise_amount)
+                if random.random() < raise_threshold:
+                    return Action.Raise(raise_amount)
+                return Action.Call(call_sum)
             if group in PREFLOP_UNRAISED['call'][relative_position]:
                 if call_sum == 0:
                     return Action.Check()
                 return Action.Call(call_sum)
         if group in PREFLOP_RAISED['raise'][relative_position]:
             raise_amount = call_sum + self.state.buy_in
-            if random.uniform(0, 1) > 0.5:
-                return Action.Call(call_sum)
-            return Action.Raise(raise_amount)
+            if random.random() < raise_threshold:
+                return Action.Raise(raise_amount)
+            return Action.Call(call_sum)
         if group in PREFLOP_RAISED['call'][relative_position]:
             if call_sum == 0:
                 return Action.Check()
             return Action.Call(call_sum)
-        # Because we do not want the AI to fold all the time because that is boring:)
-        # We will fold only 50% of the times it should have folded:)
-        if random.uniform(0, 1) > 0.5:
-            if call_sum == 0:
-                return Action.Check()
-            return Action.Call(call_sum)
-        return Action.Fold()
+        if random.random() < fold_threshold:
+            return Action.Fold()
+        if call_sum == 0:
+            return Action.Check()
+        return Action.Call(call_sum)
 
     def get_preflop_bet_group(self) -> str:
         cards = self.state.player_states[self.state.current_player_index].cards
@@ -282,3 +310,21 @@ class Strategy:
             return "middle"
         else:
             return "late"
+
+    @staticmethod
+    def should_raise(cards) -> bool:
+        hand, _ = Oracle.hand_classifier(cards)
+        max_hand_value = Hands.get_max_hand_value()
+        value = max_hand_value.value / hand.value
+        if random.random() > value:
+            return True
+        return False
+
+    @staticmethod
+    def should_fold(cards) -> bool:
+        hand, _ = Oracle.hand_classifier(cards)
+        min_hand_value = Hands.get_min_hand_value()
+        value = hand.value / min_hand_value.value
+        if random.random() > value:
+            return True
+        return False

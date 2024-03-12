@@ -58,6 +58,21 @@ class Oracle:
         else:
             # Because it is a tie, we need to compare the ranks of the cards
             # Note, we only compare the top 5 cards
+            # But before that, we will compare the ranks of the hands
+
+            rank_one_hand = [x.rank for x in cards_one]
+            rank_one_hand.replace(1, 14)
+            rank_two_hand = [x.rank for x in cards_two]
+            rank_two_hand.replace(1, 14)
+
+            rank_one_hand.sort(reverse=True)
+            rank_two_hand.sort(reverse=True)
+
+            for i in range(len(rank_one_hand)):
+                if rank_one_hand[i] > rank_two_hand[i]:
+                    return 1
+                elif rank_one_hand[i] < rank_two_hand[i]:
+                    return -1
 
             rank_one = [x.rank for x in set_one]
             rank_one.replace(1, 14)

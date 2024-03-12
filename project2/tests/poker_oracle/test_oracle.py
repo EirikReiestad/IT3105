@@ -215,7 +215,7 @@ class TestOracle(unittest.TestCase):
         result = Oracle.hand_evaluator(cards_two, cards_one)
         self.assertEqual(result, 1)
 
-    def test_hand_evaluator_resolve_tie_with_extra_cards(self):
+    def test_hand_evaluator_resolve_tie_straight(self):
         cards_one = [
             Card(Suit.Spades, 13),
             Card(Suit.Spades, 12),
@@ -235,25 +235,47 @@ class TestOracle(unittest.TestCase):
         ]
 
         result = Oracle.hand_evaluator(cards_one, cards_two)
+        self.assertEqual(result, 0)
+
+    def test_hand_evaluator_resolve_tie_with_extra_card(self):
+        cards_one = [
+            Card(Suit.Spades, 10),
+            Card(Suit.Hearts, 2),
+            Card(Suit.Hearts, 3),
+            Card(Suit.Spades, 10),
+            Card(Suit.Clubs, 5),
+            Card(Suit.Spades, 7),
+        ]
+
+        cards_two = [
+            Card(Suit.Clubs, 10),
+            Card(Suit.Hearts, 2),
+            Card(Suit.Hearts, 3),
+            Card(Suit.Spades, 10),
+            Card(Suit.Clubs, 6),
+            Card(Suit.Spades, 8),
+        ]
+
+        result = Oracle.hand_evaluator(cards_one, cards_two)
         self.assertEqual(result, -1)
 
     def test_hand_evaluator_win_two_pairs_tiebreak(self):
         cards_one = [
             Card(Suit.Spades, 10),
-            Card(Suit.Spades, 10),
+            Card(Suit.Clubs, 10),
             Card(Suit.Spades, 11),
-            Card(Suit.Spades, 11),
-            Card(Suit.Spades, 12),
+            Card(Suit.Clubs, 11),
+            Card(Suit.Hearts, 12),
             Card(Suit.Spades, 2),
         ]
 
         cards_two = [
-            Card(Suit.Clubs, 10),
+            Card(Suit.Spades, 10),
             Card(Suit.Clubs, 10),
             Card(Suit.Clubs, 11),
-            Card(Suit.Clubs, 11),
+            Card(Suit.Spades, 11),
             Card(Suit.Clubs, 9),
-            Card(Suit.Clubs, 2),
+            Card(Suit.Hearts, 2),
         ]
 
         result = Oracle.hand_evaluator(cards_one, cards_two)
@@ -262,19 +284,19 @@ class TestOracle(unittest.TestCase):
     def test_hand_evaluator_win_one_pair_tiebreak(self):
         cards_one = [
             Card(Suit.Spades, 10),
-            Card(Suit.Spades, 10),
+            Card(Suit.Hearts, 10),
             Card(Suit.Spades, 9),
-            Card(Suit.Spades, 8),
-            Card(Suit.Spades, 12),
+            Card(Suit.Hearts, 8),
+            Card(Suit.Clubs, 12),
             Card(Suit.Spades, 2),
         ]
 
         cards_two = [
             Card(Suit.Clubs, 10),
-            Card(Suit.Clubs, 10),
+            Card(Suit.Hearts, 10),
             Card(Suit.Clubs, 9),
-            Card(Suit.Clubs, 11),
-            Card(Suit.Clubs, 8),
+            Card(Suit.Hearts, 11),
+            Card(Suit.Spades, 8),
             Card(Suit.Clubs, 2),
         ]
 
@@ -283,18 +305,18 @@ class TestOracle(unittest.TestCase):
 
     def test_hand_evaluator_win_ace_tiebreak(self):
         cards_one = [
-            Card(Suit.Spades, 10),
-            Card(Suit.Spades, 10),
-            Card(Suit.Spades, 13),
+            Card(Suit.Hearts, 10),
+            Card(Suit.Hearts, 10),
+            Card(Suit.Hearts, 13),
             Card(Suit.Spades, 8),
             Card(Suit.Spades, 12),
             Card(Suit.Spades, 2),
         ]
 
         cards_two = [
-            Card(Suit.Clubs, 10),
-            Card(Suit.Clubs, 10),
-            Card(Suit.Clubs, 9),
+            Card(Suit.Hearts, 10),
+            Card(Suit.Hearts, 10),
+            Card(Suit.Hearts, 9),
             Card(Suit.Clubs, 1),
             Card(Suit.Clubs, 8),
             Card(Suit.Clubs, 2),

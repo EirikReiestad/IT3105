@@ -56,62 +56,52 @@ class Oracle:
         elif result_one < result_two:
             return 1
         else:
+            cards_one = [card.rank for card in cards_one]
+            cards_two = [card.rank for card in cards_two]
 
-            one_unique_ranks = set([x.rank for x in cards_one])
-            two_unique_ranks = set([x.rank for x in cards_two])
-            winner = 0
+            set_one = [card.rank for card in set_one]
+            set_two = [card.rank for card in set_two]
 
-            while len(one_unique_ranks) > 0:
-                max_card_one = 1 if 1 in one_unique_ranks else max(
-                    one_unique_ranks)
-                one_unique_ranks.remove(max_card_one)
-                max_card_two = 1 if 1 in two_unique_ranks else max(
-                    two_unique_ranks)
-                two_unique_ranks.remove(max_card_two)
+            # Edge case: low straight, A == 1 instead of 14
+            if not (cards_one[-1] == 1 and cards_one[0] == 5):
+                cards_one = [14 if card == 1 else card for card in cards_one]
+                set_one = [14 if card == 1 else card for card in set_one]
 
-                if max_card_one is not None and max_card_two is not None:
-                    if max_card_one == 1 and max_card_two == 1:
-                        continue
-                    elif max_card_one == 1:
-                        comparison_result = 1
-                    elif max_card_two == 1:
-                        comparison_result = -1
-                    else:
-                        comparison_result = max_card_one - max_card_two
-                elif max_card_one is not None:
-                    comparison_result = max_card_one
-                elif max_card_two is not None:
-                    comparison_result = -max_card_two
-                else:
-                    comparison_result = 0
-                if comparison_result > 0:
+            if not (cards_two[-1] == 1 and cards_two[0] == 5):
+                # Technically, we do not need to check for both, but it is safer
+                cards_two = [14 if card == 1 else card for card in cards_two]
+                set_two = [14 if card == 1 else card for card in set_two]
+
+            cards_one.sort(reverse=True)
+            cards_two.sort(reverse=True)
+            for card_one, card_two in zip(cards_one, cards_two):
+                if card_one > card_two:
                     return 1
-                elif comparison_result < 0:
+                elif card_one < card_two:
                     return -1
 
-            if winner == 0:
-                # Check remaining cards
-                unique_vec1 = [x for x in set_one if x not in cards_one]
-                unique_vec2 = [x for x in set_two if x not in cards_two]
+            remaining_cards_one = set_one.copy()
+            remaining_cards_two = set_two.copy()
 
-                if len(unique_vec1) < 1 or len(unique_vec2) < 1:
-                    return 0
+            for card in cards_one:
+                remaining_cards_one.remove(card)
+            for card in cards_two:
+                remaining_cards_two.remove(card)
 
-                max_card_one = max(
-                    unique_vec1, key=lambda x: x.rank, default=None)
-                max_card_two = max(
-                    unique_vec2, key=lambda x: x.rank, default=None)
+            remaining_cards_one.sort(reverse=True)
+            remaining_cards_two.sort(reverse=True)
 
-                comparison_result = max_card_one.rank - max_card_two.rank
-                if comparison_result > 0:
+            remaining_cards_one = remaining_cards_one[:5-len(cards_one)]
+            remaining_cards_two = remaining_cards_two[:5-len(cards_two)]
+
+            for card_one, card_two in zip(remaining_cards_one, remaining_cards_two):
+                if card_one > card_two:
                     return 1
-                elif comparison_result < 0:
+                elif card_one < card_two:
                     return -1
-                else:
-                    return 0
-            return winner
+            return 0
 
-    @staticmethod
+    @ staticmethod
     def hole_pair_evaluator(
         hole_pair: List[Card],
         public_cards: List[Card],
@@ -258,6 +248,6 @@ if __name__ == "__main__":
         Card(Suit.Spades, 11),
         Card(Suit.Spades, 10),
     ]
-    a, b = Oracle.hand_classifier(cards_one)
+    a, b=Oracle.hand_classifier(cards_one)
     print(a)
     print(len(b))

@@ -56,9 +56,10 @@ class Oracle:
         elif result_one < result_two:
             return 1
         else:
+
             one_unique_ranks = set([x.rank for x in cards_one])
             two_unique_ranks = set([x.rank for x in cards_two])
-            winner = None
+            winner = 0
 
             while len(one_unique_ranks) > 0:
                 max_card_one = 1 if 1 in one_unique_ranks else max(
@@ -68,8 +69,15 @@ class Oracle:
                     two_unique_ranks)
                 two_unique_ranks.remove(max_card_two)
 
-                if max_card_one and max_card_two:
+                if max_card_one is not None and max_card_two is not None:
                     comparison_result = max_card_one - max_card_two
+                elif max_card_one is not None:
+                    comparison_result = max_card_one
+                elif max_card_two is not None:
+                    comparison_result = -max_card_two
+                else:
+                    comparison_result = 0
+
                 if comparison_result > 0:
                     winner = 1
                 elif comparison_result < 0:
@@ -78,7 +86,7 @@ class Oracle:
                     winner = 0
 
             if winner == 0:
-                # Check remaining cardsg cardsg cardsg cardsg cardsg cardsg cardsg cardsg cardsg cardsg cardsg cardsg cardsg cards
+                # Check remaining cards
                 unique_vec1 = [x for x in set_one if x not in cards_one]
                 unique_vec2 = [x for x in set_two if x not in cards_two]
 
@@ -96,26 +104,7 @@ class Oracle:
                 elif comparison_result < 0:
                     return -1
                 else:
-                    unique_vec1 = [x for x in set_one if x not in cards_one]
-                    unique_vec2 = [x for x in set_two if x not in cards_two]
-
-                    if len(unique_vec1) < 1:
-                        return 0
-                    if len(unique_vec2) < 1:
-                        return 0
-
-                    max_card_one = max(
-                        unique_vec1, key=lambda x: x.rank, default=None)
-                    max_card_two = max(
-                        unique_vec2, key=lambda x: x.rank, default=None)
-
-                    comparison_result = max_card_one.rank - max_card_two.rank
-                    if comparison_result > 0:
-                        return 1
-                    elif comparison_result < 0:
-                        return -1
-                    else:
-                        return 0
+                    return 0
             return winner
 
     @staticmethod

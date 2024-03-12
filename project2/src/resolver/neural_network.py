@@ -7,14 +7,15 @@ from src.poker_oracle.oracle import Oracle
 from . import resolver
 from src.config import Config
 
+import tensorflow as tf
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Dot, Add, Concatenate, Reshape, Permute
+from tensorflow.keras.layers import Input, Dense, Dot, Add, Concatenate, Permute
 
 config = Config()
 
 # TODO!! EIRIKKKKKKKKKKKKKKKKOSELIG
 class NeuralNetwork:
-    def __init__(self, total_players:int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork']=None):
+    def __init__(self, total_players:int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork']=None, model_name=None, model_path=None):
         self.game_stage = game_stage
         self.parent_nn = parent_nn
         self.oracle = Oracle()
@@ -31,27 +32,31 @@ class NeuralNetwork:
             }
             self.resolver = resolver.Resolver(total_players, networks)
 
-            training_data = self.create_training_data(config.data['training_cases'], total_players, public_cards_size)
-            self.model = self.create_model(len(training_data["train_p_ranges"][0]))
-            training_data["train_relative_pot"] = training_data[
-                "train_relative_pot"
-            ].reshape(-1, 1)
 
-            self.train(
-                training_data["train_p_ranges"],
-                training_data["train_o_ranges"],
-                np.array(
-                    [
-                        self.ohe_cards(public_cards)
-                        for public_cards in training_data["train_public_cards"]
-                    ]
-                ),
-                training_data["train_relative_pot"],
-                training_data["target_value_vector_p"],
-                training_data["target_value_vector_o"],
-                config.data['epochs'],
-                config.data['batch_size'],
-            )
+            if model_path is None:
+                training_data = self.create_training_data(config.data['training_cases'], total_players, public_cards_size)
+                training_data["train_relative_pot"] = training_data[
+                    "train_relative_pot"
+                ].reshape(-1, 1)
+                self.model = self.create_model(len(training_data["train_p_ranges"][0]))
+                self.train(
+                    training_data["train_p_ranges"],
+                    training_data["train_o_ranges"],
+                    np.array(
+                        [
+                            self.ohe_cards(public_cards)
+                            for public_cards in training_data["train_public_cards"]
+                        ]
+                    ),
+                    training_data["train_relative_pot"],
+                    training_data["target_value_vector_p"],
+                    training_data["target_value_vector_o"],
+                    config.data['epochs'],
+                    config.data['batch_size'],
+                )
+                self.model.save(f"models/{model_name}.h5")
+            else:
+                self.model = tf.keras.models.load_model(model_path)
         
 
     def create_training_data(self, n: int, total_players:int, public_cards_size: int):
@@ -171,7 +176,6 @@ class NeuralNetwork:
 
         dot_product_p = Dot(axes=1)([value_layer_p1, input_p_range])
         dot_product_o = Dot(axes=1)([value_layer_p2, input_o_range])
-
         addition_layer = Add()([dot_product_p, dot_product_o])
 
         model = Model(

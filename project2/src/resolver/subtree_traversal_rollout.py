@@ -24,16 +24,31 @@ class SubtreeTraversalRollout:
     def __init__(self, total_players: int, networks: Dict = None):
         if not networks:
             self.networks = {}
+
+            # TRAIN NETWORK
+            # self.networks[GameStage.Showdown] = NeuralNetwork(
+            #     total_players, GameStage.Showdown, 0, None, 'Showdown')
+            # self.networks[GameStage.River] = NeuralNetwork(
+            #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River')
+            # self.networks[GameStage.Turn] = NeuralNetwork(
+            #     total_players, GameStage.Turn, 5, self.networks[GameStage.River], 'Turn')
+            # self.networks[GameStage.Flop] = NeuralNetwork(
+            #     total_players, GameStage.Flop, 5, self.networks[GameStage.Turn], 'Flop')
+            # self.networks[GameStage.PreFlop] = NeuralNetwork(
+            #     total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop], 'Preflop')
+            
+            # PRETRAINED NETWORK
             self.networks[GameStage.Showdown] = NeuralNetwork(
-                total_players, GameStage.Showdown, 0)
+                total_players, GameStage.Showdown, 0, None, 'Showdown', "models/Showdown.h5")
             self.networks[GameStage.River] = NeuralNetwork(
-                total_players, GameStage.River, 5, self.networks[GameStage.Showdown])
+                total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River', "models/River.h5")
             self.networks[GameStage.Turn] = NeuralNetwork(
-                total_players, GameStage.Turn, 5, self.networks[GameStage.River])
+                total_players, GameStage.Turn, 5, self.networks[GameStage.River], 'Turn', "models/Turn.h5")
             self.networks[GameStage.Flop] = NeuralNetwork(
-                total_players, GameStage.Flop, 5, self.networks[GameStage.Turn])
+                total_players, GameStage.Flop, 5, self.networks[GameStage.Turn], 'Flop', "models/Flop.h5")
             self.networks[GameStage.PreFlop] = NeuralNetwork(
-                total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop])
+                total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
+
         else:
             self.networks = networks
         self.oracle = Oracle()
@@ -67,23 +82,23 @@ class SubtreeTraversalRollout:
         """
         p_values_for_all_act = []
         o_values_for_all_act = []
-        logger.debug(
-            "Subtree Traversal Rollout (depth = {})".format(node.depth))
+        # logger.debug(
+        #     "Subtree Traversal Rollout (depth = {})".format(node.depth))
         if node.state.game_stage == GameStage.Showdown:
-            logger.debug("Showdown")
+            # logger.debug("Showdown")
             utility_matrix = self.oracle.utility_matrix_generator(
                 node.state.board.cards)
             p_values = utility_matrix * o_range.T
             o_values = -p_values * utility_matrix
         elif node.state.game_stage == end_stage or node.depth == end_depth:
-            logger.debug("End stage or depth")
+            # logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
             p_values, o_values = self.networks[node.state.game_stage].run(
                 node.state, node.state.game_stage, p_range, o_range
             )
         # TODO: Check if chance event (consider adding the chance events to the game state)
         elif not node.state_manager.chance_event:
-            logger.debug("Player state")
+            # logger.debug("Player state")
             # Value vector is the range times the utility matrix (or the hole pairs)
             p_values = np.zeros((len(self.oracle.hole_pairs),))
             o_values = np.zeros((len(self.oracle.hole_pairs),))
@@ -105,7 +120,7 @@ class SubtreeTraversalRollout:
                 # TODO: is this correct
                 new_node = Node(copy.deepcopy(state), end_stage,
                                 end_depth, node.depth + 1)
-                logger.debug("Place 1")
+                # logger.debug("Place 1")
                 p_values_new, o_values_new, _, _ = (
                     self.subtree_traversal_rollout(
                         new_node, p_range, o_range, end_stage, end_depth

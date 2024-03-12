@@ -70,20 +70,24 @@ class Oracle:
                 two_unique_ranks.remove(max_card_two)
 
                 if max_card_one is not None and max_card_two is not None:
-                    comparison_result = max_card_one - max_card_two
+                    if max_card_one == 1 and max_card_two == 1:
+                        continue
+                    elif max_card_one == 1:
+                        comparison_result = 1
+                    elif max_card_two == 1:
+                        comparison_result = -1
+                    else:
+                        comparison_result = max_card_one - max_card_two
                 elif max_card_one is not None:
                     comparison_result = max_card_one
                 elif max_card_two is not None:
                     comparison_result = -max_card_two
                 else:
                     comparison_result = 0
-
                 if comparison_result > 0:
-                    winner = 1
+                    return 1
                 elif comparison_result < 0:
-                    winner = -1
-                else:
-                    winner = 0
+                    return -1
 
             if winner == 0:
                 # Check remaining cards

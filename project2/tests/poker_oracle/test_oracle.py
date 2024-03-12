@@ -67,7 +67,7 @@ class TestOracle(unittest.TestCase):
         ]
 
         result = Oracle.hand_evaluator(cards_one, cards_two)
-        self.assertEqual(result, -1)
+        self.assertEqual(result, 1)
 
     def test_hand_evaluator_player_with_A(self):
         cards_one = [

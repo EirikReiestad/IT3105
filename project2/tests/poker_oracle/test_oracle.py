@@ -195,7 +195,7 @@ class TestOracle(unittest.TestCase):
         result = Oracle.hand_evaluator(cards_two, cards_one)
         self.assertEqual(result, 1)
 
-    def test_hand_evaluator_two_pair_first_pair_tie(self):
+    def test_hand_evaluator_two_pairs_first_pair_tie(self):
         cards_one = [
             Card(Suit.Spades, 13),
             Card(Suit.Diamonds, 11),

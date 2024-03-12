@@ -63,11 +63,11 @@ class Oracle:
             set_two = [card.rank for card in set_two]
 
             # Edge case: low straight, A == 1 instead of 14
-            if not (cards_one[-1] == 1 and cards_one[0] == 5):
+            if cards_one != [5, 4, 3, 2, 1]:
                 cards_one = [14 if card == 1 else card for card in cards_one]
                 set_one = [14 if card == 1 else card for card in set_one]
 
-            if not (cards_two[-1] == 1 and cards_two[0] == 5):
+            if cards_two != [5, 4, 3, 2, 1]:
                 # Technically, we do not need to check for both, but it is safer
                 cards_two = [14 if card == 1 else card for card in cards_two]
                 set_two = [14 if card == 1 else card for card in set_two]

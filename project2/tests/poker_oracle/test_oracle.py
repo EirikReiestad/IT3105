@@ -69,6 +69,46 @@ class TestOracle(unittest.TestCase):
         result = Oracle.hand_evaluator(cards_one, cards_two)
         self.assertEqual(result, -1)
 
+    def test_hand_evaluator_player_with_A(self):
+        cards_one = [
+            Card(Suit.Spades, 13),
+            Card(Suit.Diamonds, 12),
+            Card(Suit.Spades, 11),
+            Card(Suit.Clubs, 10),
+            Card(Suit.Diamonds, 9),
+        ]
+
+        cards_two = [
+            Card(Suit.Spades, 13),
+            Card(Suit.Diamonds, 12),
+            Card(Suit.Spades, 11),
+            Card(Suit.Clubs, 1),
+            Card(Suit.Diamonds, 10),
+        ]
+
+        result = Oracle.hand_evaluator(cards_one, cards_two)
+        self.assertEqual(result, -1)
+
+    def test_hand_evaluator_player_with_A_pair(self):
+        cards_one = [
+            Card(Suit.Spades, 13),
+            Card(Suit.Diamonds, 13),
+            Card(Suit.Spades, 1),
+            Card(Suit.Clubs, 1),
+            Card(Suit.Diamonds, 10),
+        ]
+
+        cards_two = [
+            Card(Suit.Spades, 13),
+            Card(Suit.Diamonds, 13),
+            Card(Suit.Spades, 1),
+            Card(Suit.Clubs, 10),
+            Card(Suit.Diamonds, 10),
+        ]
+
+        result = Oracle.hand_evaluator(cards_one, cards_two)
+        self.assertEqual(result, 1)
+
     def test_hand_evaluator_player_one_lose(self):
         cards_one = [
             Card(Suit.Clubs, 13),
@@ -134,6 +174,26 @@ class TestOracle(unittest.TestCase):
 
         result = Oracle.hand_evaluator(cards_two, cards_one)
         self.assertEqual(result, 0)
+
+    def test_hand_evaluator_two_pair_first_pair_tie(self):
+        cards_one = [
+            Card(Suit.Spades, 13),
+            Card(Suit.Diamonds, 11),
+            Card(Suit.Spades, 10),
+            Card(Suit.Clubs, 13),
+            Card(Suit.Hearts, 10),
+        ]
+
+        cards_two = [
+            Card(Suit.Spades, 13),
+            Card(Suit.Diamonds, 11),
+            Card(Suit.Spades, 10),
+            Card(Suit.Clubs, 13),
+            Card(Suit.Hearts, 11),
+        ]
+
+        result = Oracle.hand_evaluator(cards_two, cards_one)
+        self.assertEqual(result, 1)
 
     def test_hand_evaluator_two_pair_first_pair_tie(self):
         cards_one = [

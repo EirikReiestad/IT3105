@@ -65,9 +65,9 @@ class Oracle:
             winner = None
 
             while len(one_unique_ranks) > 0:
-                max_card_one = max(one_unique_ranks)
+                max_card_one = 1 if 1 in one_unique_ranks else max(one_unique_ranks)
                 one_unique_ranks.remove(max_card_one)
-                max_card_two = max(two_unique_ranks)
+                max_card_two = 1 if 1 in two_unique_ranks else max(two_unique_ranks)
                 two_unique_ranks.remove(max_card_two)
 
                 if max_card_one and max_card_two:
@@ -83,6 +83,9 @@ class Oracle:
                 ## Check remaining cards
                 unique_vec1 = [x for x in set_one if x not in cards_one]
                 unique_vec2 = [x for x in set_two if x not in cards_two]
+
+                if len(unique_vec1) < 1 and len(unique_vec2) < 1:
+                    return 0
 
                 max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
                 max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)

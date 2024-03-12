@@ -180,6 +180,11 @@ class GameManager:
         """
         print(self._rules())
         while True:
+            if self.players.get_number_of_non_bust_players() == 1:
+                print("=" * 20)
+                print(f"Player {self.players.get_active_player()} won!")
+                print("=" * 20)
+                return
             deck = Deck()
             self.reset_round(deck)
             # time.sleep(1)

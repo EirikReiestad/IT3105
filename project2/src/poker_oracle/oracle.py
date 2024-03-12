@@ -90,7 +90,7 @@ class Oracle:
                 unique_vec1 = [x for x in set_one if x not in cards_one]
                 unique_vec2 = [x for x in set_two if x not in cards_two]
 
-                if len(unique_vec1) < 1 and len(unique_vec2) < 1:
+                if len(unique_vec1) < 1 or len(unique_vec2) < 1:
                     return 0
 
                 max_card_one = max(

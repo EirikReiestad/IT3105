@@ -25,9 +25,13 @@ class PublicPlayerState:
     def action(self, action: Action, amount: int = 0) -> bool:
         """Returns a boolean indicating whether the action was successful"""
         if self._bet(amount) is False:
-            # TODO: Do not need to fold. Can go all-in or check if possible
+            if self.chips == 0:
+                self.bust = True
+                print("Player is bust")
+                return False
             print("Not enough money. Folded.")
             self.action_history.append(Action.Fold)
+            self.folded = True
             self.betting_history.append(0)
             return False
         self.action_history.append(action)

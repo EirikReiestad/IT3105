@@ -15,15 +15,15 @@ logger = setup_logger()
 
 
 class Resolver:
-    def __init__(self, total_players:int, networks:Dict=None):
+    def __init__(self, total_players: int, networks: Dict = None):
         amount_of_pairs = len(Oracle.generate_all_hole_pairs())
         self.p_range: np.ndarray = np.full(
             (amount_of_pairs,), 1 / amount_of_pairs)
         self.o_range: np.ndarray = np.full(
             (amount_of_pairs,), 1 / amount_of_pairs)
+        # TODO: REMEMBER TO REMOVE UNCOMMENT
         self.str = SubtreeTraversalRollout(total_players, networks)
         self.count = 0
-
 
     @staticmethod
     def bayesian_range_update(
@@ -196,7 +196,8 @@ class Resolver:
                     # NOTE: Same as in subtreetraversal, assuming that the pair order is the same as the index
                     # and that the action order is the same in every case
                     R_s_sum = sum(
-                        [R_s_plus[pair_idx][i] for i in range(len(all_actions))]
+                        [R_s_plus[pair_idx][i]
+                            for i in range(len(all_actions))]
                     )
                     if R_s_sum == 0:
                         raise ValueError("The sum of R_s_plus is 0")
@@ -211,7 +212,7 @@ class Resolver:
         end_stage: GameStage,
         end_depth: int,
         num_rollouts: int,
-        verbose: bool=False
+        verbose: bool = False
     ):
         """
         Parameters

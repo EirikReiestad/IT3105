@@ -1,18 +1,15 @@
+import numpy as np
+from .deck import Card, Suit
+from src.poker_oracle.hands import HandsCheck, Hands
+from src.poker_oracle.deck import Deck
+from itertools import combinations
+from typing import List, Tuple
 import os
 import sys
 
 module_path = os.path.abspath(os.path.join("./"))
 if module_path not in sys.path:
     sys.path.append(module_path)
-
-from typing import List, Tuple, Optional
-from enum import Enum
-from itertools import combinations
-import unittest
-from src.poker_oracle.deck import Deck
-from src.poker_oracle.hands import HandsCheck, Hands
-from .deck import Card, Suit
-import numpy as np
 
 
 class Oracle:
@@ -23,7 +20,7 @@ class Oracle:
     @staticmethod
     def hand_classifier(cards: List[Card]) -> Tuple[Hands, List[Card]]:
         if not (5 <= len(cards) <= 7):
-            raise ValueError("Invalid number of cards")
+            raise ValueError("Invalid number of cards: {}".format(len(cards)))
 
         hand_checks = [
             (HandsCheck.is_royal_flush, Hands.RoyalFlush),
@@ -59,45 +56,50 @@ class Oracle:
         elif result_one < result_two:
             return 1
         else:
+            cards_one = [card.rank for card in cards_one]
+            cards_two = [card.rank for card in cards_two]
 
-            one_unique_ranks = set([x.rank for x in cards_one])
-            two_unique_ranks = set([x.rank for x in cards_two])
-            winner = None
+            set_one = [card.rank for card in set_one]
+            set_two = [card.rank for card in set_two]
 
-            while len(one_unique_ranks) > 0:
-                max_card_one = 1 if 1 in one_unique_ranks else max(one_unique_ranks)
-                one_unique_ranks.remove(max_card_one)
-                max_card_two = 1 if 1 in two_unique_ranks else max(two_unique_ranks)
-                two_unique_ranks.remove(max_card_two)
+            # Edge case: low straight, A == 1 instead of 14
+            if cards_one != [5, 4, 3, 2, 1]:
+                cards_one = [14 if card == 1 else card for card in cards_one]
+                set_one = [14 if card == 1 else card for card in set_one]
 
-                if max_card_one and max_card_two:
-                    comparison_result = max_card_one - max_card_two
-                if comparison_result > 0:
-                    winner = 1
-                elif comparison_result < 0:
-                    winner = -1
-                else:
-                    winner = 0
+            if cards_two != [5, 4, 3, 2, 1]:
+                # Technically, we do not need to check for both, but it is safer
+                cards_two = [14 if card == 1 else card for card in cards_two]
+                set_two = [14 if card == 1 else card for card in set_two]
 
-            if winner == 0:
-                ## Check remaining cards
-                unique_vec1 = [x for x in set_one if x not in cards_one]
-                unique_vec2 = [x for x in set_two if x not in cards_two]
-
-                if len(unique_vec1) < 1 and len(unique_vec2) < 1:
-                    return 0
-
-                max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
-                max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)
-
-                comparison_result = max_card_one.rank - max_card_two.rank
-                if comparison_result > 0:
+            cards_one.sort(reverse=True)
+            cards_two.sort(reverse=True)
+            for card_one, card_two in zip(cards_one, cards_two):
+                if card_one > card_two:
                     return 1
-                elif comparison_result < 0:
+                elif card_one < card_two:
                     return -1
-                else:
-                    return 0
-            return winner
+
+            remaining_cards_one = set_one.copy()
+            remaining_cards_two = set_two.copy()
+
+            for card in cards_one:
+                remaining_cards_one.remove(card)
+            for card in cards_two:
+                remaining_cards_two.remove(card)
+
+            remaining_cards_one.sort(reverse=True)
+            remaining_cards_two.sort(reverse=True)
+
+            remaining_cards_one = remaining_cards_one[:5-len(cards_one)]
+            remaining_cards_two = remaining_cards_two[:5-len(cards_two)]
+
+            for card_one, card_two in zip(remaining_cards_one, remaining_cards_two):
+                if card_one > card_two:
+                    return 1
+                elif card_one < card_two:
+                    return -1
+            return 0
 
     @staticmethod
     def hole_pair_evaluator(
@@ -114,7 +116,8 @@ class Oracle:
             deck = Deck()
 
             cloned_public_cards = (
-                public_cards.copy() if public_cards else [deck.pop() for _ in range(5)]
+                public_cards.copy() if public_cards else [
+                    deck.pop() for _ in range(5)]
             )
 
             player_hole_pair = hole_pair + cloned_public_cards
@@ -151,17 +154,20 @@ class Oracle:
 
         for i, hole_pair_i in enumerate(self.hole_pairs):
             for j, hole_pair_j in enumerate(self.hole_pairs):
-                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
+                overlap = any(
+                    c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
@@ -175,7 +181,7 @@ class Oracle:
 
         return matrix
 
-    @staticmethod
+    @ staticmethod
     def generate_all_hole_pairs(shuffle=False) -> List[List[Card]]:
         deck = Deck(shuffle=shuffle)
         return list(combinations(deck.stack, 2))
@@ -183,7 +189,7 @@ class Oracle:
     def get_number_of_all_hole_pairs(self) -> int:
         return len(self.hole_pairs)
 
-    @staticmethod
+    @ staticmethod
     def generate_all_hole_pairs_types() -> List[List[Card]]:
         pair_of_ranks = []
         for i in range(13):
@@ -242,6 +248,6 @@ if __name__ == "__main__":
         Card(Suit.Spades, 11),
         Card(Suit.Spades, 10),
     ]
-    a, b = Oracle.hand_classifier(cards_one)
+    a, b=Oracle.hand_classifier(cards_one)
     print(a)
     print(len(b))

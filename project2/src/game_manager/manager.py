@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 import copy
 import random
 from src.poker_oracle.deck import Deck
@@ -14,6 +14,7 @@ from src.gui.display import Display
 from src.config import Config
 from src.setup_logger import setup_logger
 from src.state_manager.manager import StateManager
+from src.resolver.strategy import Strategy
 
 logger = setup_logger()
 config = Config()
@@ -81,14 +82,21 @@ class GameManager:
         end_stage = self.game_stage.next_stage()
         end_depth = 3
         num_rollouts = 1
-        return self.resolver.resolve(
-            self.get_current_public_state(),
-            end_stage,
-            end_depth,
-            num_rollouts,
-        )
 
-        # Handles generating the game state
+        # Only run the resolve x amount of times
+        if random.random() < config.data['alpha'] and self.players.get_number_of_active_players() == 2:
+            return self.resolver.resolve(
+                self.get_current_public_state(),
+                end_stage,
+                end_depth,
+                num_rollouts,
+            )
+
+        return Strategy().resolve(
+            self.players.get(self.current_player_index),
+            self.get_current_private_state(),
+            end_stage,
+            end_depth)
 
     def get_current_public_state(self) -> PublicGameState:
         player_states: List[PublicPlayerState] = self.players.get_public_player_states(
@@ -169,8 +177,14 @@ class GameManager:
         """
         print(self._rules())
         while True:
+            if self.players.get_number_of_non_bust_players() == 1:
+                print("=" * 20)
+                print(f"Player {self.players.get_active_player()} won!")
+                print("=" * 20)
+                return
             deck = Deck()
             self.reset_round(deck)
+            # time.sleep(1)
             self.run_round()
 
     def run_round(self):
@@ -190,27 +204,27 @@ class GameManager:
             match self.game_stage:
                 case GameStage.PreFlop:
                     winner = self.run_game_stage()
-                    if self.round_winner(winner):
+                    if self.round_winner([winner]):
                         return
                     self.chance_event = True
                 case GameStage.Flop:
                     winner = self.run_game_stage()
-                    if self.round_winner(winner):
+                    if self.round_winner([winner]):
                         return
                     self.chance_event = True
                 case GameStage.Turn:
                     winner = self.run_game_stage()
-                    if self.round_winner(winner):
+                    if self.round_winner([winner]):
                         return
                     self.chance_event = True
                 case GameStage.River:
                     winner = self.run_game_stage()
-                    if self.round_winner(winner):
+                    if self.round_winner([winner]):
                         return
                     self.chance_event = True
                 case GameStage.Showdown:
                     winners = self.showdown()
-                    print("winners", winners)
+                    print("winners:", winners)
                     winner = self.round_winner(winners)
                     if winner is False:
                         raise ValueError("No winner found")
@@ -221,8 +235,9 @@ class GameManager:
         """
         Handles the winner of the round
         """
-        if winners is None or len(winners) == 0:
+        if winners is None or len(winners) == 0 or winners[0] is None:
             return False
+
         winner_pot = self.board.pot / len(winners)
         for w in winners:
             self.players.winner(w, winner_pot)
@@ -282,6 +297,8 @@ class GameManager:
             if action == Action.Fold():
                 print(f"Player {turn} folded")
                 self.players.fold(turn)
+                if self.players.get_number_of_active_players() == 1:
+                    return True, self.players.get_active_player()
                 continue
             elif action == Action.Check():
                 print(f"Player {turn} checked")

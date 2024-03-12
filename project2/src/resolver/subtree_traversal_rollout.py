@@ -21,14 +21,19 @@ logger = setup_logger()
 # TODO: Fix that r2 (o_range) is not updated in the loop
 class SubtreeTraversalRollout:
 
-    def __init__(self, total_players:int, networks:Dict=None):
+    def __init__(self, total_players: int, networks: Dict = None):
         if not networks:
             self.networks = {}
-            self.networks[GameStage.Showdown] = NeuralNetwork(total_players, GameStage.Showdown, 0)
-            self.networks[GameStage.River] = NeuralNetwork(total_players, GameStage.River, 5, self.networks[GameStage.Showdown])
-            self.networks[GameStage.Turn] = NeuralNetwork(total_players, GameStage.Turn, 5, self.networks[GameStage.River])
-            self.networks[GameStage.Flop] = NeuralNetwork(total_players, GameStage.Flop, 5, self.networks[GameStage.Turn])
-            self.networks[GameStage.PreFlop] = NeuralNetwork(total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop])
+            self.networks[GameStage.Showdown] = NeuralNetwork(
+                total_players, GameStage.Showdown, 0)
+            self.networks[GameStage.River] = NeuralNetwork(
+                total_players, GameStage.River, 5, self.networks[GameStage.Showdown])
+            self.networks[GameStage.Turn] = NeuralNetwork(
+                total_players, GameStage.Turn, 5, self.networks[GameStage.River])
+            self.networks[GameStage.Flop] = NeuralNetwork(
+                total_players, GameStage.Flop, 5, self.networks[GameStage.Turn])
+            self.networks[GameStage.PreFlop] = NeuralNetwork(
+                total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop])
         else:
             self.networks = networks
         self.oracle = Oracle()

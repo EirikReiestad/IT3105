@@ -1,19 +1,15 @@
+import itertools
+from src.poker_oracle.deck import Card, Suit
+from collections import defaultdict
+from enum import Enum
+from typing import List
+from itertools import combinations
 import os
 import sys
 
 module_path = os.path.abspath(os.path.join("./"))
 if module_path not in sys.path:
     sys.path.append(module_path)
-
-from itertools import combinations
-from typing import List, Tuple
-from enum import Enum
-from collections import defaultdict, Counter
-from dataclasses import dataclass
-from src.poker_oracle.deck import Card, Suit
-
-import itertools
-from typing import List, Tuple
 
 
 class Hands(Enum):
@@ -27,6 +23,17 @@ class Hands(Enum):
     TwoPairs = 8
     OnePair = 9
     HighCard = 10
+
+    @staticmethod
+    def get_max_hand_value() -> int:
+        return Hands.RoyalFlush
+
+    @staticmethod
+    def get_min_hand_value() -> int:
+        return Hands.HighCard
+
+    def __int__(self):
+        return self.value
 
     def __lt__(self, other):
         return self.value < other.value
@@ -265,18 +272,15 @@ class HandsCheck:
 
 if __name__ == "__main__":
     cards_one = [
-            Card(Suit.Spades, 13),
-            Card(Suit.Spades, 12),
-            Card(Suit.Spades, 1),
-            Card(Suit.Spades, 2),
-            Card(Suit.Spades, 11),
-            Card(Suit.Spades, 10),
-        ]
-
+        Card(Suit.Spades, 13),
+        Card(Suit.Spades, 12),
+        Card(Suit.Spades, 1),
+        Card(Suit.Spades, 2),
+        Card(Suit.Spades, 11),
+        Card(Suit.Spades, 10),
+    ]
 
     ues, cards_back = HandsCheck.is_two_pairs(cards_one)
 
     for card in cards_back:
         print(card)
-
-    

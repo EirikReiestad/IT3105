@@ -18,9 +18,9 @@ class PublicBoardState:
     ):
         if not isinstance(cards, list):
             raise TypeError("cards must be a list")
-        self.cards = cards  # A list of Card instances
-        self.pot = pot  # An integer
-        self.highest_bet = highest_bet  # An integer
+        self.cards = cards  # A list of Card instances self.pot = pot  # An integer self.highest_bet = highest_bet  # An integer
+        self.pot = pot
+        self.highest_bet = highest_bet
         self.dealer: int = dealer
         self.game_stage: GameStage = game_stage  # An instance of GameStage
 

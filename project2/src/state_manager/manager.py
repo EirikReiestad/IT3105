@@ -161,7 +161,7 @@ class StateManager:
             player for player in self.players if not player.folded and not player.bust
         ]
 
-        if self.check_count == active_players :
+        if self.check_count == active_players:
             self.chance_event = True
             self.game_stage = self.game_stage.next_stage()
             self.check_count = 0

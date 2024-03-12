@@ -22,7 +22,7 @@ class Resolver:
         self.o_range: np.ndarray = np.full(
             (amount_of_pairs,), 1 / amount_of_pairs)
         # TODO: REMEMBER TO REMOVE UNCOMMENT
-        # self.str = SubtreeTraversalRollout(total_players, networks)
+        self.str = SubtreeTraversalRollout(total_players, networks)
         self.count = 0
 
     @staticmethod

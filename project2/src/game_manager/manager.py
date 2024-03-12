@@ -182,7 +182,7 @@ class GameManager:
         while True:
             deck = Deck()
             self.reset_round(deck)
-            time.sleep(1)
+            # time.sleep(1)
             self.run_round()
 
     def run_round(self):

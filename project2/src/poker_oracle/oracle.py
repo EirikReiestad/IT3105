@@ -56,38 +56,23 @@ class Oracle:
         elif result_one < result_two:
             return 1
         else:
+            # Because it is a tie, we need to compare the ranks of the cards
+            # Note, we only compare the top 5 cards
 
-            max_card_one = max(cards_one, key=lambda x: x.rank, default=None)
-            max_card_two = max(cards_two, key=lambda x: x.rank, default=None)
+            rank_one = [x.rank for x in set_one]
+            rank_one.replace(1, 14)
+            rank_two = [x.rank for x in set_two]
+            rank_two.replace(1, 14)
 
-            if max_card_one and max_card_two:
-                comparison_result = max_card_one.rank - max_card_two.rank
-                if comparison_result > 0:
+            rank_one.sort(reverse=True)
+            rank_two.sort(reverse=True)
+
+            for i in range(5):
+                if rank_one[i] > rank_two[i]:
                     return 1
-                elif comparison_result < 0:
+                elif rank_one[i] < rank_two[i]:
                     return -1
-                else:
-                    unique_vec1 = [x for x in set_one if x not in cards_one]
-                    unique_vec2 = [x for x in set_two if x not in cards_two]
-
-                    max_card_one = max(
-                        unique_vec1, key=lambda x: x.rank, default=None)
-                    max_card_two = max(
-                        unique_vec2, key=lambda x: x.rank, default=None)
-
-                    comparison_result = max_card_one.rank - max_card_two.rank
-                    if comparison_result > 0:
-                        return 1
-                    elif comparison_result < 0:
-                        return -1
-                    else:
-                        return 0
-            elif max_card_one:
-                return 1
-            elif max_card_two:
-                return -1
-            else:
-                return 0
+            return 0
 
     @staticmethod
     def hole_pair_evaluator(
@@ -169,7 +154,7 @@ class Oracle:
 
         return matrix
 
-    @staticmethod
+    @ staticmethod
     def generate_all_hole_pairs(shuffle=False) -> List[List[Card]]:
         deck = Deck(shuffle=shuffle)
         return list(combinations(deck.stack, 2))
@@ -177,7 +162,7 @@ class Oracle:
     def get_number_of_all_hole_pairs(self) -> int:
         return len(self.hole_pairs)
 
-    @staticmethod
+    @ staticmethod
     def generate_all_hole_pairs_types() -> List[List[Card]]:
         pair_of_ranks = []
         for i in range(13):

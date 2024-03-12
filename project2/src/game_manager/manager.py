@@ -86,8 +86,7 @@ class GameManager:
         num_rollouts = 1
 
         # Only run the resolve x amount of times
-        threshold = 0.0  # TODO: Should be 0.2 or other value > 0.0
-        if random.random() < threshold:
+        if random.random() < config.data['alpha']:
             return self.resolver.resolve(
                 self.get_current_public_state(),
                 end_stage,

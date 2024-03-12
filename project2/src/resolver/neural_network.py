@@ -246,14 +246,13 @@ class NeuralNetwork:
             #### Cheap/Hard method
             public_cards_ohe = self.ohe_cards(state.board_state.cards)
             predicted_p_values, predicted_o_values, predicted_addition_layer = (
-                self.model.predict(
+                self.model(
                     [
                         np.array([p_range]),
                         np.array([o_range]),
                         np.array([public_cards_ohe]),
                         np.array([np.array([state.board_state.pot])]),
                     ],
-                    verbose=False
                 )
             )
 

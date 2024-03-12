@@ -86,7 +86,7 @@ class GameManager:
         num_rollouts = 1
 
         # Only run the resolve x amount of times
-        if random.random() < config.data['alpha']:
+        if random.random() < config.data['alpha'] and self.players.get_number_of_active_players() == 2:
             return self.resolver.resolve(
                 self.get_current_public_state(),
                 end_stage,

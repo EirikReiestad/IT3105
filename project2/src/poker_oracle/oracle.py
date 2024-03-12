@@ -101,7 +101,7 @@ class Oracle:
                     return -1
             return 0
 
-    @ staticmethod
+    @staticmethod
     def hole_pair_evaluator(
         hole_pair: List[Card],
         public_cards: List[Card],

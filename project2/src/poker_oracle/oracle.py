@@ -59,35 +59,36 @@ class Oracle:
             # Because it is a tie, we need to compare the ranks of the cards
             # Note, we only compare the top 5 cards
             # But before that, we will compare the ranks of the hands
+            max_card_one = max(cards_one, key=lambda x: x.rank, default=None)
+            max_card_two = max(cards_two, key=lambda x: x.rank, default=None)
 
-            rank_one_hand = [x.rank for x in cards_one]
-            rank_one_hand.replace(1, 14)
-            rank_two_hand = [x.rank for x in cards_two]
-            rank_two_hand.replace(1, 14)
-
-            rank_one_hand.sort(reverse=True)
-            rank_two_hand.sort(reverse=True)
-
-            for i in range(len(rank_one_hand)):
-                if rank_one_hand[i] > rank_two_hand[i]:
+            if max_card_one is not None and max_card_two is not None:
+                comparison_result = max_card_one.rank - max_card_two.rank
+                if comparison_result > 0:
                     return 1
-                elif rank_one_hand[i] < rank_two_hand[i]:
+                elif comparison_result < 0:
                     return -1
+                else:
+                    unique_vec1 = [x for x in set_one if x not in cards_one]
+                    unique_vec2 = [x for x in set_two if x not in cards_two]
 
-            rank_one = [x.rank for x in set_one]
-            rank_one.replace(1, 14)
-            rank_two = [x.rank for x in set_two]
-            rank_two.replace(1, 14)
+                    if len(unique_vec1) < 1:
+                        return 0
+                    if len(unique_vec2) < 1:
+                        return 0
 
-            rank_one.sort(reverse=True)
-            rank_two.sort(reverse=True)
+                    max_card_one = max(
+                        unique_vec1, key=lambda x: x.rank, default=None)
+                    max_card_two = max(
+                        unique_vec2, key=lambda x: x.rank, default=None)
 
-            for i in range(5):
-                if rank_one[i] > rank_two[i]:
-                    return 1
-                elif rank_one[i] < rank_two[i]:
-                    return -1
-            return 0
+                    comparison_result = max_card_one.rank - max_card_two.rank
+                    if comparison_result > 0:
+                        return 1
+                    elif comparison_result < 0:
+                        return -1
+                    else:
+                        return 0
 
     @staticmethod
     def hole_pair_evaluator(

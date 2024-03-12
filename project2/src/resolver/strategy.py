@@ -210,7 +210,6 @@ class Strategy:
         pot_odds = pot / call_sum
 
         # Calculate break even percentage
-        print(pot, pot_odds, call_sum)
         break_even_percentage = 100 / (pot_odds + 1)
 
         probability = 1 - (1 - (outs / len(deck))) ** cards_left
@@ -232,8 +231,6 @@ class Strategy:
 
         if call_sum < 0:
             raise ValueError("Call sum can not be < 0")
-
-        print("Call sum", call_sum)
 
         if group is None:
             if call_sum == 0 and random.random() < fold_threshold:

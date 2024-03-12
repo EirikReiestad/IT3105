@@ -57,7 +57,7 @@ class StateManager:
         if can_raise_1:
             actions.append(Action.Raise(raise_sum_1))
         # Only allow fold if no other action is possible # TODO: Remove
-        if can_fold and len(actions) == 0:
+        if can_fold:
             actions.append(Action.Fold())
         # TODO: Add the commented out actions
 

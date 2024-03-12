@@ -57,8 +57,8 @@ class GameManager:
 
         s = "Legal actions: "
         for action in legal_actions:
-            s += "{}: {}".format(legal_action_count, action)
-            actions[legal_action_count] = action
+            s += "{}: {} ".format(legal_action_count, action)
+            actions[str(legal_action_count)] = action
             legal_action_count += 1
         print(s)
 
@@ -71,7 +71,7 @@ class GameManager:
 
             if not action:
                 return get_input()
-            get_input()
+            return action
 
         return get_input()
 
@@ -334,7 +334,6 @@ class GameManager:
         -------
         bool: True if this is a preflop bet, False otherwise
         """
-        print("Preflop bets")
         player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
@@ -353,7 +352,6 @@ class GameManager:
             return True
 
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
-            print("Big Blind")
             # Big blind
             if not self.graphics:
                 print(

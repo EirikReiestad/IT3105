@@ -48,7 +48,6 @@ class SubtreeTraversalRollout:
                 total_players, GameStage.Flop, 5, self.networks[GameStage.Turn], 'Flop', "models/Flop.h5")
             self.networks[GameStage.PreFlop] = NeuralNetwork(
                 total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
-
         else:
             self.networks = networks
         self.oracle = Oracle()

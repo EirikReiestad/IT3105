@@ -16,8 +16,6 @@ from src.setup_logger import setup_logger
 from src.state_manager.manager import StateManager
 from src.resolver.strategy import Strategy
 
-import time
-
 logger = setup_logger()
 config = Config()
 

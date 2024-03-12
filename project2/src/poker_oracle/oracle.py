@@ -60,35 +60,41 @@ class Oracle:
             return 1
         else:
 
-            max_card_one = max(cards_one, key=lambda x: x.rank, default=None)
-            max_card_two = max(cards_two, key=lambda x: x.rank, default=None)
+            one_unique_ranks = set([x.rank for x in cards_one])
+            two_unique_ranks = set([x.rank for x in cards_two])
+            winner = None
 
-            if max_card_one and max_card_two:
+            while len(one_unique_ranks) > 0:
+                max_card_one = max(one_unique_ranks)
+                one_unique_ranks.remove(max_card_one)
+                max_card_two = max(two_unique_ranks)
+                two_unique_ranks.remove(max_card_two)
+
+                if max_card_one and max_card_two:
+                    comparison_result = max_card_one - max_card_two
+                if comparison_result > 0:
+                    winner = 1
+                elif comparison_result < 0:
+                    winner = -1
+                else:
+                    winner = 0
+
+            if winner == 0:
+                ## Check remaining cards
+                unique_vec1 = [x for x in set_one if x not in cards_one]
+                unique_vec2 = [x for x in set_two if x not in cards_two]
+
+                max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
+                max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)
+
                 comparison_result = max_card_one.rank - max_card_two.rank
                 if comparison_result > 0:
                     return 1
                 elif comparison_result < 0:
                     return -1
                 else:
-                    unique_vec1 = [x for x in set_one if x not in cards_one]
-                    unique_vec2 = [x for x in set_two if x not in cards_two]
-
-                    max_card_one = max(unique_vec1, key=lambda x: x.rank, default=None)
-                    max_card_two = max(unique_vec2, key=lambda x: x.rank, default=None)
-
-                    comparison_result = max_card_one.rank - max_card_two.rank
-                    if comparison_result > 0:
-                        return 1
-                    elif comparison_result < 0:
-                        return -1
-                    else:
-                        return 0
-            elif max_card_one:
-                return 1
-            elif max_card_two:
-                return -1
-            else:
-                return 0
+                    return 0
+            return winner
 
     @staticmethod
     def hole_pair_evaluator(

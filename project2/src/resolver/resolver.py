@@ -175,6 +175,10 @@ class Resolver:
                     )
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")
+
+                    print(p_values_all_act[i].shape, i,
+                          node.available_actions, len(all_actions))
+
                     new_p_value = p_values_all_act[i]
                     new_o_value = o_values_all_act[i]
 

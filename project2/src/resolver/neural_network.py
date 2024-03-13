@@ -14,8 +14,10 @@ from tensorflow.keras.layers import Input, Dense, Dot, Add, Concatenate, Permute
 config = Config()
 
 # TODO!! EIRIKKKKKKKKKKKKKKKKOSELIG
+
+
 class NeuralNetwork:
-    def __init__(self, total_players:int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork']=None, model_name=None, model_path=None):
+    def __init__(self, total_players: int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork'] = None, model_name=None, model_path=None):
         self.game_stage = game_stage
         self.parent_nn = parent_nn
         self.oracle = Oracle()
@@ -32,13 +34,14 @@ class NeuralNetwork:
             }
             self.resolver = resolver.Resolver(total_players, networks)
 
-
             if model_path is None:
-                training_data = self.create_training_data(config.data['training_cases'], total_players, public_cards_size)
+                training_data = self.create_training_data(
+                    config.data['training_cases'], total_players, public_cards_size)
                 training_data["train_relative_pot"] = training_data[
                     "train_relative_pot"
                 ].reshape(-1, 1)
-                self.model = self.create_model(len(training_data["train_p_ranges"][0]))
+                self.model = self.create_model(
+                    len(training_data["train_p_ranges"][0]))
                 self.train(
                     training_data["train_p_ranges"],
                     training_data["train_o_ranges"],
@@ -57,9 +60,8 @@ class NeuralNetwork:
                 self.model.save(f"models/{model_name}.h5")
             else:
                 self.model = tf.keras.models.load_model(model_path)
-        
 
-    def create_training_data(self, n: int, total_players:int, public_cards_size: int):
+    def create_training_data(self, n: int, total_players: int, public_cards_size: int):
         train_p_ranges = []
         train_o_ranges = []
         train_public_cards = []
@@ -68,7 +70,8 @@ class NeuralNetwork:
         target_value_vector_o = []
         for _ in range(n):
             deck_shuffled = Deck()
-            public_cards = [deck_shuffled.pop() for _ in range(public_cards_size)]
+            public_cards = [deck_shuffled.pop()
+                            for _ in range(public_cards_size)]
             p_range = self.create_ranges(public_cards)
             o_range = self.create_ranges(public_cards)
             # Random current bet og pot size idk om det e riktig
@@ -76,20 +79,19 @@ class NeuralNetwork:
             current_bet = np.random.randint(1, 11)
             relative_pot = np.array(pot_size / (pot_size + current_bet))
 
-
-            ### CHEAP METHOD
+            # CHEAP METHOD
             # utility_matrix = self.oracle.utility_matrix_generator(public_cards)
             # value_vector_p = utility_matrix * p_range
             # value_vector_o = utility_matrix * o_range
 
-            ### BOOTSTRAPPED METHOD
+            # BOOTSTRAPPED METHOD
             public_board_state = PublicBoardState(
                 cards=public_cards,
                 pot=pot_size,
                 highest_bet=current_bet,
                 game_stage=self.game_stage
             )
-            
+
             players = []
 
             for _ in range(total_players):
@@ -105,7 +107,7 @@ class NeuralNetwork:
                 player_states=players,
                 board_state=public_board_state,
                 game_stage=self.game_stage,
-                current_player_index=np.random.choice([0,1]),
+                current_player_index=np.random.choice([0, 1]),
                 buy_in=0,
                 check_count=0,
                 raise_count=0,
@@ -179,7 +181,8 @@ class NeuralNetwork:
         addition_layer = Add()([dot_product_p, dot_product_o])
 
         model = Model(
-            inputs=[input_p_range, input_o_range, input_public_cards, input_pot_size],
+            inputs=[input_p_range, input_o_range,
+                    input_public_cards, input_pot_size],
             outputs=[value_layer_p1, value_layer_p2, addition_layer],
         )
 
@@ -240,14 +243,14 @@ class NeuralNetwork:
             raise ValueError("Player hand distribution is NaN")
         if np.isnan(np.min(o_range)):
             raise ValueError("Opponent hand distribution is NaN")
-        
-        ### RANDOM VERSION
+
+        # RANDOM VERSION
         if self.random:
             p_random = np.random.rand(*p_range.shape)
             o_random = np.random.rand(*o_range.shape)
             return p_random, o_random
         else:
-            #### Cheap/Hard method
+            # Cheap/Hard method
             public_cards_ohe = self.ohe_cards(state.board_state.cards)
             predicted_p_values, predicted_o_values, predicted_addition_layer = (
                 self.model(

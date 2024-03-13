@@ -36,7 +36,7 @@ class SubtreeTraversalRollout:
             #     total_players, GameStage.Flop, 5, self.networks[GameStage.Turn], 'Flop')
             # self.networks[GameStage.PreFlop] = NeuralNetwork(
             #     total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop], 'Preflop')
-            
+
             # PRETRAINED NETWORK
             self.networks[GameStage.Showdown] = NeuralNetwork(
                 total_players, GameStage.Showdown, 0, None, 'Showdown', "models/Showdown.h5")
@@ -104,6 +104,7 @@ class SubtreeTraversalRollout:
             all_actions = node.available_actions
             # print(node.state_manager)
             for action_idx, action in enumerate(all_actions):
+                print(all_actions)
                 state_manager = StateManager(copy.deepcopy(node.state))
                 # print(state_manager)
 

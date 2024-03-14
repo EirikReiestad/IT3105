@@ -173,11 +173,11 @@ class Resolver:
                         end_depth,
                         node.depth + 1,
                     )
+
                     # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
                     logger.debug("Place 3")
 
-                    print(p_values_all_act[i].shape, i,
-                          node.available_actions, len(all_actions))
+                    print(p_values_all_act[i].shape, i)
 
                     new_p_value = p_values_all_act[i]
                     new_o_value = o_values_all_act[i]
@@ -188,7 +188,6 @@ class Resolver:
                     R_s[index_pair][index_action] += (
                         new_p_value[index_pair] - p_value[index_pair]
                     )
-                    # print(R_s[index_pair][index_action])
                     R_s_plus[index_pair][index_action] = max(
                         0.0000000001,
                         R_s[index_pair][index_action],  # TODO: This is a hack

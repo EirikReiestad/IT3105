@@ -104,7 +104,6 @@ class SubtreeTraversalRollout:
             all_actions = node.available_actions
             # print(node.state_manager)
             for action_idx, action in enumerate(all_actions):
-                print(all_actions)
                 state_manager = StateManager(copy.deepcopy(node.state))
                 # print(state_manager)
 

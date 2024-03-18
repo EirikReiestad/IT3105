@@ -25,19 +25,6 @@ class SubtreeTraversalRollout:
         if not networks:
             self.networks = {}
 
-            # TRAIN NETWORK
-            # self.networks[GameStage.Showdown] = NeuralNetwork(
-            #     total_players, GameStage.Showdown, 0, None, 'Showdown')
-            # self.networks[GameStage.River] = NeuralNetwork(
-            #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River')
-            # self.networks[GameStage.Turn] = NeuralNetwork(
-            #     total_players, GameStage.Turn, 5, self.networks[GameStage.River], 'Turn')
-            # self.networks[GameStage.Flop] = NeuralNetwork(
-            #     total_players, GameStage.Flop, 5, self.networks[GameStage.Turn], 'Flop')
-            # self.networks[GameStage.PreFlop] = NeuralNetwork(
-            #     total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop], 'Preflop')
-
-            # PRETRAINED NETWORK
             self.networks[GameStage.Showdown] = NeuralNetwork(
                 total_players, GameStage.Showdown, 0, None, 'Showdown', "models/Showdown.h5")
             self.networks[GameStage.River] = NeuralNetwork(

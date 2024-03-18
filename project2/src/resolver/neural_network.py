@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from typing import Tuple, List, Optional
 from src.game_state.game_state import PublicGameState, PublicBoardState, PublicPlayerState
@@ -13,11 +14,16 @@ from tensorflow.keras.layers import Input, Dense, Dot, Add, Concatenate, Permute
 
 config = Config()
 
-# TODO!! EIRIKKKKKKKKKKKKKKKKOSELIG
-
 
 class NeuralNetwork:
-    def __init__(self, total_players: int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork'] = None, model_name=None, model_path=None):
+    def __init__(self,
+                 total_players: int,
+                 game_stage: GameStage,
+                 public_cards_size: int,
+                 parent_nn: Optional['NeuralNetwork'] = None,
+                 model_name=None,
+                 model_path=None,
+                 verbose=True):
         self.game_stage = game_stage
         self.parent_nn = parent_nn
         self.oracle = Oracle()
@@ -34,7 +40,11 @@ class NeuralNetwork:
             }
             self.resolver = resolver.Resolver(total_players, networks)
 
-            if model_path is None:
+            if model_path is not None and os.path.exists(model_path):
+                self.model = tf.keras.models.load_model(model_path)
+            else:
+                if verbose:
+                    print(f"Training model for {game_stage} stage")
                 training_data = self.create_training_data(
                     config.data['training_cases'], total_players, public_cards_size)
                 training_data["train_relative_pot"] = training_data[
@@ -58,8 +68,6 @@ class NeuralNetwork:
                     config.data['batch_size'],
                 )
                 self.model.save(f"models/{model_name}.h5")
-            else:
-                self.model = tf.keras.models.load_model(model_path)
 
     def create_training_data(self, n: int, total_players: int, public_cards_size: int):
         train_p_ranges = []

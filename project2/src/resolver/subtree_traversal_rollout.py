@@ -102,7 +102,7 @@ class SubtreeTraversalRollout:
             p_values = np.zeros((len(self.oracle.hole_pairs),))
             o_values = np.zeros((len(self.oracle.hole_pairs),))
             all_actions = node.available_actions
-            # print(node.state_manager)
+
             for action_idx, action in enumerate(all_actions):
                 state_manager = StateManager(copy.deepcopy(node.state))
                 # print(state_manager)
@@ -119,7 +119,7 @@ class SubtreeTraversalRollout:
                 # TODO: is this correct
                 new_node = Node(copy.deepcopy(state), end_stage,
                                 end_depth, node.depth + 1)
-                # logger.debug("Place 1")
+
                 p_values_new, o_values_new, _, _ = (
                     self.subtree_traversal_rollout(
                         new_node, p_range, o_range, end_stage, end_depth
@@ -140,6 +140,7 @@ class SubtreeTraversalRollout:
                         node.strategy[pair_idx][action_idx] *
                         o_values_new[pair_idx]
                     )
+
         else:
             node.state.chance_event = False
             # TODO: Add chance event ?

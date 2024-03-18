@@ -292,27 +292,23 @@ class GameManager:
             else:
                 action: Action = self.get_player_action()
 
-            print("Player choose to {}".format(action))
+            print("Player {} {}".format(turn, action))
 
             if action == Action.Fold():
-                print(f"Player {turn} folded")
                 self.players.fold(turn)
                 if self.players.get_number_of_active_players() == 1:
                     return True, self.players.get_active_player()
                 continue
             elif action == Action.Check():
-                print(f"Player {turn} checked")
                 if not self.graphics:
                     print("Checked")
                 self.check_count += 1
             elif action == Action.Call():
-                print(f"Player {turn} called")
                 if not self.graphics:
                     print(f"Called {action.amount}")
                 self.make_bet(turn, Action.Call(action.amount))
                 self.check_count += 1
             elif action == Action.Raise():
-                print("Player raised")
                 self.make_bet(turn, Action.Raise(action.amount))
                 self.check_count = 1
                 self.raise_count += 1

@@ -27,11 +27,6 @@ class StateManager:
             - 2x big blind
             - 1/2 pot (wip)
         """
-        # print("==================================")
-        # print("Get legal actions")
-        # print(f"Current player index {self.current_player_index}")
-        # print(self.players[self.current_player_index])
-        # print(self.board.highest_bet)
         actions = list()
         can_fold = self._can_fold()
         can_check = self._can_check()
@@ -41,31 +36,18 @@ class StateManager:
         # can_raise_half_pot, raise_sum_half_pot = self._can_raise(
         #     self.board.pot / 2)
 
-        """
-        print("==================================")
-        print("Current Player Index", self.current_player_index)
-        print("Highest Bet", self.board.highest_bet)
-        print("Round Bet", self.players[self.current_player_index].round_bet)
-        print("Chips", self.players[self.current_player_index].chips)
-        print("Pot", self.board.pot)
-        """
-
+        if can_fold:
+            actions.append(Action.Fold())
         if can_check:
             actions.append(Action.Check())
         if can_call:
             actions.append(Action.Call(call_sum))
         if can_raise_1:
             actions.append(Action.Raise(raise_sum_1))
-        # Only allow fold if no other action is possible # TODO: Remove
-        if can_fold:
-            actions.append(Action.Fold())
-        # TODO: Add the commented out actions
 
         # if can_raise2x:
-        # print("Can raise 2x big blind, {}".format(raise_sum2x))
         # actions.append(Action.Raise(raise_sum2x))
         # if can_raise_half_pot:
-        # print("Can raise 1/2 pot, {}".format(raise_sum_half_pot))
         # actions.append(Action.Raise(raise_sum_half_pot))
         # TODO: Add AllIn
 

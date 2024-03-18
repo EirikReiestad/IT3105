@@ -96,13 +96,6 @@ class Resolver:
     def update_strategy(
         self,
         node: Node,
-        p_value: np.ndarray,
-        # o_value: np.ndarray,
-        # state: PublicGameState,  # NOTE: This is not used
-        p_values_all_act: List[np.ndarray],
-        o_values_all_act: List[np.ndarray],
-        p_range: np.ndarray,
-        o_range: np.ndarray,
         end_stage: GameStage,
         end_depth: int,
     ) -> np.ndarray:
@@ -130,21 +123,21 @@ class Resolver:
         -------
         np.ndarray: The current strategy matrix for the node
         """
-        logger.debug("Update Strategy")
         if not isinstance(node, Node):
             raise ValueError("Node is not an instance of Node")
-        node_state = node.state
+
         for c in node.children:
             self.update_strategy(
                 c,
-                p_value,
-                p_values_all_act,
-                o_values_all_act,
-                p_range,
-                o_range,
                 end_stage,
                 end_depth,
             )
+
+        p_value, o_value, p_values_all_act, o_values_all_act = (
+            self.str.subtree_traversal_rollout(
+                node, self.p_range, self.o_range, end_stage, end_depth)
+        )
+
         if node.depth >= end_depth or node.state.game_stage == end_stage:
             return node.strategy
 
@@ -164,23 +157,8 @@ class Resolver:
                 for i, action in enumerate(all_actions):
                     index_pair = all_hole_pairs.index(pair)
                     index_action = all_actions.index(action)
-                    state_manager = StateManager(copy.deepcopy(node_state))
-                    new_node_state = state_manager.generate_state(action)
-
-                    new_node = Node(
-                        copy.deepcopy(new_node_state),
-                        end_stage,
-                        end_depth,
-                        node.depth + 1,
-                    )
-
-                    # TODO: USIKKER HVA SKJER HER, siden for å få ny så må jo subtreeTraversalRollout bli gjort
-                    logger.debug("Place 3")
-
-                    print(p_values_all_act[i].shape, i)
 
                     new_p_value = p_values_all_act[i]
-                    new_o_value = o_values_all_act[i]
 
                     if np.min(p_value) < 0:
                         raise ValueError("The p_value is negative")
@@ -188,6 +166,7 @@ class Resolver:
                     R_s[index_pair][index_action] += (
                         new_p_value[index_pair] - p_value[index_pair]
                     )
+                    # print(R_s[index_pair][index_action])
                     R_s_plus[index_pair][index_action] = max(
                         0.0000000001,
                         R_s[index_pair][index_action],  # TODO: This is a hack
@@ -234,7 +213,6 @@ class Resolver:
         action: Action
             The action sampled based on the average strategy
         """
-        logger.debug("Resolve")
         # ▷ S = current state, r1 = Range of acting player, r2 = Range of other player, T = number of rollouts
         # Root ← GenerateInitialSubtree(S,EndStage,EndDepth)
         node = Node(copy.deepcopy(state), end_stage, end_depth, 0)
@@ -244,20 +222,9 @@ class Resolver:
             # ← SubtreeTraversalRollout(S,r1,r2,EndStage,EndDepth) ▷ Returns evals for P1, P2 at root
             if verbose:
                 print("Rollout:", t)
-            logger.debug("Place 2")  # TODO: Remove this line
-            p_value, o_value, p_values_all_act, o_values_all_act = (
-                self.str.subtree_traversal_rollout(
-                    node, self.p_range, self.o_range, end_stage, end_depth
-                )
-            )
             # S ← UpdateStrategy(Root) ▷ Returns current strategy matrix for the root
             strategy = self.update_strategy(
                 node,
-                p_value,
-                p_values_all_act,
-                o_values_all_act,
-                self.p_range,
-                self.o_range,
                 end_stage,
                 end_depth,
             )

@@ -48,7 +48,7 @@ class Resolver:
         -------
         np.ndarray: The updated range for the acting player
         """
-        logger.debug("Bayesian Range Update")
+        # logger.debug("Bayesian Range Update")
         if np.isnan(np.min(p_range)):
             raise ValueError("Player hand distribution is NaN")
         if np.isnan(np.min(sigma_flat)):

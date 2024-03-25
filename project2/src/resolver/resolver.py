@@ -151,7 +151,7 @@ class Resolver:
             num_all_actions = len(all_actions)
 
             # NOTE: Was originally zeros, but that would cause a division by zero error
-            R_s = np.ones((num_all_hole_pairs, num_all_actions))
+            R_s = np.zeros((num_all_hole_pairs, num_all_actions))
             R_s_plus = np.zeros((num_all_hole_pairs, num_all_actions))
 
             for pair in all_hole_pairs:
@@ -169,9 +169,11 @@ class Resolver:
                     )
                     # print(R_s[index_pair][index_action])
                     R_s_plus[index_pair][index_action] = max(
-                        0.0000000001,
-                        R_s[index_pair][index_action],  # TODO: This is a hack
+                        0,
+                        R_s[index_pair][index_action]
                     )
+                    if R_s_plus[index_pair][index_action] > 0:
+                        print("HEI")
             for pair_idx, pair in enumerate(all_hole_pairs):
                 for action_idx, action in enumerate(all_actions):
                     # index_pair = all_hole_pairs.index(pair)
@@ -183,10 +185,16 @@ class Resolver:
                             for i in range(len(all_actions))]
                     )
                     if R_s_sum == 0:
-                        raise ValueError("The sum of R_s_plus is 0")
-                    node.strategy[pair_idx][action_idx] = (
-                        R_s_plus[pair_idx][action_idx] / R_s_sum
-                    )
+                        node.strategy[pair_idx][action_idx] = 0
+                    else: 
+                        node.strategy[pair_idx][action_idx] = (
+                            R_s_plus[pair_idx][action_idx] / R_s_sum
+                        )
+            action_probabilities = np.sum(node.strategy, axis=0)    
+            print(all_actions)    
+            print(action_probabilities)
+            import time
+            time.sleep(2)
         return node.strategy
 
     def resolve(

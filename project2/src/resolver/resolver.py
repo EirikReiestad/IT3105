@@ -82,6 +82,7 @@ class Resolver:
         Action: The action sampled based on the average strategy
         """
         # Compute the sum of probabilities across columns
+
         action_probabilities = np.sum(sigma_flat, axis=0)
 
         # Normalize probabilities to ensure they sum up to 1
@@ -232,12 +233,15 @@ class Resolver:
 
         state_manager = StateManager(copy.deepcopy(state))
         all_actions = state_manager.get_legal_actions()
+        
         # ▷ Generate the Average Strategy over all rollouts
         sigmas = np.array(sigmas)
         sigma_flat = np.mean(sigmas, axis=0)
         # ▷ Sample an action based on the average strategy
         action = self.sample_action_average_strategy(sigma_flat, all_actions)
 
+        import time
+        time.sleep(3)
         # ▷ r1(a∗) is presumed normalized.
 
         p_range_action = Resolver.bayesian_range_update(

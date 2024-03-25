@@ -26,27 +26,33 @@ class SubtreeTraversalRollout:
             self.networks = {}
 
             # self.networks[GameStage.Showdown] = NeuralNetwork(
-            #     total_players, GameStage.Showdown, 0, None, 'Showdown')
+            #     total_players, GameStage.Showdown, 5, None, 'Showdown')
             # self.networks[GameStage.River] = NeuralNetwork(
             #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River')
+ 
+ 
+            # self.networks[GameStage.River] = NeuralNetwork(
+            #     total_players, GameStage.River, 5, None, 'River')
             # self.networks[GameStage.Turn] = NeuralNetwork(
-            #     total_players, GameStage.Turn, 5, self.networks[GameStage.River], 'Turn')
+            #     total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
             # self.networks[GameStage.Flop] = NeuralNetwork(
-            #     total_players, GameStage.Flop, 5, self.networks[GameStage.Turn], 'Flop')
+            #     total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
             # self.networks[GameStage.PreFlop] = NeuralNetwork(
-            #     total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop], 'Preflop')
+            #     total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
             
-            # PRETRAINED NETWORK
-            self.networks[GameStage.Showdown] = NeuralNetwork(
-                total_players, GameStage.Showdown, 0, None, 'Showdown', "models/Showdown.h5")
+            # # PRETRAINED NETWORK
+            # self.networks[GameStage.Showdown] = NeuralNetwork(
+            #     total_players, GameStage.Showdown, 5, None, 'Showdown', "models/Showdown.h5")
+            # self.networks[GameStage.River] = NeuralNetwork(
+            #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River', "models/River.h5")
             self.networks[GameStage.River] = NeuralNetwork(
-                total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River', "models/River.h5")
+                total_players, GameStage.River, 5, None, 'River', "models/River.h5")
             self.networks[GameStage.Turn] = NeuralNetwork(
-                total_players, GameStage.Turn, 5, self.networks[GameStage.River], 'Turn', "models/Turn.h5")
+                total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn', "models/Turn.h5")
             self.networks[GameStage.Flop] = NeuralNetwork(
-                total_players, GameStage.Flop, 5, self.networks[GameStage.Turn], 'Flop', "models/Flop.h5")
+                total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop', "models/Flop.h5")
             self.networks[GameStage.PreFlop] = NeuralNetwork(
-                total_players, GameStage.PreFlop, 5, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
+                total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
         else:
             self.networks = networks
         self.oracle = Oracle()

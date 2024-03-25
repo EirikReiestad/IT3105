@@ -88,44 +88,44 @@ class NeuralNetwork:
             relative_pot = np.array(pot_size / (pot_size + current_bet))
 
             # CHEAP METHOD
-            # utility_matrix = self.oracle.utility_matrix_generator(public_cards)
-            # value_vector_p = utility_matrix * p_range
-            # value_vector_o = utility_matrix * o_range
+            utility_matrix = self.oracle.utility_matrix_generator(public_cards)
+            value_vector_p = utility_matrix * p_range
+            value_vector_o = utility_matrix * o_range
 
             # BOOTSTRAPPED METHOD
-            public_board_state = PublicBoardState(
-                cards=public_cards,
-                pot=pot_size,
-                highest_bet=current_bet,
-                game_stage=self.game_stage
-            )
+            # public_board_state = PublicBoardState(
+            #     cards=public_cards,
+            #     pot=pot_size,
+            #     highest_bet=current_bet,
+            #     game_stage=self.game_stage
+            # )
 
-            players = []
+            # players = []
 
-            for _ in range(total_players):
-                player = PublicPlayerState(
-                    np.random.randint(1, 101),
-                    False,
-                    False,
-                    np.random.randint(1, current_bet+1)
-                )
-                players.append(player)
+            # for _ in range(total_players):
+            #     player = PublicPlayerState(
+            #         np.random.randint(1, 101),
+            #         False,
+            #         False,
+            #         np.random.randint(1, current_bet+1)
+            #     )
+            #     players.append(player)
 
-            state = PublicGameState(
-                player_states=players,
-                board_state=public_board_state,
-                game_stage=self.game_stage,
-                current_player_index=np.random.choice([0, 1]),
-                buy_in=0,
-                check_count=0,
-                raise_count=0,
-                chance_event=False
-            )
+            # state = PublicGameState(
+            #     player_states=players,
+            #     board_state=public_board_state,
+            #     game_stage=self.game_stage,
+            #     current_player_index=np.random.choice(range(total_players)),
+            #     buy_in=0,
+            #     check_count=np.random.choice(range(total_players+1)),
+            #     raise_count=np.random.choice(range(total_players+1)),
+            #     chance_event=False
+            # )
 
-            self.resolver.resolve(state, self.parent_nn.game_stage, 1, 1)
+            # self.resolver.resolve(state, self.parent_nn.game_stage, 1, 1)
 
-            value_vector_p = self.resolver.p_range
-            value_vector_o = self.resolver.o_range
+            # value_vector_p = self.resolver.p_range
+            # value_vector_o = self.resolver.o_range
 
             train_p_ranges.append(p_range)
             train_o_ranges.append(o_range)
@@ -145,11 +145,11 @@ class NeuralNetwork:
 
     def create_ranges(self, public_cards: List[Card]):
         new_range = np.random.rand(self.oracle.get_number_of_all_hole_pairs())
-        new_range /= new_range.sum()
         for i, pair in enumerate(self.oracle.hole_pairs):
             for card in public_cards:
                 if card in pair:
                     new_range[i] = 0
+        new_range /= new_range.sum()
         return new_range
 
     def ohe_cards(self, cards: List[Card]):
@@ -266,7 +266,7 @@ class NeuralNetwork:
                         np.array([p_range]),
                         np.array([o_range]),
                         np.array([public_cards_ohe]),
-                        np.array([np.array([state.board_state.pot])]),
+                        np.array([np.array([state.board_state.pot/(state.board_state.pot + state.board_state.highest_bet)])]),
                     ],
                 )
             )

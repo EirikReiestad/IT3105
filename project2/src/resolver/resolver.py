@@ -57,15 +57,16 @@ class Resolver:
         index = all_actions.index(action)
         prob_pair = p_range / np.sum(p_range)
         if np.sum(sigma_flat) == 0:
-            raise ValueError("The sum of sigma_flat is 0")
-        prob_act = np.sum(sigma_flat[index]) / np.sum(sigma_flat)
-        # [:, index] gives the column
-        prob_act_given_pair = sigma_flat[:, index] * prob_pair
+            updated_prob = p_range
+        else:
+            prob_act = np.sum(sigma_flat[index]) / np.sum(sigma_flat)
+            # [:, index] gives the column
+            prob_act_given_pair = sigma_flat[:, index] * prob_pair
 
-        updated_prob = (prob_act_given_pair * prob_pair) / prob_act
+            updated_prob = (prob_act_given_pair * prob_pair) / prob_act
 
-        if np.isnan(np.min(updated_prob)):
-            raise ValueError("Updated hand distribution is NaN")
+        # if np.isnan(np.min(updated_prob)):
+        #     raise ValueError("Updated hand distribution is NaN")
 
         return updated_prob
 
@@ -86,7 +87,9 @@ class Resolver:
         action_probabilities = np.sum(sigma_flat, axis=0)
 
         # Normalize probabilities to ensure they sum up to 1
-        action_probabilities /= np.sum(action_probabilities)
+        summed_prob = np.sum(action_probabilities)
+        if summed_prob != 0:
+            action_probabilities /= np.sum(action_probabilities)
         # print(all_actions)
         # print(action_probabilities)
         # print(action_probabilities.shape, np.argmax(action_probabilities))
@@ -151,7 +154,7 @@ class Resolver:
             num_all_actions = len(all_actions)
 
             # NOTE: Was originally zeros, but that would cause a division by zero error
-            R_s = np.zeros((num_all_hole_pairs, num_all_actions))
+            R_s = np.ones((num_all_hole_pairs, num_all_actions))
             R_s_plus = np.zeros((num_all_hole_pairs, num_all_actions))
 
             for pair in all_hole_pairs:
@@ -160,8 +163,7 @@ class Resolver:
                     index_action = all_actions.index(action)
 
                     new_p_value = p_values_all_act[i]
-
-                    if np.min(p_value) < 0:
+                    if np.min(new_p_value) < 0:
                         raise ValueError("The p_value is negative")
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
                     R_s[index_pair][index_action] += (
@@ -172,8 +174,9 @@ class Resolver:
                         0,
                         R_s[index_pair][index_action]
                     )
-                    if R_s_plus[index_pair][index_action] > 0:
-                        print("HEI")
+                    # print(new_p_value[index_pair] - p_value[index_pair])
+                    # if new_p_value[index_pair] - p_value[index_pair] > 0:
+                    #     print("HEI")
             for pair_idx, pair in enumerate(all_hole_pairs):
                 for action_idx, action in enumerate(all_actions):
                     # index_pair = all_hole_pairs.index(pair)

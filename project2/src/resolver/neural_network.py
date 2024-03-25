@@ -32,7 +32,10 @@ class NeuralNetwork:
         if public_cards_size == 0:
             self.random = True
         else:
-
+            # TODO: remove
+            self.random = True
+            return
+            #####
             self.random = False
 
             networks = {
@@ -211,9 +214,6 @@ class NeuralNetwork:
         epochs: int,
         batch_size: int,
     ):
-        # TODO:
-        # additional_layer_target = 0 for all? where to find size tho
-
         self.model.fit(
             x=[
                 p_range_train,

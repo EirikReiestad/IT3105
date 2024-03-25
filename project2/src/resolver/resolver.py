@@ -66,6 +66,8 @@ class Resolver:
 
         if np.isnan(np.min(updated_prob)):
             raise ValueError("Updated hand distribution is NaN")
+        
+        updated_prob = updated_prob / sum(updated_prob)
 
         return updated_prob
 
@@ -124,6 +126,8 @@ class Resolver:
         -------
         np.ndarray: The current strategy matrix for the node
         """
+
+
         if not isinstance(node, Node):
             raise ValueError("Node is not an instance of Node")
 
@@ -151,7 +155,7 @@ class Resolver:
             num_all_actions = len(all_actions)
 
             # NOTE: Was originally zeros, but that would cause a division by zero error
-            R_s = np.ones((num_all_hole_pairs, num_all_actions))
+            R_s = np.zeros((num_all_hole_pairs, num_all_actions))
             R_s_plus = np.zeros((num_all_hole_pairs, num_all_actions))
 
             for pair in all_hole_pairs:
@@ -164,9 +168,11 @@ class Resolver:
                     if np.min(p_value) < 0:
                         raise ValueError("The p_value is negative")
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
+
                     R_s[index_pair][index_action] += (
-                        new_p_value[index_pair] - p_value[index_pair]
+                        new_p_value[index_pair] - p_value[index_pair]/sum(p_value)
                     )
+
                     # print(R_s[index_pair][index_action])
                     R_s_plus[index_pair][index_action] = max(
                         0.0000000001,

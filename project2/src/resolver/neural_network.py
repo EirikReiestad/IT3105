@@ -29,10 +29,9 @@ class NeuralNetwork:
         self.oracle = Oracle()
         self.deck = Deck(shuffle=False)
 
-        if public_cards_size == 0:
+        if public_cards_size == 0 or self.parent_nn is None:
             self.random = True
         else:
-
             self.random = False
 
             networks = {
@@ -92,7 +91,7 @@ class NeuralNetwork:
             value_vector_p = utility_matrix * p_range
             value_vector_o = utility_matrix * o_range
 
-            # BOOTSTRAPPED METHOD
+            # # BOOTSTRAPPED METHOD
             # public_board_state = PublicBoardState(
             #     cards=public_cards,
             #     pot=pot_size,
@@ -122,7 +121,7 @@ class NeuralNetwork:
             #     chance_event=False
             # )
 
-            # self.resolver.resolve(state, self.parent_nn.game_stage, 1, 1)
+            # self.resolver.resolve(state, self.game_stage, 1, 1)
 
             # value_vector_p = self.resolver.p_range
             # value_vector_o = self.resolver.o_range

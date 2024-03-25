@@ -31,14 +31,14 @@ class SubtreeTraversalRollout:
             #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River')
  
  
-            # self.networks[GameStage.River] = NeuralNetwork(
-            #     total_players, GameStage.River, 5, None, 'River')
-            # self.networks[GameStage.Turn] = NeuralNetwork(
-            #     total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
-            # self.networks[GameStage.Flop] = NeuralNetwork(
-            #     total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
-            # self.networks[GameStage.PreFlop] = NeuralNetwork(
-            #     total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
+            self.networks[GameStage.River] = NeuralNetwork(
+                total_players, GameStage.River, 5, None, 'River')
+            self.networks[GameStage.Turn] = NeuralNetwork(
+                total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
+            self.networks[GameStage.Flop] = NeuralNetwork(
+                total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
+            self.networks[GameStage.PreFlop] = NeuralNetwork(
+                total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
             
             # # PRETRAINED NETWORK
             # self.networks[GameStage.Showdown] = NeuralNetwork(
@@ -130,6 +130,9 @@ class SubtreeTraversalRollout:
                         new_node, p_range, o_range, end_stage, end_depth
                     )
                 )
+                # print(sum(p_values_new))
+                # import time
+                # time.sleep(1)
 
                 p_values_for_all_act.append(p_values_new)
                 o_values_for_all_act.append(o_values_new)
@@ -173,4 +176,25 @@ class SubtreeTraversalRollout:
                 for pair_idx in range(len(self.oracle.hole_pairs)):
                     p_values[pair_idx] += p_range_event[pair_idx] / len(events)
                     o_values[pair_idx] += o_range_event[pair_idx] / len(events)
-        return p_values, o_values, p_values_for_all_act, o_values_for_all_act
+
+
+        p_values /= sum(p_values)
+        o_values /= sum(o_values)
+
+        normalized_p_values_for_all_act = []
+        for i in p_values_for_all_act:
+            total_sum = sum(i)
+            if total_sum == 0:
+                normalized_p_values_for_all_act.append([0]*len(i))
+            else:
+                normalized_p_values_for_all_act.append(i/total_sum)
+
+        normalized_o_values_for_all_act = []
+        for i in o_values_for_all_act:
+            total_sum = sum(i)
+            if total_sum == 0:
+                normalized_o_values_for_all_act.append([0]*len(i))
+            else:
+                normalized_o_values_for_all_act.append(i/total_sum)
+
+        return p_values, o_values, normalized_p_values_for_all_act, normalized_o_values_for_all_act

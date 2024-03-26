@@ -32,6 +32,8 @@ class NeuralNetwork:
         if public_cards_size == 0:
             self.random = True
         else:
+            self.random = True
+            return
             self.random = False
 
             if parent_nn is None:

@@ -94,7 +94,7 @@ class SubtreeTraversalRollout:
                 node.state.board_state.cards)
             p_values = np.dot(utility_matrix, o_range.T)
             o_values = np.dot(-p_values, utility_matrix)
-        elif node.state.game_stage == end_stage or node.depth == end_depth:
+        elif (node.state.game_stage == end_stage or node.depth == end_depth) and node.state.game_stage in self.networks:
             # logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
             p_values, o_values = self.networks[node.state.game_stage].run(

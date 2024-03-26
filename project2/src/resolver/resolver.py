@@ -245,9 +245,6 @@ class Resolver:
         sigma_flat = np.mean(sigmas, axis=0)
         # ▷ Sample an action based on the average strategy
         action = self.sample_action_average_strategy(sigma_flat, all_actions)
-
-        import time
-        time.sleep(3)
         # ▷ r1(a∗) is presumed normalized.
 
         p_range_action = Resolver.bayesian_range_update(

@@ -31,28 +31,30 @@ class SubtreeTraversalRollout:
             #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River')
  
  
-            # self.networks[GameStage.River] = NeuralNetwork(
-            #     total_players, GameStage.River, 5, None, 'River')
-            # self.networks[GameStage.Turn] = NeuralNetwork(
-            #     total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
-            # self.networks[GameStage.Flop] = NeuralNetwork(
-            #     total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
-            # self.networks[GameStage.PreFlop] = NeuralNetwork(
-            #     total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
+            self.networks[GameStage.River] = NeuralNetwork(
+                total_players, GameStage.River, 5, None, 'River')
+            self.networks[GameStage.Turn] = NeuralNetwork(
+                total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
+            self.networks[GameStage.Flop] = NeuralNetwork(
+                total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
+            self.networks[GameStage.PreFlop] = NeuralNetwork(
+                total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
             
             # # PRETRAINED NETWORK
             # self.networks[GameStage.Showdown] = NeuralNetwork(
             #     total_players, GameStage.Showdown, 5, None, 'Showdown', "models/Showdown.h5")
             # self.networks[GameStage.River] = NeuralNetwork(
             #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River', "models/River.h5")
-            self.networks[GameStage.River] = NeuralNetwork(
-                total_players, GameStage.River, 5, None, 'River', "models/River.h5")
-            self.networks[GameStage.Turn] = NeuralNetwork(
-                total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn', "models/Turn.h5")
-            self.networks[GameStage.Flop] = NeuralNetwork(
-                total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop', "models/Flop.h5")
-            self.networks[GameStage.PreFlop] = NeuralNetwork(
-                total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
+
+
+            # self.networks[GameStage.River] = NeuralNetwork(
+            #     total_players, GameStage.River, 5, None, 'River', "models/River.h5")
+            # self.networks[GameStage.Turn] = NeuralNetwork(
+            #     total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn', "models/Turn.h5")
+            # self.networks[GameStage.Flop] = NeuralNetwork(
+            #     total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop', "models/Flop.h5")
+            # self.networks[GameStage.PreFlop] = NeuralNetwork(
+            #     total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
         else:
             self.networks = networks
         self.oracle = Oracle()
@@ -86,6 +88,7 @@ class SubtreeTraversalRollout:
         """
         p_values_for_all_act = []
         o_values_for_all_act = []
+        
         # logger.debug(
         #     "Subtree Traversal Rollout (depth = {})".format(node.depth))
         if node.state.game_stage == GameStage.Showdown:
@@ -94,7 +97,7 @@ class SubtreeTraversalRollout:
                 node.state.board_state.cards)
             p_values = np.dot(utility_matrix, o_range.T)
             o_values = np.dot(-p_values, utility_matrix)
-        elif (node.state.game_stage == end_stage or node.depth == end_depth) and node.state.game_stage in self.networks:
+        elif (node.state.game_stage == end_stage or node.depth >= end_depth) and node.state.game_stage in self.networks:
             # logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
             p_values, o_values = self.networks[node.state.game_stage].run(
@@ -130,9 +133,6 @@ class SubtreeTraversalRollout:
                         new_node, p_range, o_range, end_stage, end_depth
                     )
                 )
-                # print(sum(p_values_new))
-                # import time
-                # time.sleep(1)
 
                 p_values_for_all_act.append(p_values_new)
                 o_values_for_all_act.append(o_values_new)

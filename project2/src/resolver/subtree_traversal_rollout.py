@@ -177,23 +177,27 @@ class SubtreeTraversalRollout:
                     p_values[pair_idx] += p_range_event[pair_idx] / len(events)
                     o_values[pair_idx] += o_range_event[pair_idx] / len(events)
 
-        p_values /= sum(p_values)
-        o_values /= sum(o_values)
+        p_values = normalize_and_cap(p_values)
+        o_values = normalize_and_cap(o_values)
 
-        normalized_p_values_for_all_act = []
-        for i in p_values_for_all_act:
-            total_sum = sum(i)
-            if total_sum == 0:
-                normalized_p_values_for_all_act.append([0]*len(i))
-            else:
-                normalized_p_values_for_all_act.append(i/total_sum)
+        p_values_for_all_act = [normalize_and_cap(i) for i in p_values_for_all_act]
+        o_values_for_all_act = [normalize_and_cap(i) for i in o_values_for_all_act]
+        
+        return p_values, o_values, p_values_for_all_act, o_values_for_all_act
 
-        normalized_o_values_for_all_act = []
-        for i in o_values_for_all_act:
-            total_sum = sum(i)
-            if total_sum == 0:
-                normalized_o_values_for_all_act.append([0]*len(i))
-            else:
-                normalized_o_values_for_all_act.append(i/total_sum)
 
-        return p_values, o_values, normalized_p_values_for_all_act, normalized_o_values_for_all_act
+
+def normalize_and_cap(arr):
+    # Replace negative values with 0
+    capped_arr = np.maximum(arr, 0)
+    
+    # Calculate the sum of capped values
+    capped_sum = np.sum(capped_arr)
+    
+    # Normalize the capped values (if sum is not 0)
+    if capped_sum != 0:
+        normalized_arr = capped_arr / capped_sum
+    else:
+        normalized_arr = capped_arr
+    
+    return normalized_arr

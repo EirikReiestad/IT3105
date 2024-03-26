@@ -86,6 +86,7 @@ class Resolver:
         # Compute the sum of probabilities across columns
 
         action_probabilities = np.sum(sigma_flat, axis=0)
+        print(action_probabilities)
 
         # Normalize probabilities to ensure they sum up to 1
         action_probabilities /= np.sum(action_probabilities)
@@ -164,13 +165,12 @@ class Resolver:
                     index_action = all_actions.index(action)
 
                     new_p_value = p_values_all_act[i]
-
                     if np.min(p_value) < 0:
                         raise ValueError("The p_value is negative")
                     # R_s[h][a] = R_s[h][a] + [v_1(s_new)[h] - v_1(s)[h]]
 
                     R_s[index_pair][index_action] += (
-                        new_p_value[index_pair] - p_value[index_pair]/sum(p_value)
+                        new_p_value[index_pair] - p_value[index_pair]
                     )
 
                     # print(R_s[index_pair][index_action])

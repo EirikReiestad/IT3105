@@ -31,14 +31,14 @@ class SubtreeTraversalRollout:
             #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River')
  
  
-            self.networks[GameStage.River] = NeuralNetwork(
-                total_players, GameStage.River, 5, None, 'River')
-            self.networks[GameStage.Turn] = NeuralNetwork(
-                total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
-            self.networks[GameStage.Flop] = NeuralNetwork(
-                total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
-            self.networks[GameStage.PreFlop] = NeuralNetwork(
-                total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
+            # self.networks[GameStage.River] = NeuralNetwork(
+            #     total_players, GameStage.River, 5, None, 'River')
+            # self.networks[GameStage.Turn] = NeuralNetwork(
+            #     total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
+            # self.networks[GameStage.Flop] = NeuralNetwork(
+            #     total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
+            # self.networks[GameStage.PreFlop] = NeuralNetwork(
+            #     total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
             
             # # PRETRAINED NETWORK
             # self.networks[GameStage.Showdown] = NeuralNetwork(
@@ -91,9 +91,9 @@ class SubtreeTraversalRollout:
         if node.state.game_stage == GameStage.Showdown:
             # logger.debug("Showdown")
             utility_matrix = self.oracle.utility_matrix_generator(
-                node.state.board.cards)
-            p_values = utility_matrix * o_range.T
-            o_values = -p_values * utility_matrix
+                node.state.board_state.cards)
+            p_values = np.dot(utility_matrix, o_range.T)
+            o_values = np.dot(-p_values, utility_matrix)
         elif node.state.game_stage == end_stage or node.depth == end_depth:
             # logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
@@ -176,7 +176,6 @@ class SubtreeTraversalRollout:
                 for pair_idx in range(len(self.oracle.hole_pairs)):
                     p_values[pair_idx] += p_range_event[pair_idx] / len(events)
                     o_values[pair_idx] += o_range_event[pair_idx] / len(events)
-
 
         p_values /= sum(p_values)
         o_values /= sum(o_values)

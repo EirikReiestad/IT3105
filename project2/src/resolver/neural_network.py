@@ -29,13 +29,18 @@ class NeuralNetwork:
         self.oracle = Oracle()
         self.deck = Deck(shuffle=False)
 
-        if public_cards_size == 0 or self.parent_nn is None:
+        if public_cards_size == 0:
             self.random = True
         else:
             self.random = False
 
+            if parent_nn is None:
+                end_state = GameStage.Showdown
+            else:
+                end_state = parent_nn.game_stage
+
             networks = {
-                game_stage: parent_nn
+                end_state: parent_nn
             }
             self.resolver = resolver.Resolver(total_players, networks)
 
@@ -87,44 +92,47 @@ class NeuralNetwork:
             relative_pot = np.array(pot_size / (pot_size + current_bet))
 
             # CHEAP METHOD
-            utility_matrix = self.oracle.utility_matrix_generator(public_cards)
-            value_vector_p = utility_matrix * p_range
-            value_vector_o = utility_matrix * o_range
+            # utility_matrix = self.oracle.utility_matrix_generator(public_cards)
+            # value_vector_p = utility_matrix * p_range
+            # value_vector_o = utility_matrix * o_range
 
             # # BOOTSTRAPPED METHOD
-            # public_board_state = PublicBoardState(
-            #     cards=public_cards,
-            #     pot=pot_size,
-            #     highest_bet=current_bet,
-            #     game_stage=self.game_stage
-            # )
+            public_board_state = PublicBoardState(
+                cards=public_cards,
+                pot=pot_size,
+                highest_bet=current_bet,
+                game_stage=self.game_stage
+            )
 
-            # players = []
+            players = []
 
-            # for _ in range(total_players):
-            #     player = PublicPlayerState(
-            #         np.random.randint(1, 101),
-            #         False,
-            #         False,
-            #         np.random.randint(1, current_bet+1)
-            #     )
-            #     players.append(player)
+            for _ in range(total_players):
+                player = PublicPlayerState(
+                    np.random.randint(1, 101),
+                    False,
+                    False,
+                    np.random.randint(1, current_bet+1)
+                )
+                players.append(player)
 
-            # state = PublicGameState(
-            #     player_states=players,
-            #     board_state=public_board_state,
-            #     game_stage=self.game_stage,
-            #     current_player_index=np.random.choice(range(total_players)),
-            #     buy_in=0,
-            #     check_count=np.random.choice(range(total_players+1)),
-            #     raise_count=np.random.choice(range(total_players+1)),
-            #     chance_event=False
-            # )
+            state = PublicGameState(
+                player_states=players,
+                board_state=public_board_state,
+                game_stage=self.game_stage,
+                current_player_index=np.random.choice(range(total_players)),
+                buy_in=0,
+                check_count=np.random.choice(range(total_players+1)),
+                raise_count=np.random.choice(range(total_players+1)),
+                chance_event=False
+            )
+            if self.parent_nn is None:
+                end_game_stage = GameStage.Showdown
+            else:
+                end_game_stage = self.parent_nn.game_stage
+            self.resolver.resolve(state, end_game_stage, 1, 1)
 
-            # self.resolver.resolve(state, self.game_stage, 1, 1)
-
-            # value_vector_p = self.resolver.p_range
-            # value_vector_o = self.resolver.o_range
+            value_vector_p = self.resolver.p_range
+            value_vector_o = self.resolver.o_range
 
             train_p_ranges.append(p_range)
             train_o_ranges.append(o_range)

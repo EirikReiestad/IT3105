@@ -1,3 +1,4 @@
+import os
 import copy
 import numpy as np
 from typing import List, Tuple, Dict
@@ -25,24 +26,34 @@ class SubtreeTraversalRollout:
         if not networks:
             self.networks = {}
 
-            self.networks[GameStage.River] = NeuralNetwork(
-                total_players, GameStage.River, 5, None, 'River')
-            self.networks[GameStage.Turn] = NeuralNetwork(
-                total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
-            self.networks[GameStage.Flop] = NeuralNetwork(
-                total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
-            self.networks[GameStage.PreFlop] = NeuralNetwork(
-                total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
-            
-            # # PRETRAINED NETWORK
-            # self.networks[GameStage.River] = NeuralNetwork(
-            #     total_players, GameStage.River, 5, None, 'River', "models/River.h5")
-            # self.networks[GameStage.Turn] = NeuralNetwork(
-            #     total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn', "models/Turn.h5")
-            # self.networks[GameStage.Flop] = NeuralNetwork(
-            #     total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop', "models/Flop.h5")
-            # self.networks[GameStage.PreFlop] = NeuralNetwork(
-            #     total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
+            if os.path.exists("models/River.h5"):
+                self.networks[GameStage.River] = NeuralNetwork(
+                    total_players, GameStage.River, 5, None, 'River', "models/River.h5")
+            else:
+                self.networks[GameStage.River] = NeuralNetwork(
+                    total_players, GameStage.River, 5, None, 'River')
+
+            if os.path.exists("models/Turn.h5"):
+                self.networks[GameStage.Turn] = NeuralNetwork(
+                    total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn', "models/Turn.h5")
+            else:
+                self.networks[GameStage.Turn] = NeuralNetwork(
+                    total_players, GameStage.Turn, 4, self.networks[GameStage.River], 'Turn')
+
+            if os.path.exists("models/Flop.h5"):
+                self.networks[GameStage.Flop] = NeuralNetwork(
+                    total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop', "models/Flop.h5")
+            else:
+                self.networks[GameStage.Flop] = NeuralNetwork(
+                    total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
+
+            if os.path.exists("models/Preflop.h5"):
+                self.networks[GameStage.PreFlop] = NeuralNetwork(
+                    total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
+            else:
+                self.networks[GameStage.PreFlop] = NeuralNetwork(
+                    total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
+
         else:
             self.networks = networks
 
@@ -79,15 +90,17 @@ class SubtreeTraversalRollout:
         """
         p_values_for_all_act = []
         o_values_for_all_act = []
-        
+
         # logger.debug(
         #     "Subtree Traversal Rollout (depth = {})".format(node.depth))
         if node.state.game_stage == GameStage.Showdown:
             # logger.debug("Showdown")
             utility_matrix = self.oracle.utility_matrix_generator(
                 node.state.board_state.cards)
-            p_values = node.state.board_state.pot  / self.average_pot_size *np.dot(utility_matrix, o_range.T)
-            o_values = node.state.board_state.pot  / self.average_pot_size * np.dot(-p_values, utility_matrix)
+            p_values = node.state.board_state.pot / \
+                self.average_pot_size * np.dot(utility_matrix, o_range.T)
+            o_values = node.state.board_state.pot / \
+                self.average_pot_size * np.dot(-p_values, utility_matrix)
         elif (node.state.game_stage == end_stage or node.depth >= end_depth) and node.state.game_stage in self.networks:
             # logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
@@ -173,19 +186,18 @@ class SubtreeTraversalRollout:
 
         p_values_for_all_act = [normalize(i) for i in p_values_for_all_act]
         o_values_for_all_act = [normalize(i) for i in o_values_for_all_act]
-        
-        return p_values, o_values, p_values_for_all_act, o_values_for_all_act
 
+        return p_values, o_values, p_values_for_all_act, o_values_for_all_act
 
 
 def normalize(arr):
     # Calculate the sum of capped values
     arr_sum = np.sum(arr)
-    
+
     # Normalize the capped values (if sum is not 0)
     if arr_sum != 0:
         normalized_arr = arr / arr_sum
     else:
         normalized_arr = arr
-    
+
     return normalized_arr

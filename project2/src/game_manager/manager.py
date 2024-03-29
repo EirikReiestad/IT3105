@@ -175,6 +175,7 @@ class GameManager:
         """
         Runs the game, multiple rounds
         """
+        print("Running game")
         print(self._rules())
         while True:
             if self.players.get_number_of_non_bust_players() == 1:

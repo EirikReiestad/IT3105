@@ -67,9 +67,10 @@ class Display:
 
     def _update_player_states(self):
         player_width = self.width // len(self.player_states)
-        width = player_width // 2.5
+        width = player_width // 3.0
         height = width * 1.5
         margin = player_width // 15
+
         for i, player in enumerate(self.player_states):
             player_text = f"Player {i + 1}"
             color = (255, 255, 255)
@@ -86,23 +87,26 @@ class Display:
                 f"Chips: {player.chips}", player_width *
                 i, self.occupied_y, color
             )
+            card_height = 0
             for j, card in enumerate(player.cards):
                 x = player_width * i + (width + margin) * j
                 y = self.occupied_y + 70
                 card_sprite = CardSprite(card, x, y, width, height)
+                card_height = y
                 self.draw(card_sprite)
-        self.occupied_y += 45
+        self.occupied_y += card_height + 30
 
     def _update_board_state(self):
         player_width = self.width // len(self.player_states)
-        width = player_width // 2.5
+        width = player_width // 3.0
         height = width * 1.5
         margin = player_width // 15
 
         self.occupied_y += 225
         self.draw_text(f"Pot: {self.board_state.pot}", 20, self.occupied_y)
+        self.occupied_y += 30
         for i, card in enumerate(self.board_state.cards):
-            x = (self.width - 5 * width) // 2 + i * (width + margin)
+            x = i * (width + margin)
             y = self.occupied_y
             card_sprite = CardSprite(card, x, y, width, height)
             self.draw(card_sprite)

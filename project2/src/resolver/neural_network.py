@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from typing import Tuple, List, Optional
 from src.game_state.game_state import PublicGameState, PublicBoardState, PublicPlayerState
@@ -13,9 +14,16 @@ from tensorflow.keras.layers import Input, Dense, Dot, Add, Concatenate, Permute
 
 config = Config()
 
-# TODO!! EIRIKKKKKKKKKKKKKKKKOSELIG
+
 class NeuralNetwork:
-    def __init__(self, total_players:int, game_stage: GameStage, public_cards_size: int, parent_nn: Optional['NeuralNetwork']=None, model_name=None, model_path=None):
+    def __init__(self,
+                 total_players: int,
+                 game_stage: GameStage,
+                 public_cards_size: int,
+                 parent_nn: Optional['NeuralNetwork'] = None,
+                 model_name=None,
+                 model_path=None,
+                 verbose=True):
         self.game_stage = game_stage
         self.parent_nn = parent_nn
         self.oracle = Oracle()
@@ -24,21 +32,32 @@ class NeuralNetwork:
         if public_cards_size == 0:
             self.random = True
         else:
-
+            # self.random = True
+            # return
             self.random = False
 
-            networks = {
-                game_stage: parent_nn
+            if parent_nn is None:
+                end_state = GameStage.Showdown
+            else:
+                end_state = parent_nn.game_stage
+
+            self.networks = {
+                end_state: parent_nn
             }
-            self.resolver = resolver.Resolver(total_players, networks)
+            self.resolver = resolver.Resolver(total_players, self.networks)
 
-
-            if model_path is None:
-                training_data = self.create_training_data(config.data['training_cases'], total_players, public_cards_size)
+            if model_path is not None and os.path.exists(model_path):
+                self.model = tf.keras.models.load_model(model_path)
+            else:
+                if verbose:
+                    print(f"Training model for {game_stage} stage")
+                training_data = self.create_training_data(
+                    config.data['training_cases'], total_players, public_cards_size)
                 training_data["train_relative_pot"] = training_data[
                     "train_relative_pot"
                 ].reshape(-1, 1)
-                self.model = self.create_model(len(training_data["train_p_ranges"][0]))
+                self.model = self.create_model(
+                    len(training_data["train_p_ranges"][0]))
                 self.train(
                     training_data["train_p_ranges"],
                     training_data["train_o_ranges"],
@@ -55,11 +74,8 @@ class NeuralNetwork:
                     config.data['batch_size'],
                 )
                 self.model.save(f"models/{model_name}.h5")
-            else:
-                self.model = tf.keras.models.load_model(model_path)
-        
 
-    def create_training_data(self, n: int, total_players:int, public_cards_size: int):
+    def create_training_data(self, n: int, total_players: int, public_cards_size: int):
         train_p_ranges = []
         train_o_ranges = []
         train_public_cards = []
@@ -68,51 +84,59 @@ class NeuralNetwork:
         target_value_vector_o = []
         for _ in range(n):
             deck_shuffled = Deck()
-            public_cards = [deck_shuffled.pop() for _ in range(public_cards_size)]
+            public_cards = [deck_shuffled.pop()
+                            for _ in range(public_cards_size)]
             p_range = self.create_ranges(public_cards)
             o_range = self.create_ranges(public_cards)
             # Random current bet og pot size idk om det e riktig
-            pot_size = np.random.randint(10, 101)
+            pot_size = np.random.randint(10, 30)
             current_bet = np.random.randint(1, 11)
             relative_pot = np.array(pot_size / (pot_size + current_bet))
 
-
-            ### CHEAP METHOD
+            # CHEAP METHOD
             # utility_matrix = self.oracle.utility_matrix_generator(public_cards)
             # value_vector_p = utility_matrix * p_range
             # value_vector_o = utility_matrix * o_range
 
-            ### BOOTSTRAPPED METHOD
+            # # BOOTSTRAPPED METHOD
             public_board_state = PublicBoardState(
                 cards=public_cards,
                 pot=pot_size,
                 highest_bet=current_bet,
                 game_stage=self.game_stage
             )
-            
+
             players = []
 
             for _ in range(total_players):
                 player = PublicPlayerState(
-                    np.random.randint(1, 101),
+                    np.random.randint(current_bet, 101),
                     False,
                     False,
-                    np.random.randint(1, current_bet+1)
+                    np.random.randint(current_bet-1, current_bet+1)
                 )
                 players.append(player)
+
+            players[np.random.choice(range(total_players))].round_bet = current_bet
 
             state = PublicGameState(
                 player_states=players,
                 board_state=public_board_state,
                 game_stage=self.game_stage,
-                current_player_index=np.random.choice([0,1]),
-                buy_in=0,
-                check_count=0,
-                raise_count=0,
+                current_player_index=np.random.choice(range(total_players)),
+                buy_in=1,
+                check_count=np.random.choice(range(total_players)),
+                raise_count=np.random.choice(range(total_players)),
                 chance_event=False
             )
+            if self.parent_nn is None:
+                end_game_stage = GameStage.Showdown
+            else:
+                end_game_stage = self.parent_nn.game_stage
 
-            self.resolver.resolve(state, self.parent_nn.game_stage, 1, 1)
+            self.resolver.p_range = p_range
+            self.resolver.o_range = o_range
+            self.resolver.resolve(state, end_game_stage, 1, 3)
 
             value_vector_p = self.resolver.p_range
             value_vector_o = self.resolver.o_range
@@ -135,11 +159,11 @@ class NeuralNetwork:
 
     def create_ranges(self, public_cards: List[Card]):
         new_range = np.random.rand(self.oracle.get_number_of_all_hole_pairs())
-        new_range /= new_range.sum()
         for i, pair in enumerate(self.oracle.hole_pairs):
             for card in public_cards:
                 if card in pair:
                     new_range[i] = 0
+        new_range /= new_range.sum()
         return new_range
 
     def ohe_cards(self, cards: List[Card]):
@@ -179,7 +203,8 @@ class NeuralNetwork:
         addition_layer = Add()([dot_product_p, dot_product_o])
 
         model = Model(
-            inputs=[input_p_range, input_o_range, input_public_cards, input_pot_size],
+            inputs=[input_p_range, input_o_range,
+                    input_public_cards, input_pot_size],
             outputs=[value_layer_p1, value_layer_p2, addition_layer],
         )
 
@@ -240,14 +265,14 @@ class NeuralNetwork:
             raise ValueError("Player hand distribution is NaN")
         if np.isnan(np.min(o_range)):
             raise ValueError("Opponent hand distribution is NaN")
-        
-        ### RANDOM VERSION
+
+        # RANDOM VERSION
         if self.random:
             p_random = np.random.rand(*p_range.shape)
             o_random = np.random.rand(*o_range.shape)
             return p_random, o_random
         else:
-            #### Cheap/Hard method
+            # Cheap/Hard method
             public_cards_ohe = self.ohe_cards(state.board_state.cards)
             predicted_p_values, predicted_o_values, predicted_addition_layer = (
                 self.model(
@@ -255,7 +280,7 @@ class NeuralNetwork:
                         np.array([p_range]),
                         np.array([o_range]),
                         np.array([public_cards_ohe]),
-                        np.array([np.array([state.board_state.pot])]),
+                        np.array([np.array([state.board_state.pot/(state.board_state.pot + state.board_state.highest_bet)])]),
                     ],
                 )
             )

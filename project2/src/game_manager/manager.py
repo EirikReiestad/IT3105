@@ -57,8 +57,8 @@ class GameManager:
 
         s = "Legal actions: "
         for action in legal_actions:
-            s += "{}: {}".format(legal_action_count, action)
-            actions[legal_action_count] = action
+            s += "{}: {} ".format(legal_action_count, action)
+            actions[str(legal_action_count)] = action
             legal_action_count += 1
         print(s)
 
@@ -71,7 +71,7 @@ class GameManager:
 
             if not action:
                 return get_input()
-            get_input()
+            return action
 
         return get_input()
 
@@ -175,6 +175,7 @@ class GameManager:
         """
         Runs the game, multiple rounds
         """
+        print("Running game")
         print(self._rules())
         while True:
             if self.players.get_number_of_non_bust_players() == 1:
@@ -292,27 +293,23 @@ class GameManager:
             else:
                 action: Action = self.get_player_action()
 
-            print("Player choose to {}".format(action))
+            print("Player {} {}".format(turn, action))
 
             if action == Action.Fold():
-                print(f"Player {turn} folded")
                 self.players.fold(turn)
                 if self.players.get_number_of_active_players() == 1:
                     return True, self.players.get_active_player()
                 continue
             elif action == Action.Check():
-                print(f"Player {turn} checked")
                 if not self.graphics:
                     print("Checked")
                 self.check_count += 1
             elif action == Action.Call():
-                print(f"Player {turn} called")
                 if not self.graphics:
                     print(f"Called {action.amount}")
                 self.make_bet(turn, Action.Call(action.amount))
                 self.check_count += 1
             elif action == Action.Raise():
-                print("Player raised")
                 self.make_bet(turn, Action.Raise(action.amount))
                 self.check_count = 1
                 self.raise_count += 1
@@ -334,7 +331,6 @@ class GameManager:
         -------
         bool: True if this is a preflop bet, False otherwise
         """
-        print("Preflop bets")
         player_bet: int = self.players.get_bet(turn)
         small_blind = (self.board.dealer + 1) % len(self.players)
         big_blind = (self.board.dealer + 2) % len(self.players)
@@ -343,7 +339,6 @@ class GameManager:
             print(f"turn {turn}, player_bet {player_bet}")
 
         if turn == small_blind and self.board.highest_bet == 0:
-            print("Small bind")
             # Small blind
             if not self.graphics:
                 print(
@@ -353,7 +348,6 @@ class GameManager:
             return True
 
         elif turn == big_blind and self.board.highest_bet == self.buy_in / 2:
-            print("Big Blind")
             # Big blind
             if not self.graphics:
                 print(

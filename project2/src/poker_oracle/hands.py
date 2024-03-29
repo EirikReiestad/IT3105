@@ -62,7 +62,6 @@ class HandsCheck:
     @staticmethod
     def is_royal_flush(cards):
         target_ranks = set([1, 10, 11, 12, 13])
-
         for combination in combinations(cards, 5):
             unique_suits = defaultdict(list)
             for card in combination:

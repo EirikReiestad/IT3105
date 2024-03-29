@@ -17,6 +17,11 @@ class Oracle:
         self.hole_pair_types = Oracle.generate_all_hole_pairs_types()
         self.hole_pairs = Oracle.generate_all_hole_pairs()
 
+        self._cache = {
+            "utility_matrix": None,
+            "public_cards": None
+        }
+
     @staticmethod
     def hand_classifier(cards: List[Card]) -> Tuple[Hands, List[Card]]:
         if not (5 <= len(cards) <= 7):
@@ -150,24 +155,25 @@ class Oracle:
             )
 
     def utility_matrix_generator(self, public_cards: List[Card]) -> np.ndarray:
+        
+        if self._cache['utility_matrix'] is not None and self._cache['public_cards'] == public_cards:
+            return self._cache['utility_matrix']
+
         matrix = np.zeros((len(self.hole_pairs), len(self.hole_pairs)))
 
         for i, hole_pair_i in enumerate(self.hole_pairs):
-            for j, hole_pair_j in enumerate(self.hole_pairs):
-                overlap = any(
-                    c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
+            for j, hole_pair_j in enumerate(self.hole_pairs[:i+1]):  # Half the loop
+                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in hole_pair_j)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(
-                    c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
+                overlap = any(c1 == c2 for c1 in hole_pair_i for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
 
-                overlap = any(
-                    c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
+                overlap = any(c1 == c2 for c1 in hole_pair_j for c2 in public_cards)
                 if overlap:
                     matrix[i][j] = 0
                     continue
@@ -175,10 +181,14 @@ class Oracle:
                 player_j_hole_pair = list(hole_pair_i) + public_cards
                 player_k_hole_pair = list(hole_pair_j) + public_cards
 
-                matrix[i][j] = Oracle.hand_evaluator(
-                    player_j_hole_pair, player_k_hole_pair
-                )
+                matrix[i][j] = Oracle.hand_evaluator(player_j_hole_pair, player_k_hole_pair)
 
+        for i in range(len(self.hole_pairs)):
+            for j in range(i+1, len(self.hole_pairs)):
+                matrix[i][j] = -matrix[j][i]
+
+        self._cache['utility_matrix'] = matrix
+        self._cache["public_cards"] = public_cards
         return matrix
 
     @ staticmethod

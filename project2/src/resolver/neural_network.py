@@ -275,7 +275,8 @@ class NeuralNetwork:
                         np.array([p_range]),
                         np.array([o_range]),
                         np.array([public_cards_ohe]),
-                        np.array([np.array([state.board_state.pot/(state.board_state.pot + state.board_state.highest_bet)])]),
+                        np.array([np.array(
+                            [state.board_state.pot/(state.board_state.pot + state.board_state.highest_bet)])]),
                     ],
                 )
             )

@@ -248,6 +248,6 @@ if __name__ == "__main__":
         Card(Suit.Spades, 11),
         Card(Suit.Spades, 10),
     ]
-    a, b=Oracle.hand_classifier(cards_one)
+    a, b = Oracle.hand_classifier(cards_one)
     print(a)
     print(len(b))

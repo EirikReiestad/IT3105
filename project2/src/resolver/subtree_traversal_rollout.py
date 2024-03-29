@@ -1,6 +1,6 @@
 import copy
 import numpy as np
-from typing import List, Tuple, Dict
+from typing import Tuple, Dict
 from src.game_state.game_state import PublicGameState
 from src.game_manager.game_stage import GameStage
 from .neural_network import NeuralNetwork
@@ -29,8 +29,7 @@ class SubtreeTraversalRollout:
             #     total_players, GameStage.Showdown, 5, None, 'Showdown')
             # self.networks[GameStage.River] = NeuralNetwork(
             #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River')
- 
- 
+
             self.networks[GameStage.River] = NeuralNetwork(
                 total_players, GameStage.River, 5, None, 'River')
             self.networks[GameStage.Turn] = NeuralNetwork(
@@ -39,13 +38,12 @@ class SubtreeTraversalRollout:
                 total_players, GameStage.Flop, 3, self.networks[GameStage.Turn], 'Flop')
             self.networks[GameStage.PreFlop] = NeuralNetwork(
                 total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
-            
+
             # # PRETRAINED NETWORK
             # self.networks[GameStage.Showdown] = NeuralNetwork(
             #     total_players, GameStage.Showdown, 5, None, 'Showdown', "models/Showdown.h5")
             # self.networks[GameStage.River] = NeuralNetwork(
             #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River', "models/River.h5")
-
 
             # self.networks[GameStage.River] = NeuralNetwork(
             #     total_players, GameStage.River, 5, None, 'River', "models/River.h5")
@@ -88,7 +86,7 @@ class SubtreeTraversalRollout:
         """
         p_values_for_all_act = []
         o_values_for_all_act = []
-        
+
         # logger.debug(
         #     "Subtree Traversal Rollout (depth = {})".format(node.depth))
         if node.state.game_stage == GameStage.Showdown:
@@ -180,24 +178,25 @@ class SubtreeTraversalRollout:
         p_values = normalize_and_cap(p_values)
         o_values = normalize_and_cap(o_values)
 
-        p_values_for_all_act = [normalize_and_cap(i) for i in p_values_for_all_act]
-        o_values_for_all_act = [normalize_and_cap(i) for i in o_values_for_all_act]
-        
-        return p_values, o_values, p_values_for_all_act, o_values_for_all_act
+        p_values_for_all_act = [normalize_and_cap(
+            i) for i in p_values_for_all_act]
+        o_values_for_all_act = [normalize_and_cap(
+            i) for i in o_values_for_all_act]
 
+        return p_values, o_values, p_values_for_all_act, o_values_for_all_act
 
 
 def normalize_and_cap(arr):
     # Replace negative values with 0
     capped_arr = np.maximum(arr, 0)
-    
+
     # Calculate the sum of capped values
     capped_sum = np.sum(capped_arr)
-    
+
     # Normalize the capped values (if sum is not 0)
     if capped_sum != 0:
         normalized_arr = capped_arr / capped_sum
     else:
         normalized_arr = capped_arr
-    
+
     return normalized_arr

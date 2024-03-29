@@ -1,9 +1,9 @@
-from typing import List
 import numpy as np
 import copy
 from typing import Dict
 from src.game_state.game_state import PublicGameState
 from src.poker_oracle.oracle import Oracle
+from src.poker_oracle.deck import Deck
 from src.game_manager.game_action import Action
 from src.game_manager.game_stage import GameStage
 from src.state_manager.manager import StateManager
@@ -16,14 +16,60 @@ logger = setup_logger()
 
 class Resolver:
     def __init__(self, total_players: int, networks: Dict = None):
-        amount_of_pairs = len(Oracle.generate_all_hole_pairs())
-        self.p_range: np.ndarray = np.full(
-            (amount_of_pairs,), 1 / amount_of_pairs)
-        self.o_range: np.ndarray = np.full(
-            (amount_of_pairs,), 1 / amount_of_pairs)
+        self.p_range, self.o_range = Resolver.init_ranges()
         # TODO: REMEMBER TO REMOVE UNCOMMENT
         self.str = SubtreeTraversalRollout(total_players, networks)
         self.count = 0
+
+    @staticmethod
+    def init_ranges(sample_rate: int = 1000) -> (np.ndarray, np.ndarray):
+        """
+        Parameters
+        ----------
+        Returns
+        -------
+        np.ndarray: The initial range for the player and the opponent
+        """
+        all_hole_pairs = Oracle.generate_all_hole_pairs(shuffle=True)
+        amount_of_pairs = len(all_hole_pairs)
+        p_range = np.zeros((amount_of_pairs,))
+        o_range = np.zeros((amount_of_pairs,))
+
+        for i in range(sample_rate):
+            if len(all_hole_pairs) < 2:
+                all_hole_pairs = Oracle.generate_all_hole_pairs()
+
+            p_random = np.random.randint(0, len(all_hole_pairs))
+            player_hole_pair = all_hole_pairs.pop(p_random)
+
+            o_random = np.random.randint(0, len(all_hole_pairs))
+            opponent_hole_pair = all_hole_pairs.pop(o_random)
+
+            deck = Deck()
+
+            for card in player_hole_pair:
+                deck.remove(card)
+            for card in opponent_hole_pair:
+                deck.remove(card)
+
+            public_cards = [deck.pop() for _ in range(5)]
+
+            p_cards = [card for card in public_cards] + \
+                [card for card in player_hole_pair]
+            o_cards = [card for card in public_cards] + \
+                [card for card in opponent_hole_pair]
+
+            winner = Oracle.hand_evaluator(p_cards, o_cards)
+
+            if winner == 1:
+                p_range[p_random] += 1
+            elif winner == -1:
+                o_range[o_random + 1] += 1
+
+        p_range = p_range / np.sum(p_range)
+        o_range = o_range / np.sum(o_range)
+
+        return p_range, o_range
 
     @staticmethod
     def bayesian_range_update(
@@ -66,7 +112,7 @@ class Resolver:
 
         if np.isnan(np.min(updated_prob)):
             raise ValueError("Updated hand distribution is NaN")
-        
+
         updated_prob = updated_prob / sum(updated_prob)
 
         return updated_prob
@@ -127,7 +173,6 @@ class Resolver:
         -------
         np.ndarray: The current strategy matrix for the node
         """
-
 
         if not isinstance(node, Node):
             raise ValueError("Node is not an instance of Node")
@@ -239,12 +284,15 @@ class Resolver:
 
         state_manager = StateManager(copy.deepcopy(state))
         all_actions = state_manager.get_legal_actions()
-        
+
         # ▷ Generate the Average Strategy over all rollouts
         sigmas = np.array(sigmas)
         sigma_flat = np.mean(sigmas, axis=0)
         # ▷ Sample an action based on the average strategy
         action = self.sample_action_average_strategy(sigma_flat, all_actions)
+
+        import time
+        time.sleep(3)
         # ▷ r1(a∗) is presumed normalized.
 
         p_range_action = Resolver.bayesian_range_update(

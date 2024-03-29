@@ -25,12 +25,6 @@ class SubtreeTraversalRollout:
         if not networks:
             self.networks = {}
 
-            # self.networks[GameStage.Showdown] = NeuralNetwork(
-            #     total_players, GameStage.Showdown, 5, None, 'Showdown')
-            # self.networks[GameStage.River] = NeuralNetwork(
-            #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River')
- 
- 
             self.networks[GameStage.River] = NeuralNetwork(
                 total_players, GameStage.River, 5, None, 'River')
             self.networks[GameStage.Turn] = NeuralNetwork(
@@ -41,12 +35,6 @@ class SubtreeTraversalRollout:
                 total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop')
             
             # # PRETRAINED NETWORK
-            # self.networks[GameStage.Showdown] = NeuralNetwork(
-            #     total_players, GameStage.Showdown, 5, None, 'Showdown', "models/Showdown.h5")
-            # self.networks[GameStage.River] = NeuralNetwork(
-            #     total_players, GameStage.River, 5, self.networks[GameStage.Showdown], 'River', "models/River.h5")
-
-
             # self.networks[GameStage.River] = NeuralNetwork(
             #     total_players, GameStage.River, 5, None, 'River', "models/River.h5")
             # self.networks[GameStage.Turn] = NeuralNetwork(
@@ -57,6 +45,9 @@ class SubtreeTraversalRollout:
             #     total_players, GameStage.PreFlop, 0, self.networks[GameStage.Flop], 'Preflop', "models/Preflop.h5")
         else:
             self.networks = networks
+
+        # TODO: FIX what put here?
+        self.average_pot_size = 10
         self.oracle = Oracle()
 
     def subtree_traversal_rollout(
@@ -95,8 +86,8 @@ class SubtreeTraversalRollout:
             # logger.debug("Showdown")
             utility_matrix = self.oracle.utility_matrix_generator(
                 node.state.board_state.cards)
-            p_values = np.dot(utility_matrix, o_range.T)
-            o_values = np.dot(-p_values, utility_matrix)
+            p_values = node.state.board_state.pot  / self.average_pot_size *np.dot(utility_matrix, o_range.T)
+            o_values = node.state.board_state.pot  / self.average_pot_size * np.dot(-p_values, utility_matrix)
         elif (node.state.game_stage == end_stage or node.depth >= end_depth) and node.state.game_stage in self.networks:
             # logger.debug("End stage or depth")
             # TODO: Just return some simple heuristic for now
@@ -177,27 +168,24 @@ class SubtreeTraversalRollout:
                     p_values[pair_idx] += p_range_event[pair_idx] / len(events)
                     o_values[pair_idx] += o_range_event[pair_idx] / len(events)
 
-        p_values = normalize_and_cap(p_values)
-        o_values = normalize_and_cap(o_values)
+        p_values = normalize(p_values)
+        o_values = normalize(o_values)
 
-        p_values_for_all_act = [normalize_and_cap(i) for i in p_values_for_all_act]
-        o_values_for_all_act = [normalize_and_cap(i) for i in o_values_for_all_act]
+        p_values_for_all_act = [normalize(i) for i in p_values_for_all_act]
+        o_values_for_all_act = [normalize(i) for i in o_values_for_all_act]
         
         return p_values, o_values, p_values_for_all_act, o_values_for_all_act
 
 
 
-def normalize_and_cap(arr):
-    # Replace negative values with 0
-    capped_arr = np.maximum(arr, 0)
-    
+def normalize(arr):
     # Calculate the sum of capped values
-    capped_sum = np.sum(capped_arr)
+    arr_sum = np.sum(arr)
     
     # Normalize the capped values (if sum is not 0)
-    if capped_sum != 0:
-        normalized_arr = capped_arr / capped_sum
+    if arr_sum != 0:
+        normalized_arr = arr / arr_sum
     else:
-        normalized_arr = capped_arr
+        normalized_arr = arr
     
     return normalized_arr

@@ -32,8 +32,8 @@ class NeuralNetwork:
         if public_cards_size == 0:
             self.random = True
         else:
-            self.random = True
-            return
+            # self.random = True
+            # return
             self.random = False
 
             if parent_nn is None:
@@ -41,10 +41,10 @@ class NeuralNetwork:
             else:
                 end_state = parent_nn.game_stage
 
-            networks = {
+            self.networks = {
                 end_state: parent_nn
             }
-            self.resolver = resolver.Resolver(total_players, networks)
+            self.resolver = resolver.Resolver(total_players, self.networks)
 
             if model_path is not None and os.path.exists(model_path):
                 self.model = tf.keras.models.load_model(model_path)
@@ -89,7 +89,7 @@ class NeuralNetwork:
             p_range = self.create_ranges(public_cards)
             o_range = self.create_ranges(public_cards)
             # Random current bet og pot size idk om det e riktig
-            pot_size = np.random.randint(10, 101)
+            pot_size = np.random.randint(10, 30)
             current_bet = np.random.randint(1, 11)
             relative_pot = np.array(pot_size / (pot_size + current_bet))
 
@@ -110,28 +110,33 @@ class NeuralNetwork:
 
             for _ in range(total_players):
                 player = PublicPlayerState(
-                    np.random.randint(1, 101),
+                    np.random.randint(current_bet, 101),
                     False,
                     False,
-                    np.random.randint(1, current_bet+1)
+                    np.random.randint(current_bet-1, current_bet+1)
                 )
                 players.append(player)
+
+            players[np.random.choice(range(total_players))].round_bet = current_bet
 
             state = PublicGameState(
                 player_states=players,
                 board_state=public_board_state,
                 game_stage=self.game_stage,
                 current_player_index=np.random.choice(range(total_players)),
-                buy_in=0,
-                check_count=np.random.choice(range(total_players+1)),
-                raise_count=np.random.choice(range(total_players+1)),
+                buy_in=1,
+                check_count=np.random.choice(range(total_players)),
+                raise_count=np.random.choice(range(total_players)),
                 chance_event=False
             )
             if self.parent_nn is None:
                 end_game_stage = GameStage.Showdown
             else:
                 end_game_stage = self.parent_nn.game_stage
-            self.resolver.resolve(state, end_game_stage, 1, 1)
+
+            self.resolver.p_range = p_range
+            self.resolver.o_range = o_range
+            self.resolver.resolve(state, end_game_stage, 1, 3)
 
             value_vector_p = self.resolver.p_range
             value_vector_o = self.resolver.o_range

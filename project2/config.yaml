@@ -1,5 +1,6 @@
 simplify: true
-training_cases: 1000
-epochs: 100
-batch_size: 128
-alpha: 0.3
+training_cases: 100
+epochs: 50
+
+batch_size: 1
+alpha: 1.0

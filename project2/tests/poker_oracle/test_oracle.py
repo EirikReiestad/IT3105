@@ -16,7 +16,7 @@ class TestOracle(unittest.TestCase):
             self.assertEqual(len(pairs), 1326)
 
     def test_generate_all_hole_pairs_types(self):
-        pairs = Oracle.generate_all_hole_pairs_types()
+        pairs, idx = Oracle.generate_all_hole_pairs_types()
         self.assertEqual(len(pairs), 169)
 
     def test_hand_classifier_royal_flush(self):

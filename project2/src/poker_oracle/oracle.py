@@ -7,20 +7,28 @@ from typing import List, Tuple
 import os
 import sys
 
+from enum import Enum
+
 module_path = os.path.abspath(os.path.join("./"))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
+class HoleType(Enum):
+    SameRank = 0
+    Unsuited = 1
+    Suited = 2
 
 class Oracle:
-    def __init__(self):
-        self.hole_pair_types = Oracle.generate_all_hole_pairs_types()
+    def __init__(self, num_players=None):
+        self.hole_pair_types, self.hole_pair_types_idx  = Oracle.generate_all_hole_pairs_types()
         self.hole_pairs = Oracle.generate_all_hole_pairs()
 
         self._cache = {
             "utility_matrix": None,
             "public_cards": None
         }
+        if num_players is not None:
+            self.cheat_sheet = self.cheat_sheet_generator(num_players-1, 100)
 
     @staticmethod
     def hand_classifier(cards: List[Card]) -> Tuple[Hands, List[Card]]:
@@ -124,7 +132,6 @@ class Oracle:
                 public_cards.copy() if public_cards else [
                     deck.pop() for _ in range(5)]
             )
-
             player_hole_pair = hole_pair + cloned_public_cards
 
             for j in player_hole_pair:
@@ -144,6 +151,29 @@ class Oracle:
         probability = win_count / rollout_count
         return probability
 
+    def cheat_sheet_to_hole_pair(self):
+        table = []
+
+        for cards in self.hole_pairs:
+            curr_type = None
+            if cards[0].rank == cards[1].rank:
+                curr_type = HoleType.SameRank
+            elif cards[0].suit == cards[1].suit:
+                curr_type = HoleType.Suited
+            else:
+                curr_type = HoleType.Unsuited
+
+            curr_val = None
+            for i, types in enumerate(self.hole_pair_types_idx):
+                if types["type"] == curr_type and set(types['ranks']) == set([cards[0].rank, cards[1].rank]):
+                    curr_val = self.cheat_sheet[i]
+                    break
+            if curr_val is None:
+                raise ValueError(cards)
+            table.append(curr_val)
+
+        return table
+
     def cheat_sheet_generator(self, num_opponents: int, rollout_count: int) -> None:
         table = []
         public_cards = []
@@ -153,6 +183,7 @@ class Oracle:
                     hole_pair_type, public_cards, num_opponents, rollout_count
                 )
             )
+        return table
 
     def utility_matrix_generator(self, public_cards: List[Card]) -> np.ndarray:
         
@@ -202,27 +233,47 @@ class Oracle:
     @ staticmethod
     def generate_all_hole_pairs_types() -> List[List[Card]]:
         pair_of_ranks = []
-        for i in range(13):
+        idx = []
+        for i in range(1, 14):
             range_vector = []
             for j in [Suit.Spades, Suit.Hearts]:
                 card = Card(j, i)
                 range_vector.append(card)
             pair_of_ranks.append(range_vector)
+            idx.append({
+                "type": HoleType.SameRank,
+                "ranks": [i]
+            })
 
         suits = [Suit.Clubs, Suit.Spades]
-        suited_pairs = []
-        for pair in combinations(range(13), 2):
-            suited_pairs.append(
-                [Card(suits[value % len(suits)], value) for value in pair]
+        unsuited_pairs = []
+        for pair in combinations(range(1,14), 2):
+            unsuited_pairs.append(
+                [Card(suits[i % len(suits)], value) for i, value in enumerate(pair)]
             )
-        unsuited_pairs = [
+
+            idx.append({
+                "type": HoleType.Unsuited,
+                "ranks": list(pair)
+            })
+        
+        curr_comb = combinations(range(1,14), 2)
+
+        suited_pairs = [
             [Card(suits[0], value) for value in pair]
-            for pair in combinations(range(13), 2)
+            for pair in curr_comb
         ]
+        
+        for pair in combinations(range(1,14), 2):
+            idx.append({
+                "type": HoleType.Suited,
+                "ranks": list(pair)
+            })
 
         pair_of_ranks.extend(suited_pairs)
         pair_of_ranks.extend(unsuited_pairs)
-        return pair_of_ranks
+        
+        return pair_of_ranks, idx
 
 
 if __name__ == "__main__":

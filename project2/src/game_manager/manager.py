@@ -80,7 +80,7 @@ class GameManager:
         # game_stage = copy.deepcopy(self.game_stage)
         # end_stage = game_stage.next_stage()
         end_stage = self.game_stage.next_stage()
-        end_depth = 3
+        end_depth = 5
         num_rollouts = 1
 
         # Only run the resolve x amount of times

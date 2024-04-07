@@ -59,7 +59,7 @@ class SubtreeTraversalRollout:
 
         # TODO: FIX what put here?
         self.average_pot_size = 10
-        self.oracle = Oracle()
+        self.oracle = Oracle(num_players=total_players)
 
     def subtree_traversal_rollout(
         self,

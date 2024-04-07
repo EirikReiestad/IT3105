@@ -26,7 +26,7 @@ class NeuralNetwork:
                  verbose=True):
         self.game_stage = game_stage
         self.parent_nn = parent_nn
-        self.oracle = Oracle()
+        self.oracle = Oracle(total_players)
         self.deck = Deck(shuffle=False)
 
         if public_cards_size == 0:
@@ -268,8 +268,10 @@ class NeuralNetwork:
 
         # RANDOM VERSION
         if self.random:
-            p_random = np.random.rand(*p_range.shape)
-            o_random = np.random.rand(*o_range.shape)
+            # p_random = np.random.rand(*p_range.shape)
+            # o_random = np.random.rand(*o_range.shape)
+            p_random = self.oracle.cheat_sheet_to_hole_pair()
+            o_random = self.oracle.cheat_sheet_to_hole_pair()
             return p_random, o_random
         else:
             # Cheap/Hard method

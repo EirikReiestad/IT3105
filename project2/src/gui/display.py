@@ -5,6 +5,9 @@ from src.game_state.board_state import PrivateBoardState
 from src.game_state.player_state import PrivatePlayerState
 from src.game_manager.game_stage import GameStage
 from .card import CardSprite
+from src.config import Config
+
+config = Config()
 
 
 class Display:
@@ -91,7 +94,10 @@ class Display:
             for j, card in enumerate(player.cards):
                 x = player_width * i + (width + margin) * j
                 y = self.occupied_y + 70
-                card_sprite = CardSprite(card, x, y, width, height)
+                card_path = "black_joker.png"
+                if not config.data['show_cards'] and self.current_player_index == i and not player.ai:
+                    card_path = card.to_png_str()
+                card_sprite = CardSprite(card_path, x, y, width, height)
                 card_height = y
                 self.draw(card_sprite)
         self.occupied_y += card_height + 30
@@ -108,7 +114,8 @@ class Display:
         for i, card in enumerate(self.board_state.cards):
             x = i * (width + margin)
             y = self.occupied_y
-            card_sprite = CardSprite(card, x, y, width, height)
+            card_path = card.to_png_str()
+            card_sprite = CardSprite(card_path, x, y, width, height)
             self.draw(card_sprite)
 
 

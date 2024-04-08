@@ -1,11 +1,10 @@
 import pygame as pg
-from src.poker_oracle.deck import Card
 
 
 class CardSprite(pg.sprite.Sprite):
-    def __init__(self, card: Card, x: int, y: int, width: int = 100, height: int = 150):
+    def __init__(self, card_path: str, x: int, y: int, width: int = 100, height: int = 150):
         super().__init__()
-        src = "static/images/" + card.to_png_str()
+        src = "static/images/" + card_path
         self.image = pg.image.load(src)
         self.image = pg.transform.scale(self.image, (width, height))
         self.rect = self.image.get_rect()

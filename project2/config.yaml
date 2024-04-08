@@ -4,3 +4,5 @@ epochs: 50
 
 batch_size: 1
 alpha: 1.0
+
+show_cards: false

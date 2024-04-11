@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import numpy as np
 from typing import Tuple, List, Optional
 from src.game_state.game_state import PublicGameState, PublicBoardState, PublicPlayerState
@@ -7,6 +8,7 @@ from src.poker_oracle.deck import Card, Deck
 from src.poker_oracle.oracle import Oracle
 from . import resolver
 from src.config import Config
+import matplotlib.pyplot as plt
 
 import tensorflow as tf
 from tensorflow.keras.models import Model
@@ -28,6 +30,8 @@ class NeuralNetwork:
         self.parent_nn = parent_nn
         self.oracle = Oracle()
         self.deck = Deck(shuffle=False)
+
+        self.model_name = model_name
 
         if public_cards_size == 0:
             self.random = True
@@ -51,11 +55,16 @@ class NeuralNetwork:
             else:
                 if verbose:
                     print(f"Training model for {game_stage} stage")
-                training_data = self.create_training_data(
-                    config.data['training_cases'], total_players, public_cards_size)
-                training_data["train_relative_pot"] = training_data[
-                    "train_relative_pot"
-                ].reshape(-1, 1)
+                if os.path.exists(f"models/{model_name}_training_data.csv"):
+                    training_data = self.load_training_data(
+                        f"models/{model_name}_training_data.csv")
+                else:
+                    training_data = self.create_training_data(
+                        config.data['training_cases'], total_players, public_cards_size)
+                    training_data["train_relative_pot"] = training_data[
+                        "train_relative_pot"
+                    ].reshape(-1, 1)
+                print(training_data)
                 self.model = self.create_model(
                     len(training_data["train_p_ranges"][0]))
                 self.train(
@@ -74,6 +83,11 @@ class NeuralNetwork:
                     config.data['batch_size'],
                 )
                 self.model.save(f"models/{model_name}.h5")
+
+    def load_training_data(self, path: str):
+        df = pd.read_csv(path, header=1, index_col=0)
+        df = df.to_dict()
+        return df
 
     def create_training_data(self, n: int, total_players: int, public_cards_size: int):
         train_p_ranges = []
@@ -117,7 +131,8 @@ class NeuralNetwork:
                 )
                 players.append(player)
 
-            players[np.random.choice(range(total_players))].round_bet = current_bet
+            players[np.random.choice(range(total_players))
+                    ].round_bet = current_bet
 
             state = PublicGameState(
                 player_states=players,
@@ -147,6 +162,15 @@ class NeuralNetwork:
             train_relative_pot.append(relative_pot)
             target_value_vector_p.append(value_vector_p)
             target_value_vector_o.append(value_vector_o)
+
+        pd.DataFrame({
+            "train_p_ranges": train_p_ranges,
+            "train_o_ranges": train_o_ranges,
+            "train_public_cards": train_public_cards,
+            "train_relative_pot": train_relative_pot,
+            "target_value_vector_p": target_value_vector_p,
+            "target_value_vector_o": target_value_vector_o,
+        }).to_csv(f"models/{self.model_name}_training_data.csv")
 
         return {
             "train_p_ranges": np.array(train_p_ranges),
@@ -228,7 +252,7 @@ class NeuralNetwork:
         # TODO:
         # additional_layer_target = 0 for all? where to find size tho
 
-        self.model.fit(
+        history = self.model.fit(
             x=[
                 p_range_train,
                 o_range_train,
@@ -239,6 +263,10 @@ class NeuralNetwork:
             epochs=epochs,
             batch_size=batch_size,
         )
+
+        plt.plot(history.history["loss"])
+        plt.savefig("loss.png")
+        plt.show()
 
     def run(
         self,
@@ -280,7 +308,8 @@ class NeuralNetwork:
                         np.array([p_range]),
                         np.array([o_range]),
                         np.array([public_cards_ohe]),
-                        np.array([np.array([state.board_state.pot/(state.board_state.pot + state.board_state.highest_bet)])]),
+                        np.array([np.array(
+                            [state.board_state.pot/(state.board_state.pot + state.board_state.highest_bet)])]),
                     ],
                 )
             )

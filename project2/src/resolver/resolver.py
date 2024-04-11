@@ -17,7 +17,7 @@ logger = setup_logger()
 class Resolver:
     def __init__(self, total_players: int, networks: Dict = None):
         amount_of_pairs = len(Oracle.generate_all_hole_pairs())
-        self.p_range : np.ndarray = np.random.rand(amount_of_pairs)
+        self.p_range: np.ndarray = np.random.rand(amount_of_pairs)
         self.o_range: np.ndarray = np.random.rand(amount_of_pairs)
         # TODO: REMEMBER TO REMOVE UNCOMMENT
         self.str = SubtreeTraversalRollout(total_players, networks)
@@ -64,7 +64,7 @@ class Resolver:
 
         if np.isnan(np.min(updated_prob)):
             raise ValueError("Updated hand distribution is NaN")
-        
+
         updated_prob = updated_prob / sum(updated_prob)
 
         return updated_prob
@@ -84,7 +84,7 @@ class Resolver:
         # Compute the sum of probabilities across columns
 
         action_probabilities = np.sum(sigma_flat, axis=0)
-        print(action_probabilities)
+        # print(action_probabilities)
 
         # Normalize probabilities to ensure they sum up to 1
         action_probabilities /= np.sum(action_probabilities)
@@ -99,7 +99,7 @@ class Resolver:
 
         # Randomly select one of the actions with the maximum probability
         selected_action = np.random.choice(max_indices)
-        
+
         return all_actions[selected_action]
         # Find the maximum value in action_probabilities
         # return all_actions[np.argmax(action_probabilities)]
@@ -135,7 +135,6 @@ class Resolver:
         -------
         np.ndarray: The current strategy matrix for the node
         """
-
 
         if not isinstance(node, Node):
             raise ValueError("Node is not an instance of Node")
@@ -246,7 +245,7 @@ class Resolver:
 
         state_manager = StateManager(copy.deepcopy(state))
         all_actions = state_manager.get_legal_actions()
-        
+
         # ▷ Generate the Average Strategy over all rollouts
         sigmas = np.array(sigmas)
         sigma_flat = np.mean(sigmas, axis=0)

@@ -16,6 +16,8 @@ from tensorflow.keras.layers import Input, Dense, Dot, Add, Concatenate, Permute
 
 config = Config()
 
+model_names = []
+
 
 class NeuralNetwork:
     def __init__(self,
@@ -32,7 +34,6 @@ class NeuralNetwork:
         self.deck = Deck(shuffle=False)
 
         self.model_name = model_name
-        self.model_names = [] # for saving models
 
         if public_cards_size == 0:
             self.random = True
@@ -284,13 +285,13 @@ class NeuralNetwork:
             batch_size=batch_size,
         )
 
-        self.model_names.append(self.model_name)
+        model_names.append(self.model_name)
 
         plt.plot(history.history["loss"])
         plt.title("Model loss")
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
-        plt.legend(self.model_names)
+        plt.legend(model_names)
         plt.savefig(f"images/model_loss.png")
 
     def run(

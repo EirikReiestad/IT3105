@@ -1,5 +1,5 @@
 import os
-import pandas as pd
+import json
 import numpy as np
 from typing import Tuple, List, Optional
 from src.game_state.game_state import PublicGameState, PublicBoardState, PublicPlayerState
@@ -55,27 +55,22 @@ class NeuralNetwork:
             else:
                 if verbose:
                     print(f"Training model for {game_stage} stage")
-                if os.path.exists(f"models/{model_name}_training_data.csv"):
+                if os.path.exists(f"models/{model_name}_training_data.json"):
                     training_data = self.load_training_data(
-                        f"models/{model_name}_training_data.csv")
+                        f"models/{model_name}_training_data.json")
                 else:
                     training_data = self.create_training_data(
                         config.data['training_cases'], total_players, public_cards_size)
-                    training_data["train_relative_pot"] = training_data[
-                        "train_relative_pot"
-                    ].reshape(-1, 1)
-                print(training_data)
+
+                training_data["train_relative_pot"] = training_data["train_relative_pot"].reshape(-1, 1)
+                    
                 self.model = self.create_model(
                     len(training_data["train_p_ranges"][0]))
+
                 self.train(
                     training_data["train_p_ranges"],
                     training_data["train_o_ranges"],
-                    np.array(
-                        [
-                            self.ohe_cards(public_cards)
-                            for public_cards in training_data["train_public_cards"]
-                        ]
-                    ),
+                    training_data["train_public_cards"],
                     training_data["train_relative_pot"],
                     training_data["target_value_vector_p"],
                     training_data["target_value_vector_o"],
@@ -85,9 +80,19 @@ class NeuralNetwork:
                 self.model.save(f"models/{model_name}.h5")
 
     def load_training_data(self, path: str):
-        df = pd.read_csv(path, header=1, index_col=0)
-        df = df.to_dict()
-        return df
+        with open(path, 'r') as infile:
+            data = infile.read()
+
+        data = json.loads(data)
+
+        return {
+                "train_p_ranges": np.array(data["train_p_ranges"]),
+                "train_o_ranges": np.array(data["train_o_ranges"]),
+                "train_public_cards": np.array(data["train_public_cards"]),
+                "train_relative_pot": np.array(data["train_relative_pot"]),
+                "target_value_vector_p": np.array(data["target_value_vector_p"]),
+                "target_value_vector_o": np.array(data["target_value_vector_o"]),
+        }
 
     def create_training_data(self, n: int, total_players: int, public_cards_size: int):
         train_p_ranges = []
@@ -163,14 +168,27 @@ class NeuralNetwork:
             target_value_vector_p.append(value_vector_p)
             target_value_vector_o.append(value_vector_o)
 
-        pd.DataFrame({
+        train_public_cards = [self.ohe_cards(cards) for cards in train_public_cards]
+
+        train_p_ranges = [value.tolist() for value in train_p_ranges]
+        train_o_ranges = [value.tolist() for value in train_o_ranges]
+        train_public_cards = [value.tolist() for value in train_public_cards]
+        train_relative_pot = [value.tolist() for value in train_relative_pot]
+        target_value_vector_p = [value.tolist() for value in target_value_vector_p]
+        target_value_vector_o = [value.tolist() for value in target_value_vector_o]
+
+        data = {
             "train_p_ranges": train_p_ranges,
             "train_o_ranges": train_o_ranges,
             "train_public_cards": train_public_cards,
             "train_relative_pot": train_relative_pot,
             "target_value_vector_p": target_value_vector_p,
             "target_value_vector_o": target_value_vector_o,
-        }).to_csv(f"models/{self.model_name}_training_data.csv")
+        }
+        json_data = json.dumps(data, indent=4)
+
+        with open(f"models/{self.model_name}_training_data.json", 'w') as outfile:
+            outfile.write(json_data)
 
         return {
             "train_p_ranges": np.array(train_p_ranges),
@@ -191,6 +209,7 @@ class NeuralNetwork:
         return new_range
 
     def ohe_cards(self, cards: List[Card]):
+        assert type(cards) == list or type(cards) == np.ndarray, f"Cards must be a list, not {type(cards)}."
         val = np.zeros(len(self.deck.stack))
         for card in cards:
             try:
